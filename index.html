@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M.NAJM | Extreme Ultimate Controller</title>
+    <title>M.NAJM | Dual-Screen Bot Architect</title>
     <style>
         :root {
             --neon-blue: #00D1FF;
@@ -12,364 +12,240 @@
             --glass: rgba(255, 255, 255, 0.03);
             --border: rgba(255, 255, 255, 0.08);
             --success: #00E676;
-            --danger: #FF1744;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg); color: #ffffff; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
         
-        body {
-            background-color: var(--bg);
-            color: #ffffff;
-            padding: 30px 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .super-panel {
-            background: var(--glass);
-            border: 1px solid var(--border);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border-radius: 24px;
-            padding: 35px;
-            width: 100%;
-            max-width: 650px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 20px;
-        }
-
-        .header h1 {
-            font-size: 26px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* مؤشر حالة السيرفر والاتصال بالقاعدة */
-        .status-bar {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 20px;
-            border-radius: 30px;
-            font-size: 13px;
-            font-weight: bold;
-            margin-top: 15px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--border);
-        }
-        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+        .main-wrapper { width: 100%; max-width: 700px; }
         
-        .online { color: var(--success); border-color: rgba(0, 230, 118, 0.3); }
-        .online .dot { background: var(--success); box-shadow: 0 0 12px var(--success); }
-        .offline { color: var(--danger); border-color: rgba(255, 23, 68, 0.3); }
-        .offline .dot { background: var(--danger); box-shadow: 0 0 12px var(--danger); }
+        /* أزرار التنقل بين الشاشتين */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); color: #aaa; border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .tab-btn.active { background: linear-gradient(135deg, var(--neon-purple), #4c1dd1); color: #fff; border: none; box-shadow: 0 0 15px var(--neon-purple); }
 
-        .section-title {
-            font-size: 16px;
-            color: var(--neon-blue);
-            margin: 25px 0 15px 0;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .screen { background: var(--glass); border: 1px solid var(--border); backdrop-filter: blur(25px); border-radius: 24px; padding: 30px; box-shadow: 0 25px 50px rgba(0,0,0,0.6); display: none; }
+        .screen.active { display: block; }
 
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
+        .header h1 { font-size: 22px; font-weight: 800; background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; margin-bottom: 20px; }
+        
+        .section-title { font-size: 15px; color: var(--neon-blue); margin: 20px 0 10px 0; font-weight: 700; border-right: 3px solid var(--neon-purple); padding-right: 8px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-group { margin-bottom: 15px; text-align: right; }
+        .form-group.full { grid-column: span 2; }
+        label { display: block; font-size: 13px; color: #C8C8D0; margin-bottom: 6px; }
+        input, select, textarea { width: 100%; background: #111116; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; outline: none; font-size: 14px; }
+        input:focus, select:focus { border-color: var(--neon-blue); }
+        
+        .btn-action { background: linear-gradient(135deg, var(--neon-blue), #0099ff); color: #000; border: none; padding: 14px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; transition: 0.3s; }
+        .btn-action:hover { box-shadow: 0 0 15px var(--neon-blue); }
 
-        .form-group {
-            margin-bottom: 18px;
-            text-align: right;
-        }
-
-        .form-group.full-width {
-            grid-column: span 2;
-        }
-
-        label {
-            display: block;
-            font-size: 13px;
-            color: #C8C8D0;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            background: #111116;
-            border: 1px solid var(--border);
-            color: #fff;
-            padding: 12px 16px;
-            border-radius: 12px;
-            outline: none;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 10px rgba(0, 209, 255, 0.1);
-        }
-
-        /* تنسيق مخصص لزر الرفع الظاهري للوجو */
-        .file-label {
-            display: block;
-            text-align: center;
-            background: rgba(255,255,255,0.02);
-            border: 1px dashed rgba(255,255,255,0.15);
-            padding: 12px;
-            border-radius: 12px;
-            cursor: pointer;
-            color: #A1A1AA;
-            font-size: 13px;
-        }
-        .file-label:hover { border-color: var(--neon-blue); color: #fff; }
-
-        /* الأزرار الاحترافية */
-        .btn-container {
-            margin-top: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .btn-main {
-            background: linear-gradient(135deg, var(--neon-purple), #531bdf);
-            color: #ffffff;
-            border: none;
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 20px rgba(108, 43, 255, 0.4);
-        }
-
-        .btn-main:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(108, 43, 255, 0.6);
-        }
-
-        .btn-danger {
-            background: rgba(255, 23, 68, 0.05);
-            color: var(--danger);
-            border: 1px solid rgba(255, 23, 68, 0.2);
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn-danger:hover {
-            background: rgba(255, 23, 68, 0.15);
-            border-color: var(--danger);
-        }
+        /* تنسيق شاشة كود الـ Node.js */
+        pre { background: #050508; border: 1px solid var(--border); padding: 15px; border-radius: 12px; overflow-x: auto; font-family: 'Courier New', Courier, monospace; font-size: 13px; color: #00E676; text-align: left; direction: ltr; max-height: 400px; }
+        .copy-btn { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); padding: 8px 15px; border-radius: 8px; cursor: pointer; margin-bottom: 10px; font-size: 12px; }
+        .copy-btn:hover { background: var(--neon-purple); }
     </style>
 </head>
 <body>
 
-    <div class="super-panel">
-        <div class="header">
-            <h1>التحكم المطلق والمزامنة الفورية ⚙️</h1>
+    <div class="main-wrapper">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchScreen('control-screen', this)">🖥️ شاشة التحكم والمزامنة</button>
+            <button class="tab-btn" onclick="switchScreen('node-screen', this)">💻 شاشة كود Node.js الخلفي</button>
+        </div>
+
+        <div id="control-screen" class="screen active">
+            <div class="header">
+                <h1>لوحة إدارة المنظومة الذكية والمخزن</h1>
+            </div>
+
+            <div class="section-title">🔑 مفاتيح ومحرك الذكاء الاصطناعي</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>المحرك النشط:</label>
+                    <select id="ai-engine">
+                        <option value="gemini">Google Gemini Pro</option>
+                        <option value="openai">OpenAI ChatGPT</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>مفتاح الـ API يدوياً (API Key):</label>
+                    <input type="password" id="api-key" placeholder="أدخل مفتاح الـ AI هنا">
+                </div>
+            </div>
+
+            <div class="section-title">🤖 التحكم بهوية وبث البوت</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>اسم البوت الحالي:</label>
+                    <input type="text" id="bot-name" placeholder="تغيير اسم البوت">
+                </div>
+                <div class="form-group">
+                    <label>رابط لوجو البوت / المنتج:</label>
+                    <input type="text" id="bot-logo-url" placeholder="ضع رابط الصورة">
+                </div>
+                <div class="form-group full">
+                    <label>إرسال رسالة بث جماعي (Broadcast):</label>
+                    <textarea id="broadcast-msg" rows="2" placeholder="اكتب نص الرسالة التي سيرسلها البوت..."></textarea>
+                </div>
+            </div>
+
+            <div class="section-title">📦 إدارة الخدمات والـ ERP</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>إضافة منتج/خدمة:</label>
+                    <input type="text" id="service-name" placeholder="اسم الخدمة">
+                </div>
+                <div class="form-group">
+                    <label>السعر:</label>
+                    <input type="number" id="service-price" placeholder="السعر">
+                </div>
+            </div>
+
+            <button class="btn-action" onclick="saveToFirebase()">حفظ التكوين والمزامنة مع Firebase 🚀</button>
+        </div>
+
+        <div id="node-screen" class="screen">
+            <div class="header">
+                <h1>محرك الـ Backend (كود السيرفر المستقل)</h1>
+                <p style="font-size: 13px; color: #aaa; margin-bottom: 15px; text-align: center;">انسخ هذا الكود بالكامل وضعه في ملف باسم <code>server.js</code> على أي استضافة سحابية لتشغيل البوت بذكاء.</p>
+            </div>
+
+            <button class="copy-btn" onclick="copyCode()">📋 نسخ الكود بالكامل</button>
             
-            <div id="status-badge" class="status-bar offline">
-                <span class="dot"></span>
-                <span id="status-text">جاري مزامنة قاعدة البيانات...</span>
-            </div>
-        </div>
+            <pre id="node-code">
+const TelegramBot = require('node-telegram-bot-api');
+const admin = require('firebase-admin');
+const axios = require('axios');
 
-        <div class="section-title">🧠 إعدادات محرك الذكاء الاصطناعي (مفاتيح الـ API)</div>
-        <div class="form-grid">
-            <div class="form-group">
-                <label>تفعيل محرك الذكاء:</label>
-                <select id="ai-engine">
-                    <option value="gemini">Google Gemini Pro API</option>
-                    <option value="chatgpt">OpenAI ChatGPT GPT-4o</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>مفتاح الـ API يدوياً (API Key):</label>
-                <input type="password" id="api-key" placeholder="أدخل الـ AI Key هنا">
-            </div>
-        </div>
+// 1. ربط وإعداد قاعدة البيانات Firebase الخاصة بك
+admin.initializeApp({
+    credential: admin.credential.applicationDefault(), 
+    databaseURL: "https://mama-c6e6b-default-rtdb.firebaseio.com/"
+});
 
-        <div class="section-title">🤖 التحكم الظاهري بهوية البوت</div>
-        <div class="form-grid">
-            <div class="form-group">
-                <label>اسم البوت الجديد:</label>
-                <input type="text" id="bot-name" placeholder="مثال: بوت النجم الذكي">
-            </div>
-            <div class="form-group">
-                <label>تحديث اللوجو / منتجات المخزن:</label>
-                <label for="bot-logo" class="file-label" id="file-label-text">اضغط لاختيار صورة/ملف</label>
-                <input type="file" id="bot-logo" style="display:none;" onchange="handleFileSelected()">
-            </div>
-        </div>
+const db = admin.database();
+const configRef = db.ref("server_config");
 
-        <div class="section-title">📦 إدارة الخدمات والمبيعات والبث الجماعي</div>
-        <div class="form-grid">
-            <div class="form-group">
-                <label>إضافة خدمة / منتج جديد للمخزن:</label>
-                <input type="text" id="service-name" placeholder="اسم الخدمة أو المنتج">
-            </div>
-            <div class="form-group">
-                <label>السعر المحدد:</label>
-                <input type="number" id="service-price" placeholder="السعر بالجنيه">
-            </div>
-            <div class="form-group full-width">
-                <label>إرسال رسالة بث جماعي (Broadcast) لكل العملاء في نفس اللحظة:</label>
-                <textarea id="broadcast-message" rows="2" placeholder="اكتب نص العرض أو الرسالة هنا..."></textarea>
-            </div>
-        </div>
+// 2. توكن بوت تليجرام المعتمد الخاص بك
+const token = '8338334656:AAFJosPcNri8hJeERp7Si-JXzSkxmBAmwG8';
+const bot = new TelegramBot(token, { polling: true });
 
-        <div class="btn-container">
-            <button class="btn-main" onclick="pushToFirebase()">حفظ التكوين وتشغيل السيرفر تلقائياً 🚀</button>
-            <button class="btn-danger" onclick="wipeFirebaseConfig()">تفريغ البيانات بالكامل وحذف الإعدادات</button>
+console.log("-> السيرفر يعمل الآن ومراقب دائم للفايربيس...");
+
+// 3. مراقبة التغييرات من لوحة التحكم وتطبيقها فوراً على البوت
+configRef.on('value', async (snapshot) => {
+    const config = snapshot.val();
+    if (!config) return;
+
+    // تحديث الاسم ظاهرياً عبر التليجرام API
+    if (config.botName) {
+        try {
+            await bot.setMyName({ name: config.botName });
+            console.log("تم تحديث اسم البوت إلى:", config.botName);
+        } catch (err) {
+            console.error("خطأ في تحديث الاسم:", err.message);
+        }
+    }
+});
+
+// 4. معالجة رسائل العملاء بالذكاء الاصطناعي بناءً على مفتاحك المخزن
+bot.on('message', async (msg) => {
+    const chatId = msg.chat.id;
+    const text = msg.text;
+
+    if (text === '/start') {
+        bot.sendMessage(chatId, "مرحباً بك في النظام الذكي. جاري تخصيص الردود...");
+        return;
+    }
+
+    // قراءة الـ API Key والمحرك الحالي من الفايربيس
+    const snapshot = await configRef.once('value');
+    const config = snapshot.val();
+
+    if (config && config.apiKey) {
+        try {
+            let aiReply = "";
+            
+            if (config.engine === 'gemini') {
+                // استدعاء جيميناي API برمجياً
+                const res = await axios.post(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${config.apiKey}`, {
+                    contents: [{ parts: [{ text: text }] }]
+                });
+                aiReply = res.data.candidates[0].content.parts[0].text;
+            } else {
+                // استدعاء شات جي بي تي API برمجياً
+                const res = await axios.post('https://api.openai.com/v1/chat/completions', {
+                    model: "gpt-4o",
+                    messages: [{ role: "user", content: text }]
+                }, {
+                    headers: { 'Authorization': `Bearer ${config.apiKey}` }
+                });
+                aiReply = res.data.choices[0].message.content;
+            }
+
+            bot.sendMessage(chatId, aiReply);
+        } catch (error) {
+            bot.sendMessage(chatId, "خطأ: تأكد من صحة الـ API Key في الموقع.");
+        }
+    }
+});
+            </pre>
         </div>
     </div>
 
     <script>
-        // رابط قاعدة بيانات Firebase Realtime Database الخاصة بك المرسلة في الشات
-        const FIREBASE_DB_URL = "https://mama-c6e6b-default-rtdb.firebaseio.com/server_config.json";
+        // رابط قاعدة بيانات الفايربيس للتحكم والمزامنة المباشرة
+        const FIREBASE_URL = "https://mama-c6e6b-default-rtdb.firebaseio.com/server_config.json";
 
-        // 1. دالة لفحص حالة تشغيل السيرفر وقراءة البيانات الحالية من Firebase فور تحميل الصفحة
-        async function checkDatabaseConfig() {
-            const badge = document.getElementById('status-badge');
-            const text = document.getElementById('status-text');
-
-            try {
-                const response = await fetch(FIREBASE_DB_URL);
-                const data = await response.json();
-
-                // لو الـ Firebase فيه داتا ومفتاح API محفوظ، ينور أخضر "تم التشغيل"
-                if (data && data.apiKey) {
-                    badge.className = "status-bar online";
-                    text.innerText = `تم التشغيل بنجاح | المحرك النشط: ${data.engine.toUpperCase()}`;
-                    
-                    // ملء الخانات بالبيانات المحفوظة تلقائياً لراحة المالك
-                    document.getElementById('ai-engine').value = data.engine;
-                    document.getElementById('api-key').value = data.apiKey;
-                    if(data.botName) document.getElementById('bot-name').value = data.botName;
-                    if(data.serviceName) document.getElementById('service-name').value = data.serviceName;
-                    if(data.servicePrice) document.getElementById('service-price').value = data.servicePrice;
-                } else {
-                    badge.className = "status-bar offline";
-                    text.innerText = "لم يتم التشغيل | في انتظار إدخال المفتاح";
-                }
-            } catch (error) {
-                badge.className = "status-bar offline";
-                text.innerText = "خطأ في الاتصال بقاعدة البيانات";
-                console.error(error);
-            }
+        // دالة التنقل بين الشاشات
+        function switchScreen(screenId, btn) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(screenId).classList.add('active');
+            btn.classList.add('active');
         }
 
-        // إظهار اسم الملف المختار في واجهة اللوجو
-        function handleFileSelected() {
-            const fileInput = document.getElementById('bot-logo');
-            const labelText = document.getElementById('file-label-text');
-            if(fileInput.files.length > 0) {
-                labelText.innerText = `تم اختيار: ${fileInput.files[0].name}`;
-                labelText.style.color = "var(--neon-blue)";
-            }
-        }
+        // دالة حفظ التكوينات من الشاشة الأولى للـ Firebase مباشرة
+        async function saveToFirebase() {
+            const configData = {
+                engine: document.getElementById('ai-engine').value,
+                apiKey: document.getElementById('api-key').value,
+                botName: document.getElementById('bot-name').value,
+                logoUrl: document.getElementById('bot-logo-url').value,
+                broadcast: document.getElementById('broadcast-msg').value,
+                serviceName: document.getElementById('service-name').value,
+                servicePrice: document.getElementById('service-price').value,
+                updatedAt: new Date().toISOString()
+            };
 
-        // 2. زر الإدخال الرئيسي: إرسال الـ API وكل الإعدادات يدوياً وحفظها في قلب الـ Firebase
-        async function pushToFirebase() {
-            const engine = document.getElementById('ai-engine').value;
-            const apiKey = document.getElementById('api-key').value;
-            const botName = document.getElementById('bot-name').value;
-            const serviceName = document.getElementById('service-name').value;
-            const servicePrice = document.getElementById('service-price').value;
-            const broadcastMessage = document.getElementById('broadcast-message').value;
-
-            if (!apiKey.trim()) {
-                alert("برجاء إدخال مفتاح الـ API الخاص بالذكاء الاصطناعي أولاً لتشغيل النظام.");
+            if(!configData.apiKey) {
+                alert("برجاء إدخال الـ API Key لحفظ التكوين.");
                 return;
             }
 
-            // تجميع الداتا بالكامل لإدخالها في السيرفر والقاعدة
-            const configData = {
-                engine: engine,
-                apiKey: apiKey,
-                botName: botName,
-                serviceName: serviceName,
-                servicePrice: servicePrice,
-                broadcastMessage: broadcastMessage,
-                serverStatus: "running",
-                lastUpdated: new Date().toISOString()
-            };
-
             try {
-                // إرسال طلب PUT لحفظ وتحديث الداتا مباشرة داخل Firebase بدون سيرفر وسيط
-                const response = await fetch(FIREBASE_DB_URL, {
+                const response = await fetch(FIREBASE_URL, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(configData)
                 });
 
-                if (response.ok) {
-                    alert("تم حفظ البيانات في الـ Firebase بنجاح، وتحديث السيرفر بالكامل! 🚀");
-                    checkDatabaseConfig(); // إعادة فحص وتحديث اللمبة الخضراء فوراً
-                } else {
-                    alert("فشل الحفظ، تأكد من قواعد الحماية (Rules) في الفايربيس.");
+                if(response.ok) {
+                    alert("تم حفظ البيانات والمزامنة في Firebase بنجاح! السيرفر سيلقط التحديثات فوراً. 🚀");
                 }
             } catch (error) {
-                alert("حدث خطأ أثناء الرفع إلى قاعدة البيانات.");
-                console.error(error);
+                alert("حدث خطأ أثناء المزامنة.");
             }
         }
 
-        // 3. زر الحذف والتفريغ: يمسح كل الإعدادات ويرجع السيرفر لم وضع "لم يتم التشغيل"
-        async function wipeFirebaseConfig() {
-            if (!confirm("هل أنت متأكد من رغبتك في تفريغ قاعدة البيانات ومسح كل المفاتيح والإعدادات؟")) {
-                return;
-            }
-
-            try {
-                const response = await fetch(FIREBASE_DB_URL, {
-                    method: 'DELETE' // أمر المسح الشامل من الفايربيس
-                });
-
-                if (response.ok) {
-                    alert("تم تفريغ كافة البيانات من Firebase بنجاح وإيقاف السيرفر.");
-                    
-                    // مسح الخانات يدوياً في الواجهة
-                    document.getElementById('api-key').value = "";
-                    document.getElementById('bot-name').value = "";
-                    document.getElementById('service-name').value = "";
-                    document.getElementById('service-price').value = "";
-                    document.getElementById('broadcast-message').value = "";
-                    document.getElementById('file-label-text').innerText = "اضغط لاختيار صورة/ملف";
-                    document.getElementById('file-label-text').style.color = "#A1A1AA";
-
-                    checkDatabaseConfig(); // تحويل اللمبة للون الأحمر
-                } else {
-                    alert("فشل مسح البيانات.");
-                }
-            } catch (error) {
-                alert("خطأ أثناء محاولة الاتصال والمسح.");
-                console.error(error);
-            }
+        // دالة نسخ كود الـ Node.js من الشاشة الثانية
+        function copyCode() {
+            const codeText = document.getElementById('node-code').innerText;
+            navigator.clipboard.writeText(codeText);
+            alert("تم نسخ كود الـ Node.js بنجاح! جاهز للصقه في ملف server.js");
         }
-
-        // تشغيل الفحص والربط التلقائي بمجرد فتح الصفحة
-        window.onload = checkDatabaseConfig;
     </script>
 </body>
 </html>
