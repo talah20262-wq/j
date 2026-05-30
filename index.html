@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M.NAJM | Dual-Screen Bot Architect</title>
+    <title>M.NAJM | Interactive Bot Architect</title>
     <style>
         :root {
             --neon-blue: #00D1FF;
@@ -15,236 +15,135 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: var(--bg); color: #ffffff; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
+        body { background-color: var(--bg); color: #ffffff; padding: 30px 15px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         
-        .main-wrapper { width: 100%; max-width: 700px; }
+        .super-panel { background: var(--glass); border: 1px solid var(--border); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-radius: 24px; padding: 35px; width: 100%; max-width: 650px; box-shadow: 0 25px 50px rgba(0,0,0,0.6); }
+        .header { text-align: center; margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+        .header h1 { font-size: 24px; font-weight: 800; background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        /* أزرار التنقل بين الشاشتين */
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); color: #aaa; border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .tab-btn.active { background: linear-gradient(135deg, var(--neon-purple), #4c1dd1); color: #fff; border: none; box-shadow: 0 0 15px var(--neon-purple); }
+        .status-bar { display: inline-flex; align-items: center; gap: 10px; padding: 8px 20px; border-radius: 30px; font-size: 13px; font-weight: bold; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border); color: var(--success); }
+        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; background: var(--success); box-shadow: 0 0 12px var(--success); }
+        
+        .section-title { font-size: 15px; color: var(--neon-blue); margin: 25px 0 15px 0; font-weight: 700; border-right: 3px solid var(--neon-purple); padding-right: 8px; }
+        .form-group { margin-bottom: 18px; text-align: right; }
+        label { display: block; font-size: 13px; color: #C8C8D0; margin-bottom: 8px; }
+        input, select, textarea { width: 100%; background: #111116; border: 1px solid var(--border); color: #fff; padding: 12px 16px; border-radius: 12px; outline: none; font-size: 14px; }
+        
+        /* استعراض شكل الأزرار التفاعلية */
+        .preview-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .preview-btn { background: rgba(108, 43, 25ff, 0.1); border: 1px solid var(--neon-purple); color: #fff; padding: 10px; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 600; }
 
-        .screen { background: var(--glass); border: 1px solid var(--border); backdrop-filter: blur(25px); border-radius: 24px; padding: 30px; box-shadow: 0 25px 50px rgba(0,0,0,0.6); display: none; }
-        .screen.active { display: block; }
-
-        .header h1 { font-size: 22px; font-weight: 800; background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; margin-bottom: 20px; }
-        
-        .section-title { font-size: 15px; color: var(--neon-blue); margin: 20px 0 10px 0; font-weight: 700; border-right: 3px solid var(--neon-purple); padding-right: 8px; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .form-group { margin-bottom: 15px; text-align: right; }
-        .form-group.full { grid-column: span 2; }
-        label { display: block; font-size: 13px; color: #C8C8D0; margin-bottom: 6px; }
-        input, select, textarea { width: 100%; background: #111116; border: 1px solid var(--border); color: #fff; padding: 12px; border-radius: 10px; outline: none; font-size: 14px; }
-        input:focus, select:focus { border-color: var(--neon-blue); }
-        
-        .btn-action { background: linear-gradient(135deg, var(--neon-blue), #0099ff); color: #000; border: none; padding: 14px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; transition: 0.3s; }
-        .btn-action:hover { box-shadow: 0 0 15px var(--neon-blue); }
-
-        /* تنسيق شاشة كود الـ Node.js */
-        pre { background: #050508; border: 1px solid var(--border); padding: 15px; border-radius: 12px; overflow-x: auto; font-family: 'Courier New', Courier, monospace; font-size: 13px; color: #00E676; text-align: left; direction: ltr; max-height: 400px; }
-        .copy-btn { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); padding: 8px 15px; border-radius: 8px; cursor: pointer; margin-bottom: 10px; font-size: 12px; }
-        .copy-btn:hover { background: var(--neon-purple); }
+        .btn-main { background: linear-gradient(135deg, var(--neon-purple), #531bdf); color: #ffffff; border: none; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 20px; box-shadow: 0 5px 20px rgba(108, 43, 255, 0.4); transition: 0.3s; }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(108, 43, 255, 0.6); }
     </style>
 </head>
 <body>
 
-    <div class="main-wrapper">
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchScreen('control-screen', this)">🖥️ شاشة التحكم والمزامنة</button>
-            <button class="tab-btn" onclick="switchScreen('node-screen', this)">💻 شاشة كود Node.js الخلفي</button>
+    <div class="super-panel">
+        <div class="header">
+            <h1>لوحة برمجة شجرة الردود والأدوات الذكية ⚙️</h1>
+            <div class="status-bar">
+                <span class="dot"></span>
+                <span>جاهز للربط المباشر بـ تليجرام و OpenAI</span>
+            </div>
         </div>
 
-        <div id="control-screen" class="screen active">
-            <div class="header">
-                <h1>لوحة إدارة المنظومة الذكية والمخزن</h1>
-            </div>
-
-            <div class="section-title">🔑 مفاتيح ومحرك الذكاء الاصطناعي</div>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>المحرك النشط:</label>
-                    <select id="ai-engine">
-                        <option value="gemini">Google Gemini Pro</option>
-                        <option value="openai">OpenAI ChatGPT</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>مفتاح الـ API يدوياً (API Key):</label>
-                    <input type="password" id="api-key" placeholder="أدخل مفتاح الـ AI هنا">
-                </div>
-            </div>
-
-            <div class="section-title">🤖 التحكم بهوية وبث البوت</div>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>اسم البوت الحالي:</label>
-                    <input type="text" id="bot-name" placeholder="تغيير اسم البوت">
-                </div>
-                <div class="form-group">
-                    <label>رابط لوجو البوت / المنتج:</label>
-                    <input type="text" id="bot-logo-url" placeholder="ضع رابط الصورة">
-                </div>
-                <div class="form-group full">
-                    <label>إرسال رسالة بث جماعي (Broadcast):</label>
-                    <textarea id="broadcast-msg" rows="2" placeholder="اكتب نص الرسالة التي سيرسلها البوت..."></textarea>
-                </div>
-            </div>
-
-            <div class="section-title">📦 إدارة الخدمات والـ ERP</div>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>إضافة منتج/خدمة:</label>
-                    <input type="text" id="service-name" placeholder="اسم الخدمة">
-                </div>
-                <div class="form-group">
-                    <label>السعر:</label>
-                    <input type="number" id="service-price" placeholder="السعر">
-                </div>
-            </div>
-
-            <button class="btn-action" onclick="saveToFirebase()">حفظ التكوين والمزامنة مع Firebase 🚀</button>
+        <div class="section-title">🔑 بيانات الاتصال الأساسية</div>
+        <div class="form-group">
+            <label>توكن البوت المعتمد:</label>
+            <input type="text" id="tg-token" value="8338334656:AAFJosPcNri8hJeERp7Si-JXzSkxmBAmwG8">
+        </div>
+        <div class="form-group">
+            <label>مفتاح OpenAI الـ API الحقيقي:</label>
+            <input type="password" id="openai-key" value="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">
         </div>
 
-        <div id="node-screen" class="screen">
-            <div class="header">
-                <h1>محرك الـ Backend (كود السيرفر المستقل)</h1>
-                <p style="font-size: 13px; color: #aaa; margin-bottom: 15px; text-align: center;">انسخ هذا الكود بالكامل وضعه في ملف باسم <code>server.js</code> على أي استضافة سحابية لتشغيل البوت بذكاء.</p>
-            </div>
-
-            <button class="copy-btn" onclick="copyCode()">📋 نسخ الكود بالكامل</button>
-            
-            <pre id="node-code">
-const TelegramBot = require('node-telegram-bot-api');
-const admin = require('firebase-admin');
-const axios = require('axios');
-
-// 1. ربط وإعداد قاعدة البيانات Firebase الخاصة بك
-admin.initializeApp({
-    credential: admin.credential.applicationDefault(), 
-    databaseURL: "https://mama-c6e6b-default-rtdb.firebaseio.com/"
-});
-
-const db = admin.database();
-const configRef = db.ref("server_config");
-
-// 2. توكن بوت تليجرام المعتمد الخاص بك
-const token = '8338334656:AAFJosPcNri8hJeERp7Si-JXzSkxmBAmwG8';
-const bot = new TelegramBot(token, { polling: true });
-
-console.log("-> السيرفر يعمل الآن ومراقب دائم للفايربيس...");
-
-// 3. مراقبة التغييرات من لوحة التحكم وتطبيقها فوراً على البوت
-configRef.on('value', async (snapshot) => {
-    const config = snapshot.val();
-    if (!config) return;
-
-    // تحديث الاسم ظاهرياً عبر التليجرام API
-    if (config.botName) {
-        try {
-            await bot.setMyName({ name: config.botName });
-            console.log("تم تحديث اسم البوت إلى:", config.botName);
-        } catch (err) {
-            console.error("خطأ في تحديث الاسم:", err.message);
-        }
-    }
-});
-
-// 4. معالجة رسائل العملاء بالذكاء الاصطناعي بناءً على مفتاحك المخزن
-bot.on('message', async (msg) => {
-    const chatId = msg.chat.id;
-    const text = msg.text;
-
-    if (text === '/start') {
-        bot.sendMessage(chatId, "مرحباً بك في النظام الذكي. جاري تخصيص الردود...");
-        return;
-    }
-
-    // قراءة الـ API Key والمحرك الحالي من الفايربيس
-    const snapshot = await configRef.once('value');
-    const config = snapshot.val();
-
-    if (config && config.apiKey) {
-        try {
-            let aiReply = "";
-            
-            if (config.engine === 'gemini') {
-                // استدعاء جيميناي API برمجياً
-                const res = await axios.post(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${config.apiKey}`, {
-                    contents: [{ parts: [{ text: text }] }]
-                });
-                aiReply = res.data.candidates[0].content.parts[0].text;
-            } else {
-                // استدعاء شات جي بي تي API برمجياً
-                const res = await axios.post('https://api.openai.com/v1/chat/completions', {
-                    model: "gpt-4o",
-                    messages: [{ role: "user", content: text }]
-                }, {
-                    headers: { 'Authorization': `Bearer ${config.apiKey}` }
-                });
-                aiReply = res.data.choices[0].message.content;
-            }
-
-            bot.sendMessage(chatId, aiReply);
-        } catch (error) {
-            bot.sendMessage(chatId, "خطأ: تأكد من صحة الـ API Key في الموقع.");
-        }
-    }
-});
-            </pre>
+        <div class="section-title">🎛️ تخصيص الأزرار الأربعة للرد التفاعلي (المستوى الأول)</div>
+        <p style="font-size: 12px; color: #aaa; margin-bottom: 10px;">هذه الخيارات ستظهر للمستخدم فوراً في الشات لاختيار لغة البرمجة أو الأداة:</p>
+        
+        <div class="preview-buttons">
+            <div class="preview-btn">🐍 1. كورس وأدوات بايثون Python</div>
+            <div class="preview-btn">🌐 2. تطوير وتصميم المواقع Web</div>
+            <div class="preview-btn">🛠️ 3. أدوات وملفات برمجية جاهزة</div>
+            <div class="preview-btn">🧠 4. اسأل الذكاء الاصطناعي المباشر</div>
         </div>
+
+        <div class="section-title">📁 الأدوات والملفات الجاهزة المرفقة جوه الردود</div>
+        <div class="form-group">
+            <label>رابط ملف/مكتبة أكواد بايثون الجاهزة المرفقة للبوت:</label>
+            <input type="text" id="python-file-url" value="https://raw.githubusercontent.com/python/cpython/main/Lib/os.py" placeholder="ضع رابط ملف بايثون (.py) للتحميل">
+        </div>
+        <div class="form-group">
+            <label>رسالة الترحيب والتعليمات البرمجية الأساسية:</label>
+            <textarea id="welcome-message" rows="3">مرحباً بك في أداة البرمجة الشاملة 🚀. اختر من الأزرار بالأسفل للوصول إلى أدوات ولغات البرمجة والملفات الجاهزة فوراً، أو اكتب سؤالك البرمجي مباشرة ليجيبك الذكاء الاصطناعي!</textarea>
+        </div>
+
+        <button class="btn-main" onclick="deployInteractiveBot()">تفعيل الأزرار الشجرية وتحديث البوت 🚀</button>
     </div>
 
     <script>
-        // رابط قاعدة بيانات الفايربيس للتحكم والمزامنة المباشرة
         const FIREBASE_URL = "https://mama-c6e6b-default-rtdb.firebaseio.com/server_config.json";
 
-        // دالة التنقل بين الشاشات
-        function switchScreen(screenId, btn) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            
-            document.getElementById(screenId).classList.add('active');
-            btn.classList.add('active');
-        }
+        // دالة تفعيل البوت التفاعلي وربطه بـ Webhook أو إرسال تهيئة القوائم
+        async function deployInteractiveBot() {
+            const token = document.getElementById('tg-token').value;
+            const apiKey = document.getElementById('openai-key').value;
+            const welcomeText = document.getElementById('welcome-message').value;
+            const pythonFile = document.getElementById('python-file-url').value;
 
-        // دالة حفظ التكوينات من الشاشة الأولى للـ Firebase مباشرة
-        async function saveToFirebase() {
-            const configData = {
-                engine: document.getElementById('ai-engine').value,
-                apiKey: document.getElementById('api-key').value,
-                botName: document.getElementById('bot-name').value,
-                logoUrl: document.getElementById('bot-logo-url').value,
-                broadcast: document.getElementById('broadcast-msg').value,
-                serviceName: document.getElementById('service-name').value,
-                servicePrice: document.getElementById('service-price').value,
-                updatedAt: new Date().toISOString()
-            };
-
-            if(!configData.apiKey) {
-                alert("برجاء إدخال الـ API Key لحفظ التكوين.");
+            if(!token || !apiKey) {
+                alert("يرجى التأكد من صحة المفاتيح والتوكن.");
                 return;
             }
 
+            // 1. تجهيز الداتا وحفظها في الفايربيس للرجوع إليها
+            const botConfiguration = {
+                token: token,
+                apiKey: apiKey,
+                welcomeMessage: welcomeText,
+                pythonFileUrl: pythonFile,
+                menuOptions: ["python", "web", "tools", "ai_chat"],
+                status: "active_with_menus"
+            };
+
             try {
-                const response = await fetch(FIREBASE_URL, {
+                // حفظ البيانات في الفايربيس
+                await fetch(FIREBASE_URL, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(configData)
+                    body: JSON.stringify(botConfiguration)
                 });
 
-                if(response.ok) {
-                    alert("تم حفظ البيانات والمزامنة في Firebase بنجاح! السيرفر سيلقط التحديثات فوراً. 🚀");
-                }
-            } catch (error) {
-                alert("حدث خطأ أثناء المزامنة.");
-            }
-        }
+                // 2. تحديث قائمة الأوامر الرسمية (SetMyCommands) في تليجرام مباشرة من المتصفح
+                // علشان أول ما العميل يكتب / يظهر له الأدوات علطول
+                const commandsUrl = `https://api.telegram.org/bot${token}/setMyCommands`;
+                const commandsPayload = {
+                    commands: [
+                        { command: "start", description: "تشغيل الأداة البرمجية وعرض الخيارات" },
+                        { command: "python", description: "شروحات وأدوات لغة بايثون" },
+                        { command: "web", description: "أدوات وملفات تطوير الويب" },
+                        { command: "tools", description: "تحميل ملفات وأكواد جاهزة" },
+                        { command: "ai", description: "سؤال الذكاء الاصطناعي ChatGPT" }
+                    ]
+                };
 
-        // دالة نسخ كود الـ Node.js من الشاشة الثانية
-        function copyCode() {
-            const codeText = document.getElementById('node-code').innerText;
-            navigator.clipboard.writeText(codeText);
-            alert("تم نسخ كود الـ Node.js بنجاح! جاهز للصقه في ملف server.js");
+                const res = await fetch(commandsUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(commandsPayload)
+                });
+                const resData = await res.json();
+
+                if(resData.ok) {
+                    alert("تم بنجاح 100%! تم حفظ إعدادات الأدوات الجاهزة، وتحديث قائمة الأوامر الشجرية داخل البوت على تليجرام بنجاح. 🎉");
+                } else {
+                    alert(`تم حفظ الإعدادات ولكن تليجرام أرجع تنبيه: ${resData.description}`);
+                }
+
+            } catch (error) {
+                alert("حدث خطأ أثناء الاتصال بالشبكة وتفعيل الأدوات.");
+                console.error(error);
+            }
         }
     </script>
 </body>
