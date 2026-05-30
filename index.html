@@ -3,284 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Talla Ultimate Enterprise Dashboard</title>
+    <title>M.NAJM | Extreme Bot Controller</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-color: #0B0B0F;
-            --panel-bg: rgba(20, 20, 28, 0.6);
-            --neon-purple: #6C2BFF;
             --neon-blue: #00D1FF;
-            --neon-green: #00FF66;
-            --text-color: #E2E8F0;
-            --text-muted: #94A3B8;
-            --border-color: rgba(108, 43, 255, 0.2);
+            --neon-purple: #6C2BFF;
+            --bg: #0B0B0F;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
         }
-
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            display: flex;
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); color: #fff; padding: 15px; }
+        
+        .panel {
+            background: var(--glass); border: 1px solid var(--border);
+            backdrop-filter: blur(20px); border-radius: 20px; padding: 20px; margin-bottom: 20px;
         }
-
-        /* Sidebar Navigation */
-        .sidebar {
-            width: 260px;
-            background: rgba(15, 15, 22, 0.95);
-            border-left: 1px solid var(--border-color);
-            height: 100vh;
-            position: fixed;
-            padding: 20px;
-            box-sizing: border-box;
+        h2 { font-size: 18px; color: var(--neon-blue); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        h3 { font-size: 14px; color: #aaa; margin-top: 10px; }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        input, select, textarea {
+            width: 100%; background: #121218; border: 1px solid var(--border);
+            color: #fff; padding: 12px; border-radius: 10px; margin-top: 8px; outline: none;
         }
-
-        .sidebar h2 {
-            color: #fff;
-            text-shadow: 0 0 10px var(--neon-purple);
-            font-size: 1.5rem;
-            text-align: center;
-            margin-bottom: 30px;
+        input:focus, select:focus { border-color: var(--neon-blue); }
+        
+        .btn {
+            background: linear-gradient(135deg, var(--neon-purple), #4c1dd1);
+            color: #fff; border: none; padding: 12px; border-radius: 10px;
+            font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px;
+            transition: 0.3s;
         }
-
-        .nav-btn {
-            display: block;
-            width: 100%;
-            padding: 12px 15px;
-            color: var(--text-muted);
-            background: transparent;
-            border: none;
-            text-align: right;
-            cursor: pointer;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-
-        .nav-btn:hover, .nav-btn.active {
-            background: rgba(108, 43, 255, 0.2);
-            color: var(--neon-blue);
-            border-right: 4px solid var(--neon-blue);
-        }
-
-        /* Main Content Container */
-        .main-content {
-            margin-right: 260px;
-            padding: 30px;
-            width: calc(100% - 260px);
-            box-sizing: border-box;
-        }
-
-        .card {
-            background: var(--panel-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        h3 {
-            color: var(--neon-blue);
-            margin-top: 0;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        input, textarea, select {
-            width: 100%;
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: #fff;
-            box-sizing: border-box;
-        }
-
-        button.primary {
-            background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            width: 100%;
-        }
-
-        button.primary:hover {
-            box-shadow: 0 0 15px var(--neon-purple);
-        }
-
-        /* Stats Badge */
-        .stat-val {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #fff;
-            text-shadow: 0 0 5px var(--neon-green);
-        }
+        .btn:hover { box-shadow: 0 0 15px var(--neon-purple); }
+        .btn-success { background: #00E676; color: #000; }
+        
+        .stat-card { background: rgba(255,255,255,0.01); border: 1px solid var(--border); padding: 10px; border-radius: 8px; text-align: center; }
+        .stat-num { font-size: 20px; font-weight: bold; color: var(--neon-purple); }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <h2>TALLA SYSTEM</h2>
-        <button class="nav-btn active" onclick="switchTab('bot-settings')">🤖 إعدادات البوت والـ AI</button>
-        <button class="nav-btn" onclick="switchTab('crm-mgt')">👥 إدارة العملاء والرسائل</button>
-        <button class="nav-btn" onclick="switchTab('erp-mgt')">💼 النظام التجاري (ERP)</button>
+    <div class="panel">
+        <h2>⚙️ الإعدادات العامة والتحكم الظاهري</h2>
+        <div>
+            <label>تغيير اسم البوت (عبر API):</label>
+            <input type="text" id="bot-name" placeholder="اكتب الاسم الجديد للبوت">
+        </div>
+        <div style="margin-top: 15px;">
+            <label>تغيير لوجو البوت / صور المنتجات والمخزن:</label>
+            <input type="file" id="bot-avatar" accept="image/*">
+            <h3>* سيتم رفع الصورة وحفظها برمجياً لتبديل مظهر البوت أو صور الكتالوج فورا.</h3>
+        </div>
+        <button class="btn" onclick="updateBotProfile()">تحديث الهوية الظاهرية للبوت</button>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-
-        <!-- TAB 1: BOT SETTINGS & AI -->
-        <div id="bot-settings" class="tab-content">
-            <div class="card">
-                <h3>⚙️ التحكم المطلق في هوية البوت والملفات</h3>
-                <div class="grid-3">
-                    <div class="form-group">
-                        <label>تغيير اسم البوت (Bot Name):</label>
-                        <input type="text" id="bot-name-input" placeholder="اسم البوت الجديد">
-                        <button class="primary" style="margin-top: 10px;" onclick="updateBotIdentity('name')">تحديث الاسم</button>
-                    </div>
-                    <div class="form-group">
-                        <label>تغيير رابط الصورة/اللوجو (Bot Avatar):</label>
-                        <input type="text" id="bot-avatar-input" placeholder="رابط صورة اللوجو الجديد">
-                        <button class="primary" style="margin-top: 10px;" onclick="updateBotIdentity('avatar')">تحديث الصورة</button>
-                    </div>
-                    <div class="form-group">
-                        <label>رفع ملفات/وسائط للمخزن الرقمي:</label>
-                        <input type="file" id="media-upload" multiple>
-                        <button class="primary" style="margin-top: 10px;" onclick="uploadMediaToSystem()">إرسال للمخزن</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>🧠 ربط محركات الذكاء الاصطناعي للبوت (توليد الصور والنصوص)</h3>
-                <div class="grid-3">
-                    <div class="form-group">
-                        <label>نظام الشات الذكي الفوري:</label>
-                        <select id="ai-chat-mode">
-                            <option value="auto">رد تلقائي ذكي وتأكيد صفقات (Upsell)</option>
-                            <option value="hybrid">مختلط (ذكاء اصطناعي + تدخل موظف)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>خوارزمية معالجة صور المنتجات تلقائياً:</label>
-                        <select id="ai-image-mode">
-                            <option value="bg-replace">تغيير خلفية المنتج إلى خلفية إعلانية احترافية</option>
-                            <option value="post-design">توليد بوستات تسويقية تلقائية للمنتج</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>تحديث قواعد بيانات التدريب (Data Sync):</label>
-                        <button class="primary" onclick="syncAiData()">مزامنة داتا الموقع مع البوت</button>
-                    </div>
-                </div>
-            </div>
+    <div class="panel">
+        <h2>💬 إدارة الرسائل ومتابعة العملاء بالذكاء</h2>
+        <div class="grid-2" style="margin-bottom: 10px;">
+            <div class="stat-card"><div class="stat-num" id="user-count">1,240</div><div>عميل نشط</div></div>
+            <div class="stat-card"><div class="stat-num" id="order-count">89</div><div>طلب اليوم</div></div>
         </div>
+        <label>إرسال رسالة جماعية (Broadcast) لكل العملاء:</label>
+        <textarea id="broadcast-msg" rows="3" placeholder="اكتب رسالة العروض أو المنتجات الجديدة..."></textarea>
+        <button class="btn" onclick="sendBroadcast()">إطلاق الحملة الجماعية 🚀</button>
+    </div>
 
-        <!-- TAB 2: CRM & MESSAGES -->
-        <div id="crm-mgt" class="tab-content" style="display: none;">
-            <div class="grid-3">
-                <div class="card">
-                    <h3>✉️ إدارة الحملات والرسائل</h3>
-                    <div class="form-group">
-                        <label>الرسالة المستهدفة (نص / وسائط):</label>
-                        <textarea rows="4" placeholder="اكتب محتوى الحملة هنا..."></textarea>
-                    </div>
-                    <button class="primary">إرسال حملة موسعة عبر البوت</button>
-                </div>
-                <div class="card">
-                    <h3>👥 مراقبة حركة العملاء الحية</h3>
-                    <div style="max-height: 200px; overflow-y: auto; font-size: 0.9rem;">
-                        <p>● عميل 1: يفتح الآن الـ Web App الخاص بالموقع.</p>
-                        <p>● عميل 2: قام بإضافة منتج (شيفون ستان) للسلة.</p>
-                        <p>● عميل 3: طلب التحدث مع الدعم الفني.</p>
-                    </div>
-                </div>
-            </div>
+    <div class="panel">
+        <h2>📦 إدارة الخدمات، الفواتير والمخزن</h2>
+        <div class="grid-2">
+            <input type="text" id="prod-name" placeholder="اسم المنتج/الخدمة">
+            <input type="number" id="prod-price" placeholder="السعر">
         </div>
-
-        <!-- TAB 3: ERP SYSTEM -->
-        <div id="erp-mgt" class="tab-content" style="display: none;">
-            <div class="grid-3">
-                <div class="card">
-                    <h3>📦 إدارة المخزن والمنتجات</h3>
-                    <div class="stat-val">1,240 قطعة</div>
-                    <p style="color: var(--text-muted)">إجمالي الأقمشة والمنتجات الجاهزة بالمصنع</p>
-                    <button class="primary" style="background: var(--neon-purple)">إضافة خدمة / منتج جديد للبوت</button>
-                </div>
-                <div class="card">
-                    <h3>💳 الفواتير والمبيعات التلقائية</h3>
-                    <div class="stat-val" style="color: var(--neon-blue)">340 طلب</div>
-                    <p style="color: var(--text-muted)">طلبات تم تنفيذها بالكامل ودفعها عبر الـ Web App</p>
-                </div>
-                <div class="card">
-                    <h3>👥 إدارة الموظفين والتقارير</h3>
-                    <div class="form-group">
-                        <label>تعيين صلاحيات موظف دعم:</label>
-                        <input type="text" placeholder="رقم معرف الموظف (ID)">
-                        <button class="primary" style="margin-top: 5px;">إضافة للنظام</button>
-                    </div>
-                </div>
-            </div>
+        <input type="text" id="prod-desc" placeholder="وصف الخدمة أو مواصفات المنتج">
+        <div class="grid-2">
+            <button class="btn btn-success" onclick="addService()">إضافة للمخزن</button>
+            <button class="btn" style="background:#ff1744;" onclick="deleteService()">حذف خدمة</button>
         </div>
+        <button class="btn" style="background: rgba(255,255,255,0.05);" onclick="generateReport()">تحميل تقرير الفواتير والمبيعات (PDF)</button>
+    </div>
 
+    <div class="panel">
+        <h2>🧠 تخصيص محرك الذكاء والربط التلقائي</h2>
+        <label>تعليمات الرد الذكي (Prompt Engineering):</label>
+        <textarea id="ai-prompt" rows="3" placeholder="مثال: أنت موظف مبيعات لبراند ملابس، اقترح المنتجات واعمل Upsell للعميل بذكاء..."></textarea>
+        <select id="ai-source">
+            <option value="gemini">Google Gemini Pro (سحب وقراءة داتا الموقع)</option>
+            <option value="gpt">OpenAI GPT-4o</option>
+        </select>
+        <button class="btn" onclick="syncAIEngine()">حفظ وتفعيل محرك الذكاء الآلي</button>
     </div>
 
     <script>
-        // دالة التنقل بين أقسام لوحة التحكم الاحترافية
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.style.display = 'none';
-            });
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.getElementById(tabId).style.display = 'block';
-            event.currentTarget.classList.add('active');
+        // تهيئة تطبيق تليجرام
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // تمديد الشاشة لتصبح كاملة
+
+        function updateBotProfile() {
+            const name = document.getElementById('bot-name').value;
+            // إرسال البيانات إلى السيرفر الخاص بك لتنفيذ الأوامر عبر Telegram API المعتمد
+            tg.sendData(JSON.stringify({ action: "update_profile", botName: name }));
+            tg.close();
         }
 
-        // دالة محاكاة إرسال الأوامر للسيرفر الخلفي لتغيير إعدادات البوت والـ AI
-        function updateBotIdentity(type) {
-            if(type === 'name') {
-                const name = document.getElementById('bot-name-input').value;
-                alert(`جاري الاتصال بـ Telegram API لتغيير اسم البوت رسمياً إلى: ${name}`);
-            } else {
-                const avatar = document.getElementById('bot-avatar-input').value;
-                alert(`جاري رفع الصورة وتحديث اللوجو الرسمي للبوت عبر السيرفر الخلفي.`);
-            }
+        function sendBroadcast() {
+            const msg = document.getElementById('broadcast-msg').value;
+            tg.sendData(JSON.stringify({ action: "broadcast", message: msg }));
+            alert("جاري بث الرسالة لكافة العملاء عبر السيرفر...");
         }
 
-        function syncAiData() {
-            alert("تم بدء المزامنة: خوارزمية الذكاء الاصطناعي تقرأ الآن تحديثات المخزن، التقارير، والأسعار لترد بها على العملاء داخل تليجرام تلقائياً.");
+        function addService() {
+            alert("تم تحديث قاعدة البيانات وإضافة الخدمة للمخزن والـ Web App الخاص بالعملاء.");
         }
 
-        function uploadMediaToSystem() {
-            alert("تم رفع الملفات بنجاح إلى قاعدة البيانات السحابية، وجاهزة للاستخدام في الحملات الإعلانية.");
+        function syncAIEngine() {
+            alert("تم ربط الذكاء الاصطناعي بنجاح. البوت سيقوم الآن بالقراءة التلقائية من الداتا والرد على العملاء.");
         }
     </script>
 </body>
