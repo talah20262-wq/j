@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Talla Bot Control Dashboard</title>
     <style>
-        /* Dark Premium & Glassmorphism Theme */
         :root {
             --bg-color: #0B0B0F;
             --panel-bg: rgba(20, 20, 28, 0.6);
@@ -30,7 +29,7 @@
 
         .container {
             width: 100%;
-            max-width: 1100px;
+            max-width: 1200px;
         }
 
         header {
@@ -45,11 +44,6 @@
             margin-bottom: 5px;
         }
 
-        header p {
-            color: var(--text-muted);
-        }
-
-        /* Glassmorphism Cards */
         .card {
             background: var(--panel-bg);
             backdrop-filter: blur(12px);
@@ -63,7 +57,7 @@
 
         .grid-2 {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 20px;
         }
 
@@ -74,7 +68,6 @@
             margin-top: 0;
         }
 
-        /* Forms & Inputs */
         .form-group {
             margin-bottom: 15px;
         }
@@ -94,16 +87,8 @@
             border-radius: 8px;
             color: #fff;
             box-sizing: border-box;
-            transition: all 0.3s;
         }
 
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 8px rgba(0, 209, 255, 0.3);
-        }
-
-        /* Buttons */
         button {
             background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
             color: white;
@@ -113,58 +98,40 @@
             cursor: pointer;
             font-weight: bold;
             width: 100%;
-            transition: transform 0.2s, opacity 0.2s;
+            margin-bottom: 10px;
         }
 
-        button:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
+        button.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--text-muted);
+            color: #fff;
         }
 
-        button:active {
-            transform: translateY(1px);
-        }
-
-        /* Users Table & List */
         .user-list {
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
             border-radius: 8px;
             background: rgba(0, 0, 0, 0.2);
         }
 
         .user-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 15px;
+            padding: 15px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             cursor: pointer;
+            transition: background 0.2s;
         }
 
         .user-item:hover {
             background: rgba(108, 43, 255, 0.1);
         }
 
-        .user-info span {
-            display: block;
-        }
-
-        .user-id {
-            font-size: 0.8rem;
+        .user-details {
+            font-size: 0.85rem;
             color: var(--text-muted);
+            margin-top: 5px;
+            line-height: 1.4;
         }
 
-        .badge {
-            background: var(--neon-blue);
-            color: #000;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: bold;
-        }
-
-        /* Status Logs */
         #logs {
             background: #000;
             font-family: 'Courier New', Courier, monospace;
@@ -182,46 +149,39 @@
 <div class="container">
     <header>
         <h1>Talla Bot Manager</h1>
-        <p>لوحة التحكم الذكية لإدارة المستخدمين وإرسال الحملات الإعلانية</p>
+        <p>إدارة العملاء وطلب الصلاحيات الرسمية (الهاتف والموقع)</p>
     </header>
 
     <div class="grid-2">
-        
         <div class="card">
-            <h2><span style="color: var(--neon-purple);">●</span> المراقبة الحية (سحب البيانات)</h2>
-            <p style="font-size: 0.9rem; color: var(--text-muted);">اضغط على الزر لجلب أي رسائل أو مستخدمين تفاعلوا مع البوت حالياً وحفظ بياناتهم:</p>
-            <button id="fetch-updates-btn" onclick="fetchUpdates()">تحديث وجلب المستخدمين الجدد</button>
+            <h2>● بيانات العملاء المستلمة</h2>
+            <button id="fetch-updates-btn" onclick="fetchUpdates()">تحديث وسحب البيانات الجديدة</button>
             
-            <h3 style="margin-top: 20px; font-size: 1.1rem;">المستخدمين النشطين (الذين تواصلوا مع البوت):</h3>
             <div class="user-list" id="users-container">
-                <div style="padding: 20px; text-align: center; color: var(--text-muted);">لا يوجد مستخدمين مسجلين حالياً. اضغط تحديث.</div>
+                <div style="padding: 20px; text-align: center; color: var(--text-muted);">اضغط على تحديث لجلب العملاء والبيانات المسجلة.</div>
             </div>
         </div>
 
         <div class="card">
-            <h2>إرسال الرسائل الإعلانية والردود</h2>
+            <h2>التحكم والتفاعل مع العميل</h2>
             
             <div class="form-group">
-                <label>نوع الإرسال:</label>
-                <select id="send-target" onchange="toggleTargetInput()">
-                    <option value="broadcast">إرسال جماعي (لكل من تواصل مع البوت)</option>
-                    <option value="single">رد على شخص محدد (عبر الـ ID)</option>
-                </select>
+                <label>العميل المستهدف الحالي:</label>
+                <input type="text" id="target-chat-id" placeholder="اختر عميلاً من القائمة أو اكتب الـ ID هنا">
             </div>
 
-            <div class="form-group" id="target-id-group" style="display: none;">
-                <label>Telegram Chat ID المستهدف:</label>
-                <input type="text" id="target-chat-id" placeholder="مثال: 8754338811">
+            <div style="margin-bottom: 20px; padding: 15px; background: rgba(108, 43, 255, 0.1); border-radius: 8px;">
+                <label style="color: #fff; font-weight: bold;">طلب صلاحيات رسمية معلنة:</label>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0;">سيقوم البوت بإرسال أزرار داخل التليجرام للعميل تطلب منه مشاركة هاتفه أو موقعه للموافقة عليها.</p>
+                <button onclick="sendPermissionVerification()">إرسال أزرار التحقق للعميل</button>
             </div>
 
             <div class="form-group">
-                <label>نص الرسالة:</label>
-                <textarea id="message-text" rows="5" placeholder="اكتب رسالتك هنا... (يمكنك استخدام Markdown)"></textarea>
+                <label>نص رسالة عادية أو إعلانية:</label>
+                <textarea id="message-text" rows="4" placeholder="اكتب رسالة ترحيبية أو إعلانية هنا..."></textarea>
             </div>
-
-            <button onclick="handleSending()">إرسال الآن عبر البوت</button>
+            <button onclick="handleSending()">إرسال الرسالة النصية</button>
         </div>
-
     </div>
 
     <div class="card">
@@ -231,19 +191,14 @@
 </div>
 
 <script>
-    // بيانات البوت الخاصة بك تم دمجها مباشرة بناءً على طلبك
     const BOT_TOKEN = '8338334656:AAFJosPcNri8hJeERp7Si-JXzSkxmBAmwG8';
-    
-    // ذاكرة تخزين مؤقتة للمستخدمين لمنع التكرار (Local Storage لضمان بقاء البيانات عند إعادة تحميل الصفحة)
-    let activeUsers = JSON.parse(localStorage.getItem('bot_users')) || {};
+    let activeUsers = JSON.parse(localStorage.getItem('bot_users_v2')) || {};
 
-    // تحديث الواجهة عند فتح الصفحة مباشرة لقراءة البيانات المخزنة مسبقاً
     document.addEventListener("DOMContentLoaded", () => {
         updateUsersUI();
-        logMessage("تم تحميل لوحة التحكم بنجاح وجاهزة للاتصال بـ Telegram API.");
+        logMessage("تم تشغيل اللوحة بنظام الصلاحيات الشفافة.");
     });
 
-    // دالة لإضافة السجلات في أسفل الشاشة
     function logMessage(text) {
         const logsDiv = document.getElementById('logs');
         const time = new Date().toLocaleTimeString('ar-EG');
@@ -251,176 +206,152 @@
         logsDiv.scrollTop = logsDiv.scrollHeight;
     }
 
-    // تبديل ظهور حقل الـ ID بناءً على خيار الإرسال
-    function toggleTargetInput() {
-        const target = document.getElementById('send-target').value;
-        const idGroup = document.getElementById('target-id-group');
-        idGroup.style.display = target === 'single' ? 'block' : 'none';
-    }
-
-    // دالة سحب البيانات (Fetch Updates) من تليجرام لمعرفة من دخل وأرسل للبوت
-    async function fetchUpdates() {
-        const btn = document.getElementById('fetch-updates-btn');
-        btn.innerText = "جاري السحب...";
-        btn.disabled = true;
-
-        try {
-            // استخدام getUpdates لجلب آخر الرسائل والتفاعلات
-            const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?allowed_updates=["message"]`);
-            const data = await response.json();
-
-            if (data.ok && data.result.length > 0) {
-                let newUsersCount = 0;
-
-                data.result.forEach(update => {
-                    if (update.message && update.message.from) {
-                        const user = update.message.from;
-                        const chatId = update.message.chat.id;
-
-                        // إذا كان المستخدم مش مسجل قبل كده، بنسجل بياناته بالكامل
-                        if (!activeUsers[chatId]) {
-                            activeUsers[chatId] = {
-                                id: chatId,
-                                first_name: user.first_name || '',
-                                last_name: user.last_name || '',
-                                username: user.username ? `@${user.username}` : 'لا يوجد معرف',
-                                last_seen: new Date().toLocaleString('ar-EG')
-                            };
-                            newUsersCount++;
-                        } else {
-                            // تحديث وقت آخر ظهور فقط لو موجود بالفعل
-                            activeUsers[chatId].last_seen = new Date().toLocaleString('ar-EG');
-                        }
-                    }
-                });
-
-                // حفظ التحديثات في المتصفح
-                localStorage.setItem('bot_users', JSON.stringify(activeUsers));
-                updateUsersUI();
-                logMessage(`تم تحديث البيانات بنجاح. جلب ${newUsersCount} مستخدمين جدد.`);
-            } else {
-                logMessage("تم الفحص: لا توجد رسائل جديدة غير مقروءة على السيرفر حالياً.");
-            }
-        } catch (error) {
-            console.error(error);
-            logMessage("خطأ أثناء جلب البيانات من Telegram API، يرجى التحقق من اتصالك.");
-        } finally {
-            btn.innerText = "تحديث وجلب المستخدمين الجدد";
-            btn.disabled = false;
-        }
-    }
-
-    // دالة تحديث واجهة المستخدم لعرض قائمة الأشخاص اللي دخلوا البوت
-    function updateUsersUI() {
-        const container = document.getElementById('users-container');
-        const userKeys = Object.keys(activeUsers);
-
-        if (userKeys.length === 0) {
-            container.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--text-muted);">لا يوجد مستخدمين مسجلين في الذاكرة حتى الآن. اضغط على تحديث بالنفذ الأعلى لسحب المشتركين.</div>`;
+    // دالة إرسال أزرار طلب الصلاحيات الرسمية للعميل في تليجرام
+    async function sendPermissionVerification() {
+        const chatId = document.getElementById('target-chat-id').value.trim();
+        if (!chatId) {
+            alert("برجاء اختيار أو إدخال الـ Chat ID للعميل أولاً!");
             return;
         }
 
-        container.innerHTML = '';
-        userKeys.forEach(key => {
-            const user = activeUsers[key];
-            const fullName = `${user.first_name} ${user.last_name}`.trim();
-            
-            const userItem = document.createElement('div');
-            userItem.className = 'user-item';
-            userItem.onclick = () => {
-                // عند الضغط على اسم المستخدم، يتم تحويل خيار الإرسال تلقائياً للرد عليه هو بالذات
-                document.getElementById('send-target').value = 'single';
-                toggleTargetInput();
-                document.getElementById('target-chat-id').value = user.id;
-                logMessage(`تم اختيار المستخدم: ${fullName} (ID: ${user.id}) للرد المباشر.`);
-            };
+        logMessage(`جاري إرسال أزرار طلب الصلاحيات للعميل ${chatId}...`);
 
-            userItem.innerHTML = `
-                <div class="user-info">
-                    <strong style="color: #fff;">${fullName}</strong>
-                    <span class="user-id">ID: ${user.id} | المعرف: ${user.username}</span>
-                </div>
-                <span class="badge">نشط</span>
-            `;
-            container.appendChild(userItem);
-        });
-    }
-
-    // دالة إدارة عملية الإرسال (سواء فردي أو جماعي Broadcast)
-    async function handleSending() {
-        const targetType = document.getElementById('send-target').value;
-        const text = document.getElementById('message-text').value;
-
-        if (!text.trim()) {
-            alert("برجاء كتابة نص الرسالة أولاً!");
-            return;
-        }
-
-        if (targetType === 'single') {
-            const chatId = document.getElementById('target-chat-id').value.trim();
-            if (!chatId) {
-                alert("برجاء إدخال الـ Chat ID للمستخدم المستهدف!");
-                return;
-            }
-            logMessage(`جاري إرسال الرسالة إلى الـ ID: ${chatId}...`);
-            const success = await sendMessageToTelegram(chatId, text);
-            if (success) {
-                document.getElementById('message-text').value = '';
-            }
-        } else {
-            // إرسال جماعي Broadcast لجميع من في القائمة
-            const userIds = Object.keys(activeUsers);
-            if (userIds.length === 0) {
-                alert("لا يوجد مستخدمين في القائمة لإرسال حملة جماعية لهم! قم بجلب المستخدمين أولاً.");
-                return;
-            }
-
-            if (confirm(`هل أنت متأكد من إرسال هذه الرسالة إلى ${userIds.length} مستخدم؟`)) {
-                logMessage(`بدء الحملة الإعلانية الجماعية لعدد ${userIds.length} مستخدم...`);
-                let successCount = 0;
-
-                for (let chatId of userIds) {
-                    const success = await sendMessageToTelegram(chatId, text);
-                    if (success) successCount++;
-                    // تأخير بسيط 0.3 ثانية لحماية البوت من الحظر طبقاً لقواعد تليجرام في الإرسال السريع
-                    await new Promise(resolve => setTimeout(resolve, 300));
-                }
-
-                logMessage(`اكتملت الحملة الجماعية بنجاح! تم التسليم إلى ${successCount} من إجمالي ${userIds.length}.`);
-                document.getElementById('message-text').value = '';
-            }
-        }
-    }
-
-    // الدالة المسؤولة عن تنفيذ طلب الـ API الفعلي لإرسال الرسالة
-    async function sendMessageToTelegram(chatId, text) {
         try {
             const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     chat_id: chatId,
-                    text: text,
-                    parse_mode: 'Markdown' // تتيح لك التنسيق مثل جعل الكلام سميك أو مائل
+                    text: "أهلاً بك في براند طلة لمصنوعات الشيفون والستان الفاخر. لتأكيد هويتك وتسهيل عملية شحن وتوصيل الطلب إليك، برجاء الضغط على الأزرار بالأسفل لمشاركتنا البيانات الرسمية للتوصيل:",
+                    reply_markup: {
+                        keyboard: [
+                            [{ text: "📱 مشاركة رقم الهاتف للتحقق", request_contact: true }],
+                            [{ text: "📍 مشاركة الموقع الجغرافي للشحن", request_location: true }]
+                        ],
+                        resize_keyboard: true,
+                        one_time_keyboard: true
+                    }
                 })
             });
 
             const data = await response.json();
             if (data.ok) {
-                logMessage(`✅ تم إرسال الرسالة بنجاح إلى (${chatId})`);
-                return true;
+                logMessage(`✅ تم إرسال طلب الصلاحيات بنجاح للعميل.`);
             } else {
-                // إذا قام المستخدم بعمل Block للبوت، سيظهر الخطأ هنا
-                logMessage(`❌ فشل الإرسال إلى (${chatId}): ${data.description}`);
-                return false;
+                logMessage(`❌ فشل الإرسال: ${data.description}`);
             }
         } catch (error) {
-            console.error(error);
-            logMessage(`❌ خطأ في الاتصال أثناء الإرسال لـ (${chatId})`);
-            return false;
+            logMessage(`❌ خطأ في الاتصال بالسيرفر.`);
+        }
+    }
+
+    // دالة سحب التحديثات وتحليل البيانات المستلمة (بما فيها الهاتف والموقع)
+    async function fetchUpdates() {
+        const btn = document.getElementById('fetch-updates-btn');
+        btn.innerText = "جاري السحب...";
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`);
+            const data = await response.json();
+
+            if (data.ok && data.result.length > 0) {
+                data.result.forEach(update => {
+                    if (update.message) {
+                        const chatId = update.message.chat.id;
+                        const from = update.message.from;
+
+                        // إنشاء ملف العميل لو مش موجود
+                        if (!activeUsers[chatId]) {
+                            activeUsers[chatId] = {
+                                id: chatId,
+                                name: `${from.first_name || ''} ${from.last_name || ''}`.trim(),
+                                username: from.username ? `@${from.username}` : 'لا يوجد',
+                                phone: 'لم يشارك بعد',
+                                location: 'لم يشارك بعد'
+                            };
+                        }
+
+                        // 1. التحقق لو العميل وافق وأرسل رقم تليفونه الرسمي
+                        if (update.message.contact) {
+                            activeUsers[chatId].phone = update.message.contact.phone_number;
+                            logMessage(`📱 استلمنا رقم هاتف جديد للعميل (${activeUsers[chatId].name}): ${update.message.contact.phone_number}`);
+                        }
+
+                        // 2. التحقق لو العميل وافق وأرسل موقعه الجغرافي
+                        if (update.message.location) {
+                            const lat = update.message.location.latitude;
+                            const lon = update.message.location.longitude;
+                            activeUsers[chatId].location = `خط عرض: ${lat}, خط طول: ${lon}`;
+                            logMessage(`📍 استلمنا إحداثيات موقع جديدة للعميل (${activeUsers[chatId].name})`);
+                        }
+                    }
+                });
+
+                localStorage.setItem('bot_users_v2', JSON.stringify(activeUsers));
+                updateUsersUI();
+            } else {
+                logMessage("لا توجد تحديثات جديدة حالياً.");
+            }
+        } catch (e) {
+            logMessage("حدث خطأ أثناء تحديث البيانات.");
+        } finally {
+            btn.innerText = "تحديث وسحب البيانات الجديدة";
+            btn.disabled = false;
+        }
+    }
+
+    function updateUsersUI() {
+        const container = document.getElementById('users-container');
+        const keys = Object.keys(activeUsers);
+
+        if (keys.length === 0) return;
+
+        container.innerHTML = '';
+        keys.forEach(key => {
+            const u = activeUsers[key];
+            const item = document.createElement('div');
+            item.className = 'user-item';
+            item.onclick = () => {
+                document.getElementById('target-chat-id').value = u.id;
+            };
+
+            item.innerHTML = `
+                <strong style="color: #fff;">${u.name}</strong>
+                <div class="user-details">
+                    <div>ID: ${u.id} | معرف: ${u.username}</div>
+                    <div style="color: var(--neon-blue)">📞 الهاتف الرسمي: ${u.phone}</div>
+                    <div style="color: #00FF66">📍 الموقع الحالي: ${u.location}</div>
+                </div>
+            `;
+            container.appendChild(item);
+        });
+    }
+
+    async function handleSending() {
+        const chatId = document.getElementById('target-chat-id').value.trim();
+        const text = document.getElementById('message-text').value.trim();
+
+        if (!chatId || !text) {
+            alert("اكتب النص واختر العميل أولاً!");
+            return;
+        }
+
+        try {
+            const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: chatId, text: text })
+            });
+            const data = await response.json();
+            if (data.ok) {
+                logMessage(`✅ تم إرسال الرسالة النصية لـ ${chatId}`);
+                document.getElementById('message-text').value = '';
+            }
+        } catch (e) {
+            logMessage("خطأ في الإرسال.");
         }
     }
 </script>
-
 </body>
 </html>
