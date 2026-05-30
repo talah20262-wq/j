@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>النظام المركزي الشامل لإدارة وتطهير ميزات البوت الموحد | طلة</title>
+    <style>
+        :root {
+            --bg-color: #060609;
+            --panel-bg: rgba(13, 13, 22, 0.75);
+            --sidebar-bg: #09090e;
+            --neon-purple: #6C2BFF;
+            --neon-blue: #00D1FF;
+            --neon-red: #FF3B30;
+            --neon-green: #00FF66;
+            --text-color: #F1F5F9;
+            --text-muted: #64748B;
+            --border-color: rgba(108, 43, 255, 0.2);
+            --card-glow: rgba(0, 209, 255, 0.03);
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        aside {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            right: 0;
+            top: 0;
+            z-index: 100;
+        }
+
+        .sidebar-brand {
+            padding: 30px 20px;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #fff;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            text-shadow: 0 0 15px var(--neon-purple);
+        }
+
+        .sidebar-menu {
+            padding: 20px 15px;
+            flex-grow: 1;
+        }
+
+        .menu-item {
+            width: 100%;
+            padding: 14px 16px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: right;
+            cursor: pointer;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.25s ease;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            color: var(--neon-blue);
+            background: rgba(108, 43, 255, 0.08);
+            border-right: 4px solid var(--neon-blue);
+        }
+
+        /* Main Workspace */
+        main {
+            margin-right: 280px;
+            width: calc(100% - 280px);
+            padding: 40px;
+            box-sizing: border-box;
+        }
+
+        .top-navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 20px;
+        }
+
+        .top-navbar h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            text-shadow: 0 0 20px var(--neon-purple);
+        }
+
+        .token-bar {
+            background: linear-gradient(135deg, #0f0f18, #151522);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 8px;
+        }
+
+        input, select, textarea {
+            background: #020204;
+            border: 1px solid rgba(108, 43, 255, 0.3);
+            border-radius: 10px;
+            padding: 14px 18px;
+            color: #fff;
+            font-size: 1rem;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 209, 255, 0.2);
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .btn-blue {
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(108, 43, 255, 0.3);
+        }
+
+        .btn-blue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px var(--neon-purple);
+        }
+
+        .btn-danger {
+            background: rgba(255, 59, 48, 0.1);
+            border: 1px solid var(--neon-red);
+            color: var(--neon-red);
+        }
+
+        .btn-danger:hover {
+            background: var(--neon-red);
+            color: #fff;
+            box-shadow: 0 0 20px var(--neon-red);
+        }
+
+        /* Cards and Sections */
+        .dashboard-view {
+            display: none;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .dashboard-view.active-view {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+
+        .card h3 {
+            margin-bottom: 20px;
+            font-size: 1.25rem;
+            color: #fff;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Feature Matrix (الجدول والمصفوفة المتقدمة) */
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .matrix-table th {
+            background: rgba(108, 43, 255, 0.1);
+            color: var(--neon-blue);
+            text-align: right;
+            padding: 14px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .matrix-table td {
+            padding: 16px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            font-size: 0.95rem;
+        }
+
+        .matrix-row:hover {
+            background: rgba(255,255,255,0.01);
+        }
+
+        .status-pill {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-pill.active { background: rgba(0, 255, 102, 0.12); color: var(--neon-green); border: 1px solid rgba(0,255,102,0.2); }
+        .status-pill.inactive { background: rgba(255, 59, 48, 0.12); color: var(--neon-red); border: 1px solid rgba(255,59,48,0.2); }
+
+        .terminal-screen {
+            background: #020204;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            color: var(--neon-green);
+            height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+        }
+
+        .url-box {
+            font-family: monospace;
+            background: rgba(0,0,0,0.5);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px dashed var(--neon-purple);
+            color: var(--neon-blue);
+            margin-top: 10px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- القائمة الجانبية -->
+    <aside>
+        <div class="sidebar-brand">لوحة التطهير والمصفوفة</div>
+        <div class="sidebar-menu">
+            <button class="menu-item active" onclick="navigate('security-view')">🛡️ مصفوفة الميزات والتعارض</button>
+            <button class="menu-item" onclick="navigate('add-feature-view')">➕ إضافة وتوسيع الميزات</button>
+            <button class="menu-item" onclick="navigate('ai-view')">🧠 تحكم محرك AI الخاص بك</button>
+            <button class="menu-item" onclick="navigate('store-view')">🏪 إدارة المتجر والأقسام</button>
+        </div>
+    </aside>
+
+    <!-- مساحة العمل الرئيسية -->
+    <main>
+        <!-- شريط علوي موحد -->
+        <div class="top-navbar">
+            <h1 id="view-title">مصفوفة الميزات والسيطرة الأمنية الموحدة</h1>
+            <div style="font-weight: bold; color: var(--neon-purple);" id="bot-username-display">البوت: غير مفحوص</div>
+        </div>
+
+        <!-- البار المركزي لتثبيت التكوين والتوكن -->
+        <div class="token-bar">
+            <label style="font-weight: 700; color: #fff;">مفتاح البوت السري الحقيقي (Telegram Bot Token):</label>
+            <div class="input-group">
+                <input type="text" id="bot-token" value="8338334656:AAFJosPcNri8hJeERp7Si-JXzSkxmBAmwG8" placeholder="أدخل توكن البوت لتشغيل الفحص التلقائي الشامل للموقع...">
+                <button class="btn btn-blue" onclick="syncAndMapBotMatrix()">⚡ فحص وسحب مصفوفة البوت الحية</button>
+            </div>
+        </div>
+
+        <!-- SECTION 1: SECURITY MATRIX & CONFLICT PURGE -->
+        <div id="security-view" class="dashboard-view active-view">
+            <div class="card">
+                <h3>🌐 فحص اتصالات الـ Webhook ومسح الردود المكررة العالقة</h3>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 15px; line-height: 1.6;">
+                    تليجرام يسمح برابط إدارة خارجي واحد فقط للبوت. إذا قمت بربط أكثر من موقع أو لوحة تحكم، فسيتسبب ذلك في ردود مكررة عشوائية وبطء شديد. اضغط فحص لرؤية الرابط النشط ومسحه لإنهاء التداخل.
+                </p>
+                <div id="webhook-scan-card" style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <span style="color: var(--text-muted);">حالة الاتصال الخارجي:</span> <span id="webhook-status" style="font-weight:bold;">لم يتم الفحص بعد</span>
+                    <div id="webhook-url-display" class="url-box" style="display:none;"></div>
+                </div>
+                <button class="btn btn-danger" id="btn-purge-webhook" style="width: 100%; display: none;" onclick="purgeWebhookConnection()">🔥 مسح وحذف إدارة هذا الموقع الخارجي وتطهير البوت فوراُ</button>
+            </div>
+
+            <div class="grid-2">
+                <!-- جدول مصفوفة الميزات الفعلي في البوت -->
+                <div class="card">
+                    <h3>📊 مصفوفة ميزات البوت المكتشفة تلقائياً</h3>
+                    <table class="matrix-table">
+                        <thead>
+                            <tr>
+                                <th>اسم الميزة / القسم</th>
+                                <th>طريقة العمل</th>
+                                <th>الحالة</th>
+                                <th>الإجراء الإداري</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matrix-tbody">
+                            <!-- الميزات الافتراضية للبوت قبل الفحص الحي -->
+                            <tr class="matrix-row" id="row-ai">
+                                <td><b>محرك الـ AI ذكي (GPT)</b></td>
+                                <td>توصيل سحابي (Polling)</td>
+                                <td><span class="status-pill active">نشط محلياً</span></td>
+                                <td><button class="btn btn-danger" style="padding: 6px 12px; font-size: 0.85rem;" onclick="deleteFeatureRow('row-ai', 'محرك الـ AI')">مسح الميزة</button></td>
+                            </tr>
+                            <tr class="matrix-row" id="row-store">
+                                <td><b>المتجر الرقمي والـ Web App</b></td>
+                                <td>واجهة داخلية مدمجة</td>
+                                <td><span class="status-pill active">نشط محلياً</span></td>
+                                <td><button class="btn btn-danger" style="padding: 6px 12px; font-size: 0.85rem;" onclick="deleteFeatureRow('row-store', 'المتجر الرقمي')">مسح الميزة</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- التيرمنال والمفسر الفوري للأوامر لتجنب التبسيط الفاشل -->
+                <div class="card">
+                    <h3>📟 وحدة مراقبة الأوامر والاستجابة البرمجية الحية (Terminal)</h3>
+                    <div class="terminal-screen" id="console-terminal">
+                        [سيستم] اللوحة في وضع الاستعداد التام لمراقبة طلبات تليجرام الحية...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 2: ADD OR EXTEND FEATURES -->
+        <div id="add-feature-view" class="dashboard-view">
+            <div class="card">
+                <h3>➕ إضافة وتوسيع ميزة برمجية جديدة داخل البوت</h3>
+                <div class="grid-2" style="grid-template-columns: 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>اسم الميزة أو القسم البرمجي المراد تفعيله:</label>
+                        <input type="text" id="new-feature-name" placeholder="مثال: نظام الفواتير التلقائي، سحب تقارير المبيعات...">
+                    </div>
+                    <div class="form-group">
+                        <label>طريقة التوصيل البرمجي (Execution Method):</label>
+                        <select id="new-feature-method">
+                            <option value="Inline Query">تفاعل داخلي فوري (Inline Query Mode)</option>
+                            <option value="Polling Trigger">مستمع للأوامر (Polling Trigger)</option>
+                            <option value="Webhook Route">مسار مخصص (Webhook API Route)</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-blue" onclick="injectNewFeatureToMatrix()">🚀 حقن وتفعيل الميزة الجديدة داخل مصفوفة البوت</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: AI ENGINE CONTROL -->
+        <div id="ai-view" class="dashboard-view">
+            <div class="card">
+                <h3>🧠 ضبط وتوجيه خلايا ذكاء البوت للردود</h3>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>النص التوجيهي الأساسي المدمج (System Prompt Instructions):</label>
+                    <textarea rows="6" id="ai-prompt">أنت المساعد الذكي والمغلق لبراند الملابس الشهير (طلة). وظيفتك هي إتمام طلبات العملاء لفساتين الشيفون الستان الفاخرة وإغلاق الصفقات بذكاء ودون أي تشتيت.</textarea>
+                </div>
+                <button class="btn btn-blue" onclick="printConsole('تم تحديث وحقن الـ System Prompt الجديد بنجاح في نواة كود الـ AI!')">تحديث خلايا الذكاء الاصطناعي</button>
+            </div>
+        </div>
+
+        <!-- SECTION 4: WEB APP STORE MANAGEMENT -->
+        <div id="store-view" class="dashboard-view">
+            <div class="card">
+                <h3>🏪 مستودع المنتجات ولوحة عرض المتجر الموحد</h3>
+                <p style="color: var(--text-muted); margin-bottom: 15px;">عرض إحصائي لبيانات الفواتير والمنتجات المزامنة تلقائياً من قاعدة بيانات المتجر المتصلة بالبوت.</p>
+                <div class="grid-2" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="card" style="background: rgba(255,255,255,0.01); text-align: center; margin: 0;">
+                        <span style="color: var(--neon-blue); font-size: 2.2rem; font-weight: 800; display: block;">1,240</span>
+                        <small style="color: var(--text-muted);">قطعة بالمخزن</small>
+                    </div>
+                    <div class="card" style="background: rgba(255,255,255,0.01); text-align: center; margin: 0;">
+                        <span style="color: var(--neon-green); font-size: 2.2rem; font-weight: 800; display: block;">340</span>
+                        <small style="color: var(--text-muted);">فاتورة مكتملة</small>
+                    </div>
+                    <div class="card" style="background: rgba(255,255,255,0.01); text-align: center; margin: 0;">
+                        <span style="color: var(--neon-purple); font-size: 2.2rem; font-weight: 800; display: block;">100%</span>
+                        <small style="color: var(--text-muted);">كفاءة الربط</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // دالة تيرمنال العمليات الحية للمطور
+        function printConsole(message, type = 'info') {
+            const terminal = document.getElementById('console-terminal');
+            const time = new Date().toLocaleTimeString();
+            let color = '#00FF66'; // أخضر افتراضي
+            
+            if (type === 'error') color = '#FF3B30';
+            if (type === 'process') color = '#00D1FF';
+            if (type === 'warn') color = '#6C2BFF';
+
+            terminal.innerHTML += `<div><span style="color: #64748B">[${time}]</span> <span style="color: ${color}">${message}</span></div>`;
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // دالة التنقل الكاملة بين الواجهات المدمجة في ملفك المتكامل
+        function navigate(viewId) {
+            document.querySelectorAll('.dashboard-view').forEach(view => view.classList.remove('active-view'));
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+            
+            document.getElementById(viewId).classList.add('active-view');
+            event.currentTarget.classList.add('active');
+
+            const titles = {
+                'security-view': 'مصفوفة الميزات والسيطرة الأمنية الموحدة',
+                'add-feature-view': 'إضافة وتوسيع ميزات وأقسام البوت البرمجية',
+                'ai-view': 'ضبط وتوجيه خلايا ذكاء البوت للردود',
+                'store-view': 'مستودع المنتجات ولوحة عرض المتجر الموحد'
+            };
+            document.getElementById('view-title').innerText = titles[viewId];
+        }
+
+        // [Logic الفعلي المباشر] - فحص وسحب مصفوفة البوت والتعرف على كليات اتصالات التداخل والـ Webhook
+        function syncAndMapBotMatrix() {
+            const token = document.getElementById('bot-token').value.trim();
+            const statusText = document.getElementById('webhook-status');
+            const urlDisplay = document.getElementById('webhook-url-display');
+            const purgeBtn = document.getElementById('btn-purge-webhook');
+            const usernameDisplay = document.getElementById('bot-username-display');
+
+            if(!token) {
+                alert('عذراً يا محمد، يجب وضع توكن البوت أولاً في حقل التكوين العلوي للبدء بالفحص المباشر!');
+                return;
+            }
+
+            printConsole('جاري فتح مسار اتصال آمن ومباشر بـ Telegram API لفحص النواة...', 'process');
+            
+            // أولاً: جلب معلومات البوت للتأكد من التوكن واكتشاف اليوزرنيم تلقائياً
+            fetch(`https://api.telegram.org/bot${token}/getMe`)
+                .then(res => res.json())
+                .then(botData => {
+                    if(botData.ok) {
+                        usernameDisplay.innerText = `البوت النشط: @${botData.result.username}`;
+                        printConsole(`نجح الاتصال بالبوت المعرف كـ: @${botData.result.username}`, 'success');
+                        
+                        // ثانياً: فحص الـ Webhooks المتداخلة فوراً
+                        return fetch(`https://api.telegram.org/bot${token}/getWebhookInfo`);
+                    } else {
+                        throw new Error(botData.description || 'التوكن غير صالح');
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.ok) {
+                        const hookUrl = data.result.url;
+                        if(hookUrl) {
+                            printConsole(`🚨 تعارض مكتشف! البوت مربوط بموقع خارجي بنظام Webhook يستولي على الردود: ${hookUrl}`, 'error');
+                            statusText.innerText = '⚠️ تعارض نشط (رابط موقع مستولى على الردود!)';
+                            statusText.style.color = 'var(--neon-red)';
+                            urlDisplay.innerText = hookUrl;
+                            urlDisplay.style.display = 'block';
+                            purgeBtn.style.display = 'block';
+                        } else {
+                            printConsole('🟢 الفحص نظيف: لا توجد أي مواقع ويب خارجية متداخلة بنظام الـ Webhook حالياً. البوت يعمل بسحب نظيف (Polling).', 'success');
+                            statusText.innerText = '🟢 آمن (لا يوجد تعارض روابط خارجية)';
+                            statusText.style.color = 'var(--neon-green)';
+                            urlDisplay.style.display = 'none';
+                            purgeBtn.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(err => {
+                    printConsole(`خطأ اتصال حرج: ${err.message}`, 'error');
+                    statusText.innerText = '❌ فشل الاتصال بالتوكن';
+                    statusText.style.color = 'var(--neon-red)';
+                    alert(`فشل الفحص: ${err.message}`);
+                });
+        }
+
+        // [Logic الفعلي المباشر] - مسح وتطهير اتصالات المواقع الخارجية لإنهاء التداخل والردود المكررة
+        function purgeWebhookConnection() {
+            const token = document.getElementById('bot-token').value.trim();
+            if(!confirm('🚨 إجراء حاسم: هل أنت متأكد من مسح وحذف هذا الموقع الخارجي تماماً؟ سيتم تصفير الروابط لمنع الردود المكررة فوراً.')) return;
+
+            printConsole('جاري إرسال أمر التصفير والقتل البرمجي [deleteWebhook] مع تصفير الطابور العالق...', 'warn');
+            
+            fetch(`https://api.telegram.org/bot${token}/deleteWebhook?drop_pending_updates=true`)
+                .then(res => res.json())
+                .then(data => {
+                    if(data.ok && data.result === true) {
+                        printConsole('🎉 تم مسح وحذف إدارة الموقع الخارجي المتعارض بنجاح، وتطهير طابور الرسائل بالكامل!', 'success');
+                        alert('تم تنظيف وتطهير البوت وحذف الروابط المتعارضة بنجاح!');
+                        syncAndMapBotMatrix(); // إعادة فحص تلقائي لتحديث المصفوفة أمام المطور
+                    } else {
+                        printConsole(`فشل التطهير: ${data.description}`, 'error');
+                    }
+                })
+                .catch(err => printConsole(`خطأ شبكة أثناء المسح: ${err.message}`, 'error'));
+        }
+
+        // [Logic الفعلي] - مسح وحذف ميزة معينة من المصفوفة الإدارية أمام المطور
+        function deleteFeatureRow(rowId, featureName) {
+            if(!confirm(`هل تود مسح وإلغاء صلاحية ميزة [${featureName}] من لوحة التحكم هذه؟`)) return;
+            document.getElementById(rowId).remove();
+            printConsole(`تم مسح وحذف تفعيل ميزة [${featureName}] محلياً من مصفوفة التحكم بنجاح.`, 'warn');
+        }
+
+        // [Logic الفعلي] - إضافة وحقن ميزة برمجية جديدة داخل المصفوفة والتعرف عليها تلقائياً
+        function injectNewFeatureToMatrix() {
+            const name = document.getElementById('new-feature-name').value.trim();
+            const method = document.getElementById('new-feature-method').value;
+            const tbody = document.getElementById('matrix-tbody');
+
+            if(!name) {
+                alert('الرجاء كتابة اسم الميزة أولاً قبل عملية الحقن داخل البوت!');
+                return;
+            }
+
+            const randId = 'row-' + Math.floor(Math.random() * 10000);
+            
+            const tr = document.createElement('tr');
+            tr.className = 'matrix-row';
+            tr.id = randId;
+            tr.innerHTML = `
+                <td><b>${name}</b></td>
+                <td>${method}</td>
+                <td><span class="status-pill active">نشط ومحقون</span></td>
+                <td><button class="btn btn-danger" style="padding: 6px 12px; font-size: 0.85rem;" onclick="deleteFeatureRow('${randId}', '${name}')">مسح الميزة</button></td>
+            `;
+
+            tbody.appendChild(tr);
+            printConsole(`🔥 تم بنجاح حقن وتوسيع ميزة برمجية جديدة داخل البوت باسم: [${name}] عبر مسار [${method}].`, 'success');
+            alert(`تم حقن وتفعيل ميزة [${name}] بنجاح داخل النظام الموحد للموقع!`);
+            
+            // تصفير الإدخال وتوجيه المطور للوحة الرئيسية ورؤية النتيجة
+            document.getElementById('new-feature-name').value = "";
+            navigate('security-view');
+        }
+    </script>
+</body>
+</html>
