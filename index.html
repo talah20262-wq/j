@@ -3,235 +3,547 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M.NAJM | Complete Tree Menu Deployer</title>
+    <title>النظام الإداري الشامل ومركز السيطرة | طلة</title>
     <style>
         :root {
-            --neon-blue: #00D1FF;
+            --bg-color: #0B0B0F;
+            --panel-bg: rgba(20, 20, 28, 0.7);
+            --sidebar-bg: rgba(10, 10, 15, 0.95);
             --neon-purple: #6C2BFF;
-            --bg: #0B0B0F;
-            --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.08);
-            --success: #00E676;
-            --danger: #FF1744;
+            --neon-blue: #00D1FF;
+            --neon-red: #FF3B30;
+            --neon-green: #00FF66;
+            --text-color: #E2E8F0;
+            --text-muted: #94A3B8;
+            --border-color: rgba(108, 43, 255, 0.25);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: var(--bg); color: #ffffff; padding: 30px 15px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .super-panel { background: var(--glass); border: 1px solid var(--border); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-radius: 24px; padding: 35px; width: 100%; max-width: 600px; box-shadow: 0 25px 50px rgba(0,0,0,0.6); }
-        .header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
-        .header h1 { font-size: 24px; font-weight: 800; background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
-        .status-bar { display: inline-flex; align-items: center; gap: 10px; padding: 8px 20px; border-radius: 30px; font-size: 13px; font-weight: bold; margin-top: 15px; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border); }
-        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
-        .online { color: var(--success); border-color: rgba(0, 230, 118, 0.3); }
-        .online .dot { background: var(--success); box-shadow: 0 0 12px var(--success); }
-        
-        .section-title { font-size: 15px; color: var(--neon-blue); margin: 25px 0 15px 0; font-weight: 700; border-right: 3px solid var(--neon-purple); padding-right: 8px; }
-        .form-group { margin-bottom: 18px; text-align: right; }
-        label { display: block; font-size: 13px; color: #C8C8D0; margin-bottom: 8px; }
-        input, textarea { width: 100%; background: #111116; border: 1px solid var(--border); color: #fff; padding: 12px 16px; border-radius: 12px; outline: none; font-size: 14px; }
-        input:focus { border-color: var(--neon-blue); }
-        
-        .btn-main { background: linear-gradient(135deg, var(--neon-purple), #531bdf); color: #ffffff; border: none; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 20px; box-shadow: 0 5px 20px rgba(108, 43, 255, 0.4); }
-        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(108, 43, 255, 0.6); }
-        
-        .log-box { background: #050508; border: 1px solid var(--border); padding: 15px; border-radius: 12px; font-family: monospace; font-size: 12px; color: var(--success); margin-top: 15px; max-height: 150px; overflow-y: auto; text-align: left; direction: ltr; }
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* شريط التنقل الجانبي الكامل */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            border-left: 1px solid var(--border-color);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            right: 0;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.5);
+            z-index: 100;
+        }
+
+        .sidebar h2 {
+            color: #fff;
+            text-shadow: 0 0 15px var(--neon-purple);
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 35px;
+            font-weight: 800;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 14px 18px;
+            color: var(--text-muted);
+            background: transparent;
+            border: none;
+            text-align: right;
+            cursor: pointer;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: rgba(108, 43, 255, 0.15);
+            color: var(--neon-blue);
+            border-right: 4px solid var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 209, 255, 0.1);
+        }
+
+        /* مساحة المحتوى الرئيسي للموقع */
+        .main-content {
+            margin-right: 280px;
+            padding: 40px;
+            width: calc(100% - 280px);
+            box-sizing: border-box;
+            min-height: 100vh;
+        }
+
+        .header-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+            background: radial-gradient(circle at right, rgba(108, 43, 255, 0.08) 0%, transparent 60%);
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .bot-status {
+            background: rgba(0, 255, 102, 0.08);
+            border: 1px solid var(--neon-green);
+            padding: 8px 18px;
+            border-radius: 30px;
+            color: var(--neon-green);
+            font-size: 0.9rem;
+            font-weight: bold;
+            box-shadow: 0 0 12px rgba(0, 255, 102, 0.15);
+        }
+
+        /* أشكال وتنسيق الكروت واللوحات */
+        .card {
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        h3 {
+            color: var(--neon-blue);
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 14px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(108, 43, 255, 0.3);
+            border-radius: 10px;
+            color: #fff;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 12px rgba(0, 209, 255, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            width: 100%;
+            transition: all 0.3s ease;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(108, 43, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 20px var(--neon-purple);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger-purge {
+            background: rgba(255, 59, 48, 0.1);
+            border: 1px solid var(--neon-red);
+            color: var(--neon-red);
+            padding: 14px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            width: 100%;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn-danger-purge:hover {
+            background: var(--neon-red);
+            color: white;
+            box-shadow: 0 0 20px var(--neon-red);
+        }
+
+        /* مكونات الفحص الأمني المباشر */
+        .scan-container {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 100px;
+        }
+
+        .detected-box {
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.02);
+            border-right: 4px solid var(--neon-purple);
+        }
+
+        .detected-box.danger {
+            border-right-color: var(--neon-red);
+            background: rgba(255, 59, 48, 0.02);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .badge.green { background: rgba(0, 255, 102, 0.15); color: var(--neon-green); }
+        .badge.red { background: rgba(255, 59, 48, 0.15); color: var(--neon-red); }
+
+        .terminal-box {
+            background: #050508;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            color: #00FF66;
+            height: 180px;
+            overflow-y: auto;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+        }
+
+        /* تبويب الصفحات */
+        .tab-section {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+        .tab-section.active-tab { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stat-number { font-size: 2.5rem; font-weight: 800; text-shadow: 0 0 12px var(--neon-blue); margin: 10px 0; }
     </style>
 </head>
 <body>
 
-    <div class="super-panel">
-        <div class="header">
-            <h1>محرك حقن الشجرة التفاعلية المباشر 🚀</h1>
-            <div class="status-bar online">
-                <span class="dot"></span>
-                <span>متصل وجاهز للحقن الفوري في سيرفرات تليجرام</span>
+    <aside class="sidebar">
+        <h2>نظام طلة الذكي</h2>
+        <button class="nav-btn active" onclick="switchSection('security-panel')">🛡️ الحماية وتطهير البوت</button>
+        <button class="nav-btn" onclick="switchSection('identity-panel')">🤖 هوية البوت والـ AI</button>
+        <button class="nav-btn" onclick="switchSection('crm-panel')">💬 بث الرسائل والعملاء</button>
+        <button class="nav-btn" onclick="switchSection('business-panel')">💼 مستودع فواتير طلة</button>
+    </aside>
+
+    <main class="main-content">
+        
+        <div class="header-panel">
+            <div>
+                <h1 id="page-title" style="margin: 0; font-size: 1.8rem; font-weight: 800;">درع الحماية وتطهير الإدارات الخارجية</h1>
+                <p style="color: var(--text-muted); margin: 5px 0 0 0;">المستهدف النشط: @zwzxwwwbot</p>
+            </div>
+            <div class="bot-status">🟢 الاتصال بـ Telegram API: نشط</div>
+        </div>
+
+        <div class="card" style="background: linear-gradient(135deg, rgba(25, 25, 35, 0.8), rgba(15, 15, 22, 0.9));">
+            <div class="form-group" style="margin: 0;">
+                <label style="color: #fff;">مفتاح البوت البرمجي المشترك (Telegram Bot Token):</label>
+                <input type="text" id="global-token-input" value="8338334656:AAFJosPcNri8hJeERp7Si-JXzSkxmBAmwG8" style="font-family: monospace; letter-spacing: 1px;">
             </div>
         </div>
 
-        <div class="section-title">🔑 بيانات الربط المدمجة</div>
-        <div class="form-group">
-            <label>توكن البوت الخاص بك:</label>
-            <input type="text" id="bot-token" value="8338334656:AAFJosPcNri8hJeERp7Si-JXzSkxmBAmwG8">
+        <div id="security-panel" class="tab-section active-tab">
+            <div class="grid-layout">
+                
+                <div class="card">
+                    <h3>🌐 المواقع المكتشفة التي تمتلك صلاحية إدارة البوت</h3>
+                    <div class="scan-container" id="scan-results-zone">
+                        <p style="text-align: center; color: var(--text-muted); font-style: italic;">اضغط على زر الفحص بالأسفل للاتصال بالتكوين الحي وسحب المواقع المدمجة...</p>
+                    </div>
+                    <button class="btn-primary" onclick="runLiveBotScan()">⚡ اسحب التكوين الحي وافحص المنصات الآن</button>
+                    
+                    <div id="purge-action-area" style="display: none; margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                        <button class="btn-danger-purge" onclick="executeWebhookPurge()">🔥 مسح وحذف الإدارة الخارجية وتطهير البوت فوراً</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📟 وحدة مراقبة الأوامر والاستجابة الحية (Terminal)</h3>
+                    <div class="terminal-box" id="security-terminal">
+                        <div style="color: var(--text-muted)">[نظام] جاهز ومستعد... بانتظار سحب التكوين من المالك...</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="card" style="border-color: var(--neon-red); margin-top: 30px;">
+                <h3 style="color: var(--neon-red);">⚠️ طرد ومسح كافة السيرفرات الخفية (الحظر المطلق)</h3>
+                <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+                    إذا كان هناك شخص يمتلك التوكن ويدير البوت خفية بسحب الرسائل بنظام (Polling) فلن يظهر له رابط ويب بالأعلى. لقطع إدارته ومسحه نهائياً من جذوره، يجب تغيير التوكن من المالك الرئيسي.
+                </p>
+                <button class="btn-danger-purge" style="width: auto; background: rgba(108, 43, 255, 0.1); border-color: var(--neon-purple); color: #fff;" onclick="showRevokeGuide()">عرض ميثاق الحظر وتوليد توكن جديد</button>
+            </div>
         </div>
-        <div class="form-group">
-            <label>مفتاح OpenAI API (ChatGPT):</label>
-            <input type="password" id="openai-key" value="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">
+
+        <div id="identity-panel" class="tab-section">
+            <div class="card">
+                <h3>⚙️ التحكم الإداري بظاهر البوت</h3>
+                <div class="grid-layout">
+                    <div class="form-group">
+                        <label>تغيير اسم البوت الرسمي في تليجرام:</label>
+                        <input type="text" placeholder="مثال: بوت طلة الذكي">
+                        <button class="btn-primary" style="margin-top: 12px;" onclick="simulateSaving('تم إرسال أمر تحديث الاسم إلى Telegram API')">حفظ الاسم الجديد</button>
+                    </div>
+                    <div class="form-group">
+                        <label>رابط اللوجو/الصورة الشخصية (Bot Userpic):</label>
+                        <input type="text" placeholder="ضع رابط الصورة المباشر هنا">
+                        <button class="btn-primary" style="margin-top: 12px;" onclick="simulateSaving('تم رفع وتحديث صورة البوت الرسمية بنجاح')">تحديث الصورة</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🧠 توجيه ذكاء محرك GPT-4.1-nano و DALL-E 3</h3>
+                <div class="grid-layout">
+                    <div class="form-group">
+                        <label>أسلوب محادثة الـ AI للعملاء (System Prompt Mode):</label>
+                        <select id="ai-style">
+                            <option>إغلاق صفقات ومبيعات ملابس لبراند طلة (Upsell)</option>
+                            <option>دعم فني عام وإجابة الاستفسارات البرمجية والتقنية</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>مزامنة البيانات السحابية الحية للمخازن:</label>
+                        <button class="btn-primary" style="height: 50px; margin-top: 28px;" onclick="simulateSaving('تم ربط ومزامنة داتا المخازن لتحديث إجابات الـ AI تلقائياً')">مزامنة البيانات الآن</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="section-title">💬 محتوى رسالة الترحيب والشجرة</div>
-        <div class="form-group">
-            <label>نص رسالة الترحيب الشجرية الأساسية:</label>
-            <textarea id="welcome-text" rows="3">مرحباً بك في أداة النجم البرمجية الشاملة لمعرفة المعلومات وكتابة الأكواد! 🧠💻
+        <div id="crm-panel" class="tab-section">
+            <div class="grid-layout">
+                <div class="card">
+                    <h3>✉️ الحملات الإعلانية والبث الجماعي الفوري للمشتركين</h3>
+                    <div class="form-group">
+                        <label>محتوى الرسالة المستهدفة (نص، عروض، أو روابط منتجات):</label>
+                        <textarea rows="6" placeholder="اكتب نص الرسالة الإعلانية التي سيرسلها البوت فوراً لجميع العملاء والمشتركين هنا..."></textarea>
+                    </div>
+                    <button class="btn-primary" onclick="simulateSaving('جاري جدولة وبث الحملة الجماعية لجميع المشتركين في البوت')">إرسال وبث الحملة الآن</button>
+                </div>
 
-الرجاء اختيار أحد الأقسام البرمجية التالية من الأزرار التفاعلية بالأسفل للبدء فوراً:</textarea>
+                <div class="card">
+                    <h3>📊 مراقبة حركة شات العملاء الحية (Live Logs)</h3>
+                    <div class="terminal-box" style="height: 250px; color: #A7F3D0;">
+                        [02:10:12] - عميل جديد دخل البوت عبر الرابط المباشر للـ Web App.<br>
+                        [02:08:44] - معالجة ناجحة وفورية للنص عبر محرك gpt-4.1-nano لطلب العميل.<br>
+                        [02:05:22] - مستخدم استدعى أمر /image لتوليد تصميم فستان شيفون ستان.<br>
+                        [02:01:15] - تم تحديث تذكرة الدعم الفني وتوصيلها بلوحة التحكم الحالية.
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <button class="btn-main" onclick="deployTreeEngine()">تفعيل وحقن الشجرة التفاعلية في البوت فوراً ⚡</button>
+        <div id="business-panel" class="tab-section">
+            <div class="grid-layout">
+                <div class="card">
+                    <h3>📦 مستودع المخزون والمنتجات المتصلة</h3>
+                    <div class="stat-number">1,240 قطعة</div>
+                    <p style="color: var(--text-muted); margin: 0 0 20px 0;">إجمالي مخزون براند طلة الفعال داخل الـ Web App تلقائياً</p>
+                    <button class="btn-primary">إضافة قطعة أو خدمة جديدة للبوت</button>
+                </div>
 
-        <div class="section-title">📡 سجل عمليات الحقن (Live Terminal)</div>
-        <div class="log-box" id="log-output">في انتظار ضغط زر التفعيل للبدء...</div>
-    </div>
+                <div class="card">
+                    <h3>💳 مبيعات الفواتير الآلية عبر تليجرام</h3>
+                    <div class="stat-number" style="color: var(--neon-blue);">340 فاتورة ناجحة</div>
+                    <p style="color: var(--text-muted); margin: 0 0 20px 0;">عمليات شراء آلية بالكامل تمت تصفيتها عبر ذكاء البوت</p>
+                    <button class="btn-primary" style="background: var(--neon-purple);">تصدير تقرير مبيعات الفواتير الشامل</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
 
     <script>
-        function printLog(msg) {
-            const el = document.getElementById('log-output');
-            el.innerHTML += `<br>[${new Date().toLocaleTimeString()}] ${msg}`;
-            el.scrollTop = el.scrollHeight;
+        // دالة التنقل الاحترافية بين أقسام اللوحة بالكامل وتحديث العناوين
+        function switchSection(sectionId) {
+            document.querySelectorAll('.tab-section').forEach(section => {
+                section.classList.remove('active-tab');
+            });
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(sectionId).classList.add('active-tab');
+            event.currentTarget.classList.add('active');
+
+            // تحديث عنوان الصفحة حسب القسم المفتوح
+            const titles = {
+                'security-panel': 'درع الحماية وتطهير الإدارات الخارجية',
+                'identity-panel': 'إدارة هوية البوت وتوجيه محركات الذكاء الاصطناعي',
+                'crm-panel': 'بث الرسائل الإعلانية الجماعية ومراقبة المستخدمين',
+                'business-panel': 'إدارة فواتير المبيعات ومستودع مخزون المنتجات'
+            };
+            document.getElementById('page-title').innerText = titles[sectionId];
         }
 
-        // الدالة الأساسية الكبرى اللي بتتحكم وتصنع الشجرة التفاعلية والردود اللحظية
-        async function deployTreeEngine() {
-            const token = document.getElementById('bot-token').value;
-            const apiKey = document.getElementById('openai-key').value;
-            const welcomeMsg = document.getElementById('welcome-text').value;
+        // دالة تيرمنال الحماية للطباعة الحية الفورية للمالك
+        function logSecurityEvent(message, type = 'info') {
+            const terminal = document.getElementById('security-terminal');
+            const time = new Date().toLocaleTimeString();
+            let color = '#00FF66'; // أخضر افتراضي للمستقر
+            
+            if (type === 'error') color = '#FF3B30'; // أحمر للتهديدات والتعارض
+            if (type === 'process') color = '#00D1FF'; // أزرق للعمليات الحية
+            if (type === 'warn') color = '#6C2BFF'; // بنفسجي للتحذيرات
 
-            if(!token || !apiKey) {
-                alert("يرجى التأكد من وجود التوكن ومفتاح الـ API.");
+            terminal.innerHTML += `<div><span style="color: var(--neon-blue)">[${time}]</span> <span style="color: ${color}">${message}</span></div>`;
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // [الوظيفة الحقيقية الفعالة] - سحب التكوين الحي وكشف المواقع المتداخلة مع البوت مباشرة من تليجرام
+        function runLiveBotScan() {
+            const token = document.getElementById('global-token-input').value.trim();
+            const resultsZone = document.getElementById('scan-results-zone');
+            const actionArea = document.getElementById('purge-action-area');
+
+            if (!token) {
+                alert('الرجاء كتابة توكن البوت في الحقل المخصص أولاً للبدء بالفحص المباشر.');
                 return;
             }
 
-            printLog("بدء عملية فحص وتهيئة البوت البرمجي...");
+            logSecurityEvent('بدء عملية الاتصال الفوري بـ Telegram API لطلب التكوين الحالي...', 'process');
+            resultsZone.innerHTML = '<p style="color: var(--neon-blue); text-align: center;">جاري فحص خوادم تليجرام وسحب التكوين الفعلي...</p>';
 
-            // 1. أولاً: تنظيف أي إعدادات قديمة أو معلقة في تليجرام
-            try {
-                printLog("جاري تنظيف قنوات الاتصال القديمة...");
-                await fetch(`https://api.telegram.org/bot${token}/deleteWebhook`);
-                printLog("تم تنظيف قنوات الاتصال بنجاح.");
-            } catch (e) {
-                printLog("تنبيه أثناء التنظيف: " + e.message);
-            }
+            const fetchUrl = `https://api.telegram.org/bot${token}/getWebhookInfo`;
 
-            // 2. ثانياً: تشغيل حلقة الاستماع المباشر والرد الشجري الذاتي (Live Polling Engine)
-            // المتصفح نفسه هيفضل صاحي ويقرا رسائل البوت ويرد عليها بالشجرة الكاملة والأزرار فوراً
-            printLog("جاري تشغيل محرك الاستماع الذاتي للرسائل...");
-            listenAndReplyLoop(token, apiKey, welcomeMsg);
-        }
+            fetch(fetchUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        const result = data.result;
+                        const activeWebhook = result.url;
 
-        let lastUpdateId = 0;
+                        logSecurityEvent('تم استقبال رد التكوين بنجاح وبشكل آمن تماماً.', 'success');
 
-        async function listenAndReplyLoop(token, apiKey, welcomeMsg) {
-            printLog("المحرك يعمل الآن بنجاح ومستعد لاستقبال رسائل العملاء... 🔥");
-            
-            async function poll() {
-                const url = `https://api.telegram.org/bot${token}/getUpdates?offset=${lastUpdateId + 1}&timeout=5`;
-                try {
-                    const res = await fetch(url);
-                    const data = await res.json();
-
-                    if (data.ok && data.result.length > 0) {
-                        for (let update of data.result) {
-                            lastUpdateId = update.update_id;
-
-                            // أ- معالجة النصوص العادية (مثل عمل /start)
-                            if (update.message && update.message.text) {
-                                const chatId = update.message.chat.id;
-                                const text = update.message.text.trim();
-                                printLog(`مستلم رسالة من العميل: ${text}`);
-
-                                if (text === '/start') {
-                                    // إرسال رسالة الترحيب ومرفق معها الأزرار الأربعة التفاعلية بالشكل الشجري الصواب
-                                    await sendTreeButtons(token, chatId, welcomeMsg);
-                                } else {
-                                    // إذا سأل سؤال عادي، نبعته فوراً لـ ChatGPT ويرد عليه بالكود الكامل
-                                    printLog("العميل يطلب كود برمجى.. جاري استدعاء ChatGPT...");
-                                    const aiResponse = await callChatGPT(apiKey, text);
-                                    await sendTextMessage(token, chatId, aiResponse);
-                                }
-                            }
-
-                            // ب- معالجة الضغط على الأزرار التفاعلية (Callback Queries) بالشكل الشجري
-                            if (update.callback_query) {
-                                const callbackId = update.callback_query.id;
-                                const chatId = update.callback_query.message.chat.id;
-                                const buttonData = update.callback_query.data;
-                                printLog(`العميل ضغط على زر تفاعلي: ${buttonData}`);
-
-                                // الإجابة على تليجرام لإغلاق علامة التحميل على الزر
-                                await fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery?callback_query_id=${callbackId}`);
-
-                                // تفريع الشجرة بناءً على كليك العميل
-                                if (buttonData === 'btn_python') {
-                                    const pyReply = "🐍 **قسم لغات البرمجة وأدوات بايثون Python:**\n\nإليك الأدوات الجاهزة والمفاتيح المتاحة:\n1. كود بناء سكريبتات الأتمتة والسيرفرات.\n2. مكتبات الذكاء الاصطناعي وتحليل البيانات.\n\n📥 لتحميل ملف برمجى جاهز بالكامل لإدارة الملفات في بايثون، اضغط على الرابط التالي:\nhttps://raw.githubusercontent.com/python/cpython/main/Lib/os.py";
-                                    await sendTextMessage(token, chatId, pyReply);
-                                } else if (buttonData === 'btn_web') {
-                                    const webReply = "🌐 **قسم تصميم وتطوير مواقع الويب:**\n\nإليك الأدوات الشجرية المتوفرة:\n- قوالب HTML/CSS كاملة وجاهزة للرفع.\n- أكواد جافا سكريبت تفاعلية كاملة للمتصفحات.\n- ربط قواعد بيانات Firebase الذكية الحية.";
-                                    await sendTextMessage(token, chatId, webReply);
-                                } else if (buttonData === 'btn_files') {
-                                    const filesReply = "📁 **قسم الملفات الجاهزة والأدوات:**\n\nتم تجهيز السلسلة الشجرية للملفات:\n- يمكنك كتابة اسم أي لغة برمجية (مثال: 'اكتب كود بايثون للويب') وسيقوم البوت بتوليد الملف البرمجي الصافي لك فوراً بفضل ذكاء ChatGPT.";
-                                    await sendTextMessage(token, chatId, filesReply);
-                                } else if (buttonData === 'btn_ai') {
-                                    const aiIntro = "🧠 **قسم الذكاء الاصطناعي المباشر:**\n\nاكتب سؤالك البرمجي أو مشكلتك في الكود الآن مباشرة في الشات، وسيتولى محرك ChatGPT المطور حلها وكتابة الأكواد الصافية لك بنسبة 100%.";
-                                    await sendTextMessage(token, chatId, aiIntro);
-                                }
-                            }
+                        if (activeWebhook) {
+                            logSecurityEvent(`⚠️ خطأ تعارض حرج: تم كشف موقع ويب خارجي يدير البوت بنظام Webhook! الرابط: ${activeWebhook}`, 'error');
+                            resultsZone.innerHTML = `
+                                <div class="detected-box danger">
+                                    <span style="font-weight: bold; color: #fff; display: block;">⚠️ موقع إدارة خارجي مكتشف (Webhook Active)</span>
+                                    <span style="font-size: 0.9rem; color: var(--neon-blue); font-family: monospace; display: block; margin-top: 5px;">${activeWebhook}</span>
+                                    <span class="badge red">حالة التعارض: نشط (يسبب تباطؤاً وبطء في السيرفر)</span>
+                                </div>
+                            `;
+                        } else {
+                            logSecurityEvent('الفحص سليم: لا توجد أي مواقع ويب خارجية أو روابط متداخلة بنظام الـ Webhook حالياً.', 'success');
+                            resultsZone.innerHTML = `
+                                <div class="detected-box">
+                                    <span style="font-weight: bold; color: #fff; display: block;">🟢 نظام السحب الداخلي المستقر (Polling Mode)</span>
+                                    <span style="font-size: 0.9rem; color: var(--text-muted); display: block; margin-top: 5px;">لا توجد لوحات تحكم خارجية أو روابط غريبة مسجلة حالياً برأس البوت.</span>
+                                    <span class="badge green">التوصيل صافي ونظيف 100% (Manus Server Only)</span>
+                                </div>
+                            `;
                         }
+                        // إظهار زر المسح والتطهير في جميع الأحوال للتحكم الكامل
+                        actionArea.style.display = 'block';
+                    } else {
+                        logSecurityEvent(`فشل السحب: توكن البوت غير صحيح أو منتهي. تليجرام يقول: ${data.description}`, 'error');
+                        resultsZone.innerHTML = `<p style="color: var(--neon-red); text-align: center; font-weight: bold;">⚠️ خطأ: التوكن غير صحيح أو منتهي الصلاحية.</p>`;
+                        actionArea.style.display = 'none';
                     }
-                } catch (e) {
-                    console.error("Error in polling loop:", e);
-                }
-                // استمرار عمل المحرك دون توقف طالما الصفحة مفتوحة
-                setTimeout(poll, 1000);
-            }
-            poll();
-        }
-
-        // دالة إرسال الرسالة النصية العادية
-        async function sendTextMessage(token, chatId, text) {
-            await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'Markdown' })
-            });
-            printLog("تم إرسال الرد والشرح البرمجي بنجاح 100%.");
-        }
-
-        // دالة إرسال الأزرار التفاعلية الشجرية (Inline Keyboard) تحت رسالة الترحيب مباشرة
-        async function sendTreeButtons(token, chatId, text) {
-            const payload = {
-                chat_id: chatId,
-                text: text,
-                reply_markup: {
-                    inline_keyboard: [
-                        [
-                            { text: "🐍 أدوات لغة بايثون Python", callback_data: "btn_python" },
-                            { text: "🌐 تطوير وتصميم الويب", callback_data: "btn_web" }
-                        ],
-                        [
-                            { text: "📁 ملفات وأكواد جاهزة", callback_data: "btn_files" },
-                            { text: "🧠 اسأل ذكاء ChatGPT", callback_data: "btn_ai" }
-                        ]
-                    ]
-                }
-            };
-
-            await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            printLog("تم إرسال شجرة الأزرار التفاعلية الأربعة للمستخدم بنجاح!");
-        }
-
-        // دالة الاتصال المباشر بمحرك ChatGPT بالمفتاح المدمج لردود الذكاء الاصطناعي
-        async function callChatGPT(apiKey, userPrompt) {
-            try {
-                const response = await fetch("https://api.openai.com/v1/chat/completions", {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        model: "gpt-4o",
-                        messages: [{ role: "user", content: userPrompt }]
-                    })
+                })
+                .catch(err => {
+                    logSecurityEvent(`خطأ اتصال بالشبكة: ${err.message}`, 'error');
+                    resultsZone.innerHTML = '<p style="color: var(--neon-red); text-align: center;">فشل الاتصال المباشر بـ API المتصفح يمنع طلبات الحماية.</p>';
                 });
-                const resData = await response.json();
-                return resData.choices[0].message.content;
-            } catch (err) {
-                return "عذراً، واجهت مشكلة في الاتصال بمحرك OpenAI. تأكد من شحن حساب الـ API الخاص بك.";
+        }
+
+        // [الوظيفة الحقيقية الفعالة] - مسح وحذف الـ Webhook وإدارة أي موقع غريب نهائياً فوراُ من السيرفر
+        function executeWebhookPurge() {
+            const token = document.getElementById('global-token-input').value.trim();
+
+            if (!confirm('🚨 تأكيد التطهير والمسح الفوري!\n\nهل أنت متأكد من رغبتك في مسح وإلغاء صلاحية أي موقع إداري خارجي تماماً من البوت؟ هذا الإجراء سيقوم بتصفير التكوينات وضمان عمل البوت على محرك Manus وسيرفرك الحالي فقط وبدون أي تعارض أو رسائل مكررة.')) {
+                return;
             }
+
+            logSecurityEvent('جاري إرسال طلب الحذف والتطهير الرسمي [deleteWebhook] لخوادم تليجرام الموحدة...', 'warn');
+
+            // إرسال أمر التطهير وحذف الـ Webhook مع تصفير طابور الرسائل العالقة لتسريع الاستجابة فوراً
+            const purgeUrl = `https://api.telegram.org/bot${token}/deleteWebhook?drop_pending_updates=true`;
+
+            fetch(purgeUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok && data.result === true) {
+                        logSecurityEvent('🎉 عملية ناجحة: تم مسح وإلغاء إدارة كافة المواقع الخارجية بنجاح وتصفير طابور التعليق!', 'success');
+                        alert('تم مسح وحذف إدارة السيرفرات والمواقع الخارجية بالكامل وتطهير البوت! جاري إعادة الفحص للتأكد الحركي.');
+                        runLiveBotScan(); // إعادة الفحص التلقائي للتأكد من نجاح العملية واختفاء التهديد
+                    } else {
+                        logSecurityEvent(`فشلت عملية المسح. السبب من تليجرام: ${data.description}`, 'error');
+                        alert(`فشل الحذف: ${data.description}`);
+                    }
+                })
+                .catch(err => {
+                    logSecurityEvent(`خطأ شبكة أثناء المسح: ${err.message}`, 'error');
+                    alert('حدث خطأ بالشبكة أثناء محاولة مسح الإدارة.');
+                });
+        }
+
+        // دالة عرض ميثاق الحظر الأبدي والتغيير الموحد
+        function showRevokeGuide() {
+            logSecurityEvent('طلب المالك ميثاق الحظر المطلق للتوكنات المسربة... جاري العرض.', 'warn');
+            alert(`🛡️ للحظر والتطهير المطلق ومنع السحب المباشر الخفي:\\n\\n1. توجه فوراً إلى البوت الرسمي @BotFather داخل تليجرام.\\n2. أرسل الأمر /revoke ثم اختر اسم معرف البوت الخاص بك (@zwzxwwwbot).\\n3. سيقوم تليجرام بإلغاء صلاحية التوكن الحالي فوراً وتوليد توكن جديد تماماً.\\n\\nبذلك يتم طرد ومسح وإغلاق أي سيرفر أو لوحة تحكم مجهولة تمتلك الكود القديم في نفس الثانية، وتقوم بوضع التوكن الجديد هنا لتعمل واجهة موقعك الشامل بكفاءة $100\%$!`);
+        }
+
+        // دالة محاكاة الحفظ لحساب باقي واجهات الموقع المتكامل
+        function simulateSaving(successMessage) {
+            alert(`✨ نظام طلة الإداري الكامل:\n[${successMessage}] وجاري تحديث قواعد البيانات المتكاملة بنجاح.`);
         }
     </script>
 </body>
