@@ -4,1155 +4,1157 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MOKO System – Management Platform</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
-        :root {
-            --primary-neon: #00f2fe;
-            --secondary-neon: #bd00ff;
-            --bg-dark: #0B0B0F;
-            --card-bg: rgba(20, 20, 28, 0.6);
-            --border-glass: rgba(255, 255, 255, 0.05);
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --btn-danger: #ff4a4a;
-            --btn-success: #00ff87;
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #0B0B0F;
+            color: #f3f4f6;
+            overflow-x: hidden;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Cairo', 'Plus Jakarta Sans', sans-serif;
+        /* Neon Custom Grafts & Gradients */
+        .neon-text-blue { color: #00f2fe; text-shadow: 0 0 8px rgba(0, 242, 254, 0.6); }
+        .neon-text-purple { color: #bd00ff; text-shadow: 0 0 8px rgba(189, 0, 255, 0.6); }
+        .neon-bg-gradient { background: linear-gradient(135deg, #00f2fe 0%, #bd00ff 100%); }
+        .neon-border-blue:focus { border-color: #00f2fe; box-shadow: 0 0 10px rgba(0, 242, 254, 0.5); }
+        
+        /* Glassmorphism Design Style */
+        .glass-panel {
+            background: rgba(15, 15, 23, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            overflow-x: hidden;
-            background-image: radial-gradient(circle at 10% 20%, rgba(189, 0, 255, 0.05) 0%, transparent 40%),
-                              radial-gradient(circle at 90% 80%, rgba(0, 242, 254, 0.05) 0%, transparent 40%);
-            background-attachment: fixed;
-        }
-
-        /* --- Login Screen --- */
-        #login-screen {
-            position: fixed;
-            top: 0; right: 0; bottom: 0; left: 0;
-            z-index: 9999;
-            background: var(--bg-dark);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .login-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border-glass);
-            padding: 2.5rem;
-            border-radius: 24px;
-            width: 100%;
-            max-width: 450px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 242, 254, 0.1);
-            text-align: center;
-        }
-
-        .login-card img {
-            max-height: 80px;
-            margin-bottom: 1.5rem;
-            filter: drop-shadow(0 0 10px var(--primary-neon));
-        }
-
-        .login-card h2 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 2rem;
-            background: linear-gradient(45deg, var(--primary-neon), var(--secondary-neon));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .input-group {
-            position: relative;
-            margin-bottom: 1.5rem;
-            text-align: right;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        .input-group input, .input-group select {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-glass);
-            border-radius: 12px;
-            color: #fff;
-            outline: none;
-            font-size: 1rem;
-        }
-
-        .input-group input:focus, .input-group select:focus {
-            border-color: var(--primary-neon);
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
-        }
-
-        .btn-neon {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(45deg, var(--primary-neon), var(--secondary-neon));
-            border: none;
-            border-radius: 12px;
-            color: #fff;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
-        }
-
-        .btn-neon:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(189, 0, 255, 0.4), 0 0 10px var(--primary-neon);
-        }
-
-        /* --- Main Layout --- */
-        #main-app {
-            display: none;
-            min-height: 100vh;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            top: 0; right: 0; bottom: 0;
-            width: 280px;
-            background: rgba(11, 11, 15, 0.85);
-            backdrop-filter: blur(20px);
-            border-left: 1px solid var(--border-glass);
-            padding: 2rem 1.5rem;
-            z-index: 100;
-        }
-
-        .brand-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 3rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border-glass);
-        }
-
-        .brand-logo {
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
-            object-fit: cover;
-            filter: drop-shadow(0 0 5px var(--primary-neon));
-        }
-
-        .brand-name {
-            font-size: 1.4rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            background: linear-gradient(45deg, var(--primary-neon), var(--text-main));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .nav-menu {
-            list-style: none;
-        }
-
-        .nav-item {
-            margin-bottom: 0.5rem;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 14px 18px;
-            color: var(--text-muted);
-            text-decoration: none;
-            border-radius: 14px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        .nav-link i {
-            font-size: 1.2rem;
-            width: 24px;
-            text-align: center;
-        }
-
-        .nav-link:hover, .nav-link.active {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.04);
-            border-right: 4px solid var(--primary-neon);
-            box-shadow: inset 10px 0 20px rgba(0, 242, 254, 0.02);
-        }
-
-        .nav-link.active i {
-            color: var(--primary-neon);
-            filter: drop-shadow(0 0 8px var(--primary-neon));
-        }
-
-        /* Main Content Container */
-        .content-wrapper {
-            margin-right: 280px;
-            padding: 2rem 3rem;
-            min-height: 100vh;
-        }
-
-        /* Top Header */
-        .top-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2.5rem;
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            padding: 1rem 2rem;
-            border-radius: 20px;
-            border: 1px solid var(--border-glass);
-        }
-
-        .page-title-area h1 {
-            font-size: 1.6rem;
-            font-weight: 700;
-        }
-
-        .breadcrumbs {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-
-        .user-profile-widget {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .user-info-text {
-            text-align: left;
-        }
-
-        .user-name {
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
-        .user-role-badge {
-            font-size: 0.75rem;
-            padding: 2px 8px;
-            border-radius: 20px;
-            background: rgba(189, 0, 255, 0.2);
-            color: #e0aaff;
-            border: 1px solid rgba(189, 0, 255, 0.3);
-        }
-
-        /* --- Dashboard Grid & UI Elements --- */
-        .system-section {
-            display: none;
-            animation: fadeIn 0.4s ease-out forwards;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .stat-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-glass);
-            border-radius: 20px;
-            padding: 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card:hover {
+        .glass-card:hover {
             transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.05);
             border-color: rgba(0, 242, 254, 0.3);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 20px rgba(0, 242, 254, 0.1);
         }
 
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-top: 5px;
-            font-family: 'Plus Jakarta Sans';
-        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0B0B0F; }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 242, 254, 0.3); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00f2fe; }
 
-        .stat-label {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        .stat-icon {
-            width: 55px;
-            height: 55px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            background: rgba(255,255,255,0.02);
-        }
-
-        .stat-card.blue .stat-icon { color: var(--primary-neon); background: rgba(0, 242, 254, 0.1); }
-        .stat-card.purple .stat-icon { color: var(--secondary-neon); background: rgba(189, 0, 255, 0.1); }
-        .stat-card.success .stat-icon { color: var(--btn-success); background: rgba(0, 255, 135, 0.1); }
-
-        /* Standard Table & Cards Design */
-        .data-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-glass);
-            border-radius: 24px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            backdrop-filter: blur(10px);
-        }
-
-        .card-header-flex {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: right;
-        }
-
-        th {
-            padding: 16px;
-            color: var(--text-muted);
-            font-weight: 600;
-            border-bottom: 1px solid var(--border-glass);
-            font-size: 0.9rem;
-        }
-
-        td {
-            padding: 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.02);
-            font-size: 0.95rem;
-        }
-
-        tr:hover td {
-            background: rgba(255, 255, 255, 0.01);
-            color: #fff;
-        }
-
-        /* Status Badges */
-        .badge {
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-        .badge.pending { background: rgba(255, 174, 0, 0.15); color: #ffae00; }
-        .badge.progress { background: rgba(0, 242, 254, 0.15); color: var(--primary-neon); }
-        .badge.completed { background: rgba(0, 255, 135, 0.15); color: var(--btn-success); }
-        .badge.cancelled { background: rgba(255, 74, 74, 0.15); color: var(--btn-danger); }
-
-        /* Actions & Utility Buttons */
-        .btn-action {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border-glass);
-            color: #fff;
-            padding: 6px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.85rem;
-        }
-        .btn-action:hover {
-            background: var(--primary-neon);
-            color: var(--bg-dark);
-        }
-        .btn-add {
-            background: linear-gradient(45deg, var(--primary-neon), var(--secondary-neon));
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        /* Forms Layout inside Panels */
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        /* Responsive Mobile Layout */
-        .menu-trigger {
+        /* SPA Transitions */
+        .app-section {
             display: none;
-            font-size: 1.5rem;
-            background: none;
-            border: none;
-            color: #fff;
-            cursor: pointer;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.4s ease-in-out;
         }
 
-        @media (max-width: 991px) {
-            .sidebar {
-                transform: translateX(100%);
-                position: fixed;
-                right: 0; top: 0; bottom: 0;
-            }
-            .sidebar.active {
-                transform: translateX(0);
-            }
-            .content-wrapper {
-                margin-right: 0;
-                padding: 1.5rem;
-            }
-            .menu-trigger {
-                display: block;
-            }
+        .app-section.active-section {
+            display: block;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Sidebar active item */
+        .sidebar-item.active {
+            background: linear-gradient(90deg, rgba(0, 242, 254, 0.15) 0%, rgba(189, 0, 255, 0.05) 100%);
+            border-right: 4px solid #00f2fe;
+            color: #00f2fe;
         }
     </style>
 </head>
-<body>
+<body class="antialiased">
 
-    <div id="login-screen">
-        <div class="login-card">
-            <img id="login-logo" src="https://images.cloudinary.com/demo/image/upload/sample.jpg" alt="MOKO Logo" class="brand-logo">
-            <h2 id="login-title">MOKO System</h2>
-            <form id="login-form">
-                <div class="input-group">
-                    <label>اسم المستخدم</label>
-                    <input type="text" id="login-username" required placeholder="أدخل اسم الحساب">
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4 bg-radial from-[#1a102f] to-[#0B0B0F]">
+        <div class="glass-panel w-full max-w-md p-8 rounded-2xl relative overflow-hidden text-center">
+            <div class="absolute -top-10 -left-10 w-40 h-40 bg-[#00f2fe] opacity-10 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-[#bd00ff] opacity-10 rounded-full blur-3xl"></div>
+            
+            <img id="app-logo-login" src="https://via.placeholder.com/100/0B0B0F/00f2fe?text=MOKO" alt="MOKO Logo" class="mx-auto w-20 h-20 object-contain mb-4 rounded-xl shadow-lg border border-neutral-800">
+            <h1 id="app-name-login" class="text-3xl font-bold neon-text-blue mb-1">MOKO SYSTEM</h1>
+            <p class="text-xs text-neutral-400 mb-8 tracking-widest uppercase">Management & Command Platform</p>
+
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-5 text-right">
+                <div>
+                    <label class="block text-sm text-neutral-300 mb-2 mr-1">اسم المستخدم / البريد الإلكتروني</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-500"><i class="fa-solid fa-user"></i></span>
+                        <input type="text" id="login-username" required class="w-full bg-[#121218] border border-neutral-800 rounded-xl py-3 pr-10 pl-4 text-white focus:outline-none neon-border-blue transition-all" placeholder="ادخل اسم الحساب">
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label>كلمة المرور</label>
-                    <input type="password" id="login-password" required placeholder="••••••••">
+                <div>
+                    <label class="block text-sm text-neutral-300 mb-2 mr-1">كلمة المرور</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-500"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" id="login-password" required class="w-full bg-[#121218] border border-neutral-800 rounded-xl py-3 pr-10 pl-4 text-white focus:outline-none neon-border-blue transition-all" placeholder="••••••••">
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label>نوع الحساب / الصلاحية</label>
-                    <select id="login-role">
-                        <option value="admin">إدارة (Admin)</option>
-                        <option value="supervisor">مشرف (Supervisor)</option>
-                        <option value="employee">موظف (Employee)</option>
-                        <option value="customer">عميل (Customer)</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn-neon">تسجيل الدخول</button>
+                <button type="submit" class="w-full neon-bg-gradient text-black font-bold py-3.5 rounded-xl transition-transform active:scale-95 shadow-lg hover:shadow-[#00f2fe]/20">
+                    <i class="fa-solid fa-right-to-bracket ml-2"></i>تسجيل الدخول الدوّار
+                </button>
             </form>
+            <div class="mt-6 text-xs text-neutral-500">مالك النظام: <span class="text-neutral-300">محمد</span></div>
         </div>
     </div>
 
-    <div id="main-app">
+
+    <div id="main-layout" class="hidden min-h-screen flex flex-col md:flex-row-reverse">
         
-        <aside class="sidebar">
-            <div class="brand-area">
-                <img id="app-logo" src="https://images.cloudinary.com/demo/image/upload/sample.jpg" alt="Logo" class="brand-logo">
-                <span id="app-name" class="brand-name">MOKO</span>
+        <aside id="sidebar" class="w-full md:w-64 glass-panel border-l border-neutral-900 flex flex-col justify-between z-30 transition-all duration-300">
+            <div>
+                <div class="p-6 flex items-center justify-between border-b border-neutral-900">
+                    <div class="flex items-center gap-3">
+                        <img id="app-logo-side" src="https://via.placeholder.com/50/0B0B0F/00f2fe?text=M" alt="Moko Logo" class="w-10 h-10 rounded-lg border border-neutral-800">
+                        <div>
+                            <h2 id="app-name-side" class="font-bold text-white tracking-wide text-sm">MOKO SYSTEM</h2>
+                            <span id="user-role-badge" class="text-[10px] text-neutral-400 bg-neutral-900 px-2 py-0.5 rounded-full border border-neutral-800 block mt-0.5">Admin</span>
+                        </div>
+                    </div>
+                    <button onclick="toggleSidebarMobile()" class="md:hidden text-white"><i class="fa-solid fa-bars text-xl"></i></button>
+                </div>
+
+                <nav class="p-4 space-y-1.5" id="sidebar-nav">
+                    </nav>
             </div>
-            <ul class="nav-menu">
-                <li class="nav-item" data-roles="admin,supervisor,employee,customer">
-                    <a class="nav-link active" onclick="showSection('dashboard', 'الرئيسية')">
-                        <i class="fa-solid fa-chart-pie"></i> لوحة التحكم
-                    </a>
-                </li>
-                <li class="nav-item" data-roles="admin,supervisor">
-                    <a class="nav-link" onclick="showSection('users-sec', 'إدارة المستخدمين')">
-                        <i class="fa-solid fa-users-gear"></i> الحسابات والمستخدمين
-                    </a>
-                </li>
-                <li class="nav-item" data-roles="admin,supervisor,employee,customer">
-                    <a class="nav-link" onclick="showSection('orders-sec', 'إدارة الطلبات')">
-                        <i class="fa-solid fa-boxes-stacked"></i> الطلبات والعمليات
-                    </a>
-                </li>
-                <li class="nav-item" data-roles="admin,supervisor,customer">
-                    <a class="nav-link" onclick="showSection('finance-sec', 'التحكم المالي')">
-                        <i class="fa-solid fa-wallet"></i> الحسابات المالية
-                    </a>
-                </li>
-                <li class="nav-item" data-roles="admin">
-                    <a class="nav-link" onclick="showSection('settings-sec', 'إعدادات النظام')">
-                        <i class="fa-solid fa-sliders"></i> إعدادات الهوية
-                    </a>
-                </li>
-                <li class="nav-item" style="margin-top: 2rem;">
-                    <a class="nav-link" onclick="logout()" style="color: var(--btn-danger);">
-                        <i class="fa-solid fa-arrow-right-from-bracket"></i> تسجيل الخروج
-                    </a>
-                </li>
-            </ul>
+
+            <div class="p-4 border-t border-neutral-900 bg-black/20">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-neutral-800 flex items-center justify-center text-white font-bold border border-neutral-700" id="user-avatar">
+                            U
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs font-semibold text-white truncate max-w-[100px]" id="current-user-display">User Name</p>
+                            <p class="text-[10px] text-neutral-500">متصل الآن</p>
+                        </div>
+                    </div>
+                    <button onclick="logout()" class="text-red-400 hover:text-red-500 p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 transition-all" title="تسجيل الخروج">
+                        <i class="fa-solid fa-power-off"></i>
+                    </button>
+                </div>
+            </div>
         </aside>
 
-        <main class="content-wrapper">
+        <main class="flex-1 flex flex-col min-w-0 bg-[#07070a]">
             
-            <header class="top-header">
-                <div class="page-title-area">
-                    <button class="menu-trigger" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-                    <h1 id="current-page-title">لوحة التحكم</h1>
-                    <div class="breadcrumbs">MOKO System &gt; <span id="bread-crumb-page">الرئيسية</span></div>
+            <header class="glass-panel border-b border-neutral-900 px-6 py-4 flex items-center justify-between z-20">
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleSidebarMobile()" class="md:hidden text-white bg-neutral-900 p-2 rounded-lg"><i class="fa-solid fa-bars"></i></button>
+                    <div>
+                        <div class="text-xs text-neutral-400 flex items-center gap-1">
+                            <span>MOKO</span> <i class="fa-solid fa-chevron-left text-[9px] mx-1"></i> <span id="breadcrumb-current" class="neon-text-blue">لوحة التحكم</span>
+                        </div>
+                        <h1 id="header-page-title" class="text-xl font-bold text-white mt-0.5">نظرة عامة على النظام</h1>
+                    </div>
                 </div>
-                <div class="user-profile-widget">
-                    <div class="user-info-text">
-                        <div class="user-name" id="current-user-display">محمد</div>
-                        <span class="user-role-badge" id="current-role-display">مدير النظام</span>
+                <div class="hidden sm:flex items-center gap-3 text-neutral-400 text-xs">
+                    <div class="bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-center">
+                        <i class="fa-regular fa-clock text-neutral-500 ml-1"></i> <span id="live-clock">00:00:00</span>
                     </div>
                 </div>
             </header>
 
-            <section id="dashboard" class="system-section" style="display: block;">
-                <div class="stats-grid">
-                    <div class="stat-card blue">
-                        <div>
-                            <div class="stat-label">إجمالي الطلبات</div>
-                            <div class="stat-value" id="stat-orders-count">0</div>
-                        </div>
-                        <div class="stat-icon"><i class="fa-solid fa-box"></i></div>
-                    </div>
-                    <div class="stat-card purple">
-                        <div>
-                            <div class="stat-label">المبالغ المحصلة</div>
-                            <div class="stat-value" id="stat-total-paid">0</div>
-                        </div>
-                        <div class="stat-icon"><i class="fa-solid fa-money-bill-wave"></i></div>
-                    </div>
-                    <div class="stat-card success">
-                        <div>
-                            <div class="stat-label">الديون المتبقية</div>
-                            <div class="stat-value" id="stat-total-debt">0</div>
-                        </div>
-                        <div class="stat-icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>
-                    </div>
-                </div>
+            <div class="flex-1 p-6 overflow-y-auto space-y-6">
 
-                <div class="data-card">
-                    <div class="card-header-flex">
-                        <h2>آخر الإشعارات وتحديثات النظام اللحظية</h2>
-                        <i class="fa-solid fa-bell" style="color: var(--primary-neon);"></i>
-                    </div>
-                    <div id="live-logs-container" style="max-height: 200px; overflow-y: auto; font-size: 0.9rem; line-height: 1.8;">
+                <section id="sec-dashboard" class="app-section">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5" id="dashboard-stats-grid">
                         </div>
-                </div>
-            </section>
 
-            <section id="users-sec" class="system-section">
-                <div class="data-card admin-only" data-roles="admin">
-                    <div class="card-header-flex">
-                        <h2>إنشاء وتعديل حساب مستخدم جديد</h2>
-                    </div>
-                    <form id="user-creation-form">
-                        <div class="form-grid">
-                            <div class="input-group">
-                                <label>اسم المستخدم (ID الفريد في الدخول)</label>
-                                <input type="text" id="new-user-id" required>
-                            </div>
-                            <div class="input-group">
-                                <label>الاسم الظاهري</label>
-                                <input type="text" id="new-user-name" required>
-                            </div>
-                            <div class="input-group">
-                                <label>كلمة المرور</label>
-                                <input type="text" id="new-user-pass" required>
-                            </div>
-                            <div class="input-group">
-                                <label>الصلاحية</label>
-                                <select id="new-user-role">
-                                    <option value="customer">عميل</option>
-                                    <option value="employee">موظف</option>
-                                    <option value="supervisor">مشرف</option>
-                                    <option value="admin">مدير</option>
-                                </select>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+                        <div class="lg:col-span-2 glass-panel p-5 rounded-2xl">
+                            <h3 class="text-sm font-semibold text-neutral-300 mb-4 flex items-center gap-2"><i class="fa-solid fa-chart-line text-blue-400"></i> تحليل الأداء والتدفق المالي للشركة</h3>
+                            <div class="h-64 relative">
+                                <canvas id="analyticsChart"></canvas>
                             </div>
                         </div>
-                        <button type="submit" class="btn-add">حفظ وإضافة الحساب للمنظومة</button>
-                    </form>
-                </div>
+                        <div class="glass-panel p-5 rounded-2xl flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-sm font-semibold text-neutral-300 mb-4 flex items-center gap-2"><i class="fa-solid fa-bell text-purple-400"></i> آخر الإشعارات والعمليات اللحظية</h3>
+                                <div class="space-y-3 max-h-60 overflow-y-auto pr-1 text-xs" id="dashboard-notifications">
+                                    <div class="p-2.5 rounded-lg bg-blue-500/5 border border-blue-500/10 text-neutral-300">نظام موكو الإداري جاهز للعمل والمراقبة اللحظية.</div>
+                                </div>
+                            </div>
+                            <div class="pt-3 border-t border-neutral-950 text-center text-xs text-neutral-500">
+                                المالك: محمد &copy; 2026 MOKO System
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-                <div class="data-card">
-                    <h2>قائمة الحسابات المسجلة بالنظام</h2>
-                    <div class="table-responsive">
-                        <table>
+                <section id="sec-users" class="app-section">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-users neon-text-blue"></i> شاشة التحكم بالمستخدمين والصلاحيات</h2>
+                        <button onclick="openUserModal()" class="neon-bg-gradient text-black font-bold text-xs px-4 py-2.5 rounded-xl shadow-md flex items-center gap-2"><i class="fa-solid fa-user-plus"></i> إضافة مستخدم جديد</button>
+                    </div>
+                    <div class="glass-panel rounded-2xl overflow-hidden overflow-x-auto">
+                        <table class="w-full text-right border-collapse">
                             <thead>
-                                <tr>
-                                    <th>ID الحساب</th>
-                                    <th>الاسم</th>
-                                    <th>نوع الحساب</th>
-                                    <th>كلمة السر الحالية</th>
-                                    <th>الإجراءات</th>
+                                <tr class="border-b border-neutral-900 bg-neutral-950 text-neutral-400 text-xs uppercase tracking-wider">
+                                    <th class="p-4">اسم المستخدم</th>
+                                    <th class="p-4">البريد الإلكتروني</th>
+                                    <th class="p-4">المستوى / الصلاحية</th>
+                                    <th class="p-4">كلمة المرور</th>
+                                    <th class="p-4 text-center">الإجراءات</th>
                                 </tr>
                             </thead>
-                            <tbody id="users-table-body">
+                            <tbody id="users-table-body" class="text-sm text-neutral-300 divide-y divide-neutral-900/50">
                                 </tbody>
                         </table>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            <section id="orders-sec" class="system-section">
-                <div class="data-card" id="create-order-wrapper" data-roles="admin,supervisor">
-                    <h2>إنشاء مسار طلب أو مهمة تشغيلية جديدة</h2>
-                    <form id="order-creation-form" style="margin-top:1rem;">
-                        <div class="form-grid">
-                            <div class="input-group">
-                                <label>ربط بحساب عميل (ID)</label>
-                                <input type="text" id="order-cust-id" required>
-                            </div>
-                            <div class="input-group">
-                                <label>تفاصيل المنتج / الخدمة</label>
-                                <input type="text" id="order-details" required>
-                            </div>
-                            <div class="input-group">
-                                <label>الكمية التشغيلية</label>
-                                <input type="number" id="order-qty" value="1" required>
-                            </div>
-                            <div class="input-group">
-                                <label>إجمالي التكلفة المالية</label>
-                                <input type="number" id="order-cost" value="0" required>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn-add">توليد الطلب وضخه للموظفين</button>
-                    </form>
-                </div>
-
-                <div class="data-card">
-                    <h2>سجلات التتبع لجميع طلبات ومراحل الشركة</h2>
-                    <div class="table-responsive">
-                        <table>
+                <section id="sec-orders" class="app-section">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-box-open text-purple-400"></i> نظام إدارة وتتبع الطلبيات الشامل</h2>
+                        <button id="btn-add-order" onclick="openOrderModal()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-md flex items-center gap-2"><i class="fa-solid fa-circle-plus"></i> إنشاء طلب عمل جديد</button>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mb-4 bg-neutral-950 p-1.5 rounded-xl w-max border border-neutral-900 text-xs">
+                        <button onclick="filterOrders('كل')" class="px-4 py-2 rounded-lg text-white font-semibold bg-neutral-900">الكل</button>
+                        <button onclick="filterOrders('قيد المراجعة')" class="px-4 py-2 rounded-lg text-neutral-400 hover:text-white font-semibold">قيد المراجعة</button>
+                        <button onclick="filterOrders('قيد التنفيذ')" class="px-4 py-2 rounded-lg text-neutral-400 hover:text-white font-semibold">قيد التنفيذ</button>
+                        <button onclick="filterOrders('تم التسليم')" class="px-4 py-2 rounded-lg text-neutral-400 hover:text-white font-semibold">تم التسليم</button>
+                        <button onclick="filterOrders('ملغي')" class="px-4 py-2 rounded-lg text-neutral-400 hover:text-white font-semibold">ملغي</button>
+                    </div>
+                    <div class="glass-panel rounded-2xl overflow-hidden overflow-x-auto">
+                        <table class="w-full text-right border-collapse">
                             <thead>
-                                <tr>
-                                    <th>رقم الطلب</th>
-                                    <th>العميل</th>
-                                    <th>البيان والكمية</th>
-                                    <th>التكلفة</th>
-                                    <th>الوضعية التشغيلية</th>
-                                    <th>تعديل الحالة</th>
-                                    <th>ملاحظات العمليات</th>
+                                <tr class="border-b border-neutral-900 bg-neutral-950 text-neutral-400 text-xs">
+                                    <th class="p-4">كود الطلب</th>
+                                    <th class="p-4">العميل</th>
+                                    <th class="p-4">الخدمة / المنتج</th>
+                                    <th class="p-4">الكمية</th>
+                                    <th class="p-4">الموظف المسؤول</th>
+                                    <th class="p-4">الحالة التشغيلية</th>
+                                    <th class="p-4">الإجمالي المالي</th>
+                                    <th class="p-4 text-center">الإجراءات</th>
                                 </tr>
                             </thead>
-                            <tbody id="orders-table-body">
+                            <tbody id="orders-table-body" class="text-sm text-neutral-300 divide-y divide-neutral-900/50">
                                 </tbody>
                         </table>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            <section id="finance-sec" class="system-section">
-                <div class="data-card" data-roles="admin,supervisor">
-                    <h2>تسجيل وضخ دفعة مالية جديدة من عميل</h2>
-                    <form id="payment-form" style="margin-top:1rem;">
-                        <div class="form-grid">
-                            <div class="input-group">
-                                <label>حساب العميل (ID)</label>
-                                <input type="text" id="pay-cust-id" required>
-                            </div>
-                            <div class="input-group">
-                                <label>المبلغ المدفوع حالياً</label>
-                                <input type="number" id="pay-amount" required>
-                            </div>
+                <section id="sec-finance" class="app-section">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-wallet text-emerald-400"></i> مركز الإدارة المالية والحسابات</h2>
+                        <button id="btn-add-payment" onclick="openPaymentModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-md flex items-center gap-2"><i class="fa-solid fa-receipt"></i> تسجيل حركة دفعة مالية</button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-6">
+                        <div class="glass-card p-5 border-r-4 border-emerald-500">
+                            <p class="text-xs text-neutral-400">إجمالي المقبوضات والمدفوعات</p>
+                            <h3 class="text-xl font-bold text-emerald-400 mt-1" id="fin-total-paid">0.00 $</h3>
                         </div>
-                        <button type="submit" class="btn-add">اعتماد وإدراج الفاتورة المالية</button>
-                    </form>
-                </div>
-
-                <div class="data-card">
-                    <h2>كشف الحسابات العام والتدفق المالي للعملاء</h2>
-                    <div class="table-responsive">
-                        <table>
+                        <div class="glass-card p-5 border-r-4 border-amber-500">
+                            <p class="text-xs text-neutral-400">الديون المستحقة والمتبقية</p>
+                            <h3 class="text-xl font-bold text-amber-400 mt-1" id="fin-total-debt">0.00 $</h3>
+                        </div>
+                        <div class="glass-card p-5 border-r-4 border-blue-500">
+                            <p class="text-xs text-neutral-400">صافي المبيعات الكلية</p>
+                            <h3 class="text-xl font-bold text-blue-400 mt-1" id="fin-total-sales">0.00 $</h3>
+                        </div>
+                    </div>
+                    <div class="glass-panel rounded-2xl overflow-hidden overflow-x-auto">
+                        <table class="w-full text-right border-collapse">
                             <thead>
-                                <tr>
-                                    <th>معرف العميل</th>
-                                    <th>إجمالي المسحوبات المالية</th>
-                                    <th>إجمالي الدفعات المسددة</th>
-                                    <th>صافي الدين المتبقي للمؤسسة</th>
+                                <tr class="border-b border-neutral-900 bg-neutral-950 text-neutral-400 text-xs">
+                                    <th class="p-4">كود المعاملة</th>
+                                    <th class="p-4">العميل المستهدف</th>
+                                    <th class="p-4">المبلغ المدفوع</th>
+                                    <th class="p-4">المبلغ المتبقي / الدين</th>
+                                    <th class="p-4">التاريخ والوقت</th>
                                 </tr>
                             </thead>
-                            <tbody id="finance-table-body">
+                            <tbody id="finance-table-body" class="text-sm text-neutral-300 divide-y divide-neutral-900/50">
                                 </tbody>
                         </table>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            <section id="settings-sec" class="system-section">
-                <div class="data-card">
-                    <h2>التحكم في الهوية البصرية وشعار الموقع العام (المدير)</h2>
-                    <div style="margin-top:1.5rem;">
-                        <div class="input-group">
-                            <label>اسم الموقع الأساسي في لوحة التحكم</label>
-                            <input type="text" id="set-app-name" value="MOKO System">
+                <section id="sec-settings" class="app-section">
+                    <h2 class="text-lg font-bold text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-gears neon-text-purple"></i> إعدادات المنصة والهوية البصرية للنظام</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="glass-panel p-6 rounded-2xl space-y-5">
+                            <h3 class="text-sm font-semibold text-neutral-200 border-b border-neutral-900 pb-3"><i class="fa-solid fa-sliders text-neutral-400 ml-1"></i> التحكم بالواجهة وتغيير الهوية</h3>
+                            <div>
+                                <label class="block text-xs text-neutral-400 mb-2">اسم المنصة المخصص</label>
+                                <input type="text" id="setting-app-name" class="w-full bg-[#121218] border border-neutral-800 rounded-xl py-2.5 px-4 text-white text-sm focus:outline-none focus:border-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-neutral-400 mb-2">رابط صورة الشعار (Cloudinary URL)</label>
+                                <input type="text" id="setting-app-logo" class="w-full bg-[#121218] border border-neutral-800 rounded-xl py-2.5 px-4 text-white text-sm focus:outline-none focus:border-purple-500">
+                            </div>
+                            <button onclick="saveBrandingSettings()" class="w-full bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold py-3 rounded-xl transition-all">تحديث هوية المنصة الفوري</button>
                         </div>
-                        <div class="input-group">
-                            <label>رابط لوجو المؤسسة (مرفوع عبر لوحة Cloudinary الخاصة بك)</label>
-                            <input type="text" id="set-app-logo" placeholder="https://res.cloudinary.com/...">
+                        
+                        <div class="glass-panel p-6 rounded-2xl space-y-5">
+                            <h3 class="text-sm font-semibold text-neutral-200 border-b border-neutral-900 pb-3"><i class="fa-solid fa-robot text-neutral-400 ml-1"></i> ربط محرك تليجرام وبوت التكوين الإداري</h3>
+                            <div>
+                                <label class="block text-xs text-neutral-400 mb-2">توكن البوت المالي والإداري (Telegram Token)</label>
+                                <input type="text" id="setting-tg-token" class="w-full bg-[#121218] border border-neutral-800 rounded-xl py-2.5 px-4 text-white text-xs focus:outline-none focus:border-cyan-500" placeholder="Token ID">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-neutral-400 mb-2">معرّف شات الأدمن للإستقبال الفوري (Chat ID)</label>
+                                <input type="text" id="setting-tg-chat" class="w-full bg-[#121218] border border-neutral-800 rounded-xl py-2.5 px-4 text-white text-xs focus:outline-none focus:border-cyan-500" placeholder="Chat ID Number">
+                            </div>
+                            <button onclick="saveTelegramSettings()" class="w-full bg-cyan-600 hover:bg-cyan-700 text-black text-xs font-bold py-3 rounded-xl transition-all">حفظ ومزامنة محرك البوت الذكي</button>
                         </div>
-                        <button class="btn-add" onclick="saveSystemSettings()">تحديث الهوية الشاملة للمنصة</button>
                     </div>
-                </div>
-            </section>
+                </section>
 
+            </div>
         </main>
     </div>
 
+
+    <div id="user-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="glass-panel w-full max-w-md p-6 rounded-2xl space-y-4 text-right">
+            <div class="flex justify-between items-center border-b border-neutral-900 pb-3">
+                <h3 class="text-md font-bold text-white" id="user-modal-title">إضافة مستخدم جديد للنظام</h3>
+                <button onclick="closeUserModal()" class="text-neutral-500 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="user-form" onsubmit="saveUserForm(event)" class="space-y-4">
+                <input type="hidden" id="user-edit-id">
+                <div>
+                    <label class="block text-xs text-neutral-400 mb-1">اسم المستخدم بالكامل</label>
+                    <input type="text" id="form-user-name" required class="w-full bg-[#121218] border border-neutral-800 rounded-xl py-2.5 px-4 text-white text-sm focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-neutral-400 mb-1">البريد الإلكتروني</label>
+                    <input type="email" id="form-user-email" required class="w-full bg-[#121218] border border-neutral-800 rounded-xl py-2.5 px-4 text-white text-sm focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-neutral-400 mb-1">صلاحية الحساب والرتبة</label>
+                    <select id="form-user-role" class="w-full bg-[#121218] border border-neutral-800 rounded-xl py-2.5 px-4 text-white text-sm focus:outline-none focus:border-blue-500">
+                        <option value="Admin">Admin (إدارة كاملة للمنصة)</option>
+                        <option value="Supervisor">Supervisor (مشرف تشغيل ومتابعة)</option>
+                        <option value="Worker">Worker (موظف منفذ عمليات)</option>
+                        <option value="Customer">Customer (عميل / مستفيد نهائي)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs text-neutral-400 mb-1">كلمة المرور المشفرة</label>
+                    <input type="text" id="form-user-password" required class="w-full bg-[#121218] border border-neutral-800 rounded-xl py-2.5 px-4 text-white text-sm focus:outline-none focus:border-blue-500">
+                </div>
+                <button type="submit" class="w-full neon-bg-gradient text-black font-bold py-3 rounded-xl text-sm shadow-md">حفظ وإدراج البيانات في قاعدة البيانات</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="order-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="glass-panel w-full max-w-md p-6 rounded-2xl space-y-4 text-right">
+            <div class="flex justify-between items-center border-b border-neutral-900 pb-3">
+                <h3 class="text-md font-bold text-white" id="order-modal-title">إنشاء أمر تشغيل جديد</h3>
+                <button onclick="closeOrderModal()" class="text-neutral-500 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="order-form" onsubmit="saveOrderForm(event)" class="space-y-4">
+                <input type="hidden" id="order-edit-id">
+                <div>
+                    <label class="block text-xs text-neutral-400 mb-1">اختر العميل</label>
+                    <select id="form-order-customer" required class="w-full bg-[#121218] border border-neutral-800 rounded-xl py-2.5 px-4 text-white text-sm focus:outline-none focus:border-purple-500"></select>
+                </div>
+                <div>
+                    <label class="block text-xs text-neutral-400 mb-1">المنتج / الخدمة المطلوبة</label>
+                    <input type="text" id="form-order-product" required class="w-full bg-[#121218] border border-neutral-800 rounded-xl py-2.5 px-4 text-white text-sm focus:outline-none focus:border-purple-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-neutral-400 mb-1">الكمية المطلوبة</label>
+                        <input type="number" id="form-order-qty" required value="1" class="w-full bg-[#121218] border border-neutral-800 rounded-xl py-2.5 px-4 text-white text-sm focus:outline-none focus:border-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-neutral-400 mb-1">القيمة المالية الكلية ($)</label>
+                        <input type="number" step="0.01" id="form-order-price" required class="w-full bg-[#121218] border border-neutral-800 rounded-xl py-2.5 px-4 text-white text-sm focus:outline-none focus:border-purple-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs text-neutral-400 mb-1">الموظف المعني بالتنفيذ</label>
+                    <select id="form-order-worker" required class="w-full bg-[#121218] border border-neutral-800 rounded-xl py-2.5 px-4 text-white text-sm focus:outline-none focus:border-purple-500"></select>
+                </div>
+                <div>
+                    <label class="block text-xs text-neutral-400 mb-1">حالة الطلب الافتتاحية</label>
+                    <select id="form-order-status" class="w-full bg-[#121218] border border-neutral-800 rounded-xl py-2.5 px-4 text-white text-sm focus:outline-none focus:border-purple-500">
+                        <option value="قيد المراجعة">قيد المراجعة</option>
+                        <option value="قيد التنفيذ">قيد التنفيذ</option>
+                        <option value="تم التسليم">تم التسليم</option>
+                        <option value="ملغي">ملغي</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl text-sm shadow-md">إدراج وتوجيه أمر العمل فورياً</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="payment-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="glass-panel w-full max-w-md p-6 rounded-2xl space-y-4 text-right">
+            <div class="flex justify-between items-center border-b border-neutral-900 pb-3">
+                <h3 class="text-md font-bold text-white">تسجيل حركة سند وقبض مالي</h3>
+                <button onclick="closePaymentModal()" class="text-neutral-500 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="payment-form" onsubmit="savePaymentForm(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-neutral-400 mb-1">اختر الطلب أو الفاتورة المرتبطة</label>
+                    <select id="form-pay-order" required class="w-full bg-[#121218] border border-neutral-800 rounded-xl py-2.5 px-4 text-white text-sm focus:outline-none focus:border-emerald-500" onchange="updatePaymentCalculations()"></select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-neutral-400 mb-1">المبلغ المدفوع حالياً ($)</label>
+                        <input type="number" step="0.01" id="form-pay-amount" required class="w-full bg-[#121218] border border-neutral-800 rounded-xl py-2.5 px-4 text-white text-sm focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-neutral-400 mb-1">المبلغ المتبقي دين ($)</label>
+                        <input type="number" step="0.01" id="form-pay-debt" readonly class="w-full bg-[#121218]/50 border border-neutral-800 rounded-xl py-2.5 px-4 text-neutral-400 text-sm focus:outline-none">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm shadow-md">اعتماد وإيداع الإيصال المالي</button>
+            </form>
+        </div>
+    </div>
+
+
     <script>
-        // تكوين الاستضافة وقناة الاتصال الذكية ببوت التليجرام الخاص بك بناء على البيانات المرفقة
-        const DB_URL = "https://mama-c6e6b-default-rtdb.firebaseio.com";
-        const BOT_TOKEN = "8888324487:AAFQxDsBlIMQgUbeuNrQ29d81jnmjHHjPr0";
+        // ==================== GLOBAL CORE STATE CONFIGURATION ====================
+        const FIREBASE_URL = "https://mama-c6e6b-default-rtdb.firebaseio.com/";
         
-        let CURRENT_USER = null;
-        let ALL_USERS = {};
-        let ALL_ORDERS = {};
-        let ADMIN_PASS = "111222"; // الافتراضية المحددة من قبلك
+        // System Core Configuration Object
+        let sysConfig = {
+            appName: "MOKO SYSTEM",
+            appLogo: "https://via.placeholder.com/100/0B0B0F/00f2fe?text=MOKO",
+            tgToken: "8888324487:AAFQxDsBlIMQgUbeuNrQ29d81jnmjHHjPr0", // Bot configuration token provided
+            tgChatId: ""
+        };
 
-        // عند بدء تشغيل المنصة بالكامل
+        // Application State Matrices
+        let usersMatrix = {};
+        let ordersMatrix = {};
+        let paymentsMatrix = {};
+        let currentUser = null;
+        let chartInstance = null;
+
+        // Navigation Schemes per System Persona Roles
+        const navigationRoles = {
+            Admin: [
+                { id: 'dashboard', label: 'لوحة التحكم الاستراتيجية', icon: 'fa-chart-pie' },
+                { id: 'users', label: 'إدارة شجرة الحسابات', icon: 'fa-users' },
+                { id: 'orders', label: 'مستودع الأوامر والطلبات', icon: 'fa-box-open' },
+                { id: 'finance', label: 'الحسابات والتدفق المالي', icon: 'fa-wallet' },
+                { id: 'settings', label: 'إعدادات المنصة والهوية', icon: 'fa-gears' }
+            ],
+            Supervisor: [
+                { id: 'dashboard', label: 'لوحة القيادة والمراقبة', icon: 'fa-chart-pie' },
+                { id: 'orders', label: 'متابعة وفحص الطلبات', icon: 'fa-box-open' },
+                { id: 'finance', label: 'السجلات المالية البسيطة', icon: 'fa-wallet' }
+            ],
+            Worker: [
+                { id: 'dashboard', label: 'لوحة مهام الموظف', icon: 'fa-briefcase' },
+                { id: 'orders', label: 'الأوامر التشغيلية المسندة', icon: 'fa-list-check' }
+            ],
+            Customer: [
+                { id: 'dashboard', label: 'لوحة العميل الخاصة', icon: 'fa-user-astronaut' },
+                { id: 'orders', label: 'سجل طلباتي وفواتيري', icon: 'fa-receipt' }
+            ]
+        };
+
+        // ==================== ASYNC DATABASE INTERFACE ENGINE (REST API) ====================
+        async function fetchDatabaseNode(node) {
+            try {
+                let response = await fetch(`${FIREBASE_URL}${node}.json`);
+                let data = await response.json();
+                return data ? data : {};
+            } catch (error) {
+                console.error(`Error loading database node [${node}]:`, error);
+                return {};
+            }
+        }
+
+        async function writeDatabaseNode(node, id, dataObject) {
+            try {
+                await fetch(`${FIREBASE_URL}${node}/${id}.json`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dataObject)
+                });
+                await syncLocalSystemMatrix();
+            } catch (error) {
+                console.error(`Database mutation error at node [${node}]:`, error);
+            }
+        }
+
+        async function deleteDatabaseNode(node, id) {
+            try {
+                await fetch(`${FIREBASE_URL}${node}/${id}.json`, { method: 'DELETE' });
+                await syncLocalSystemMatrix();
+            } catch (error) {
+                console.error(`Deletion error at node [${node}]:`, error);
+            }
+        }
+
+        // Real-time synchronization architecture mapping
+        async function syncLocalSystemMatrix() {
+            usersMatrix = await fetchDatabaseNode('users');
+            ordersMatrix = await fetchDatabaseNode('orders');
+            paymentsMatrix = await fetchDatabaseNode('payments');
+            
+            let loadedConfig = await fetchDatabaseNode('configuration');
+            if(loadedConfig && loadedConfig.branding) {
+                sysConfig = { ...sysConfig, ...loadedConfig.branding };
+            }
+            
+            // Seed static administrator profile if non-existent
+            if(!usersMatrix || !Object.values(usersMatrix).find(u => u.username === 'admin')) {
+                let adminSeed = { id: 'admin_root', name: 'محمد (المدير)', username: 'admin', email: 'admin@moko.com', role: 'Admin', password: '111222' };
+                await fetch(`${FIREBASE_URL}users/admin_root.json`, { method: 'PUT', body: JSON.stringify(adminSeed) });
+                usersMatrix['admin_root'] = adminSeed;
+            }
+
+            applyDynamicBranding();
+            if(currentUser) {
+                renderDynamicUIComponents();
+            }
+        }
+
+        function applyDynamicBranding() {
+            document.title = sysConfig.appName;
+            const logoElements = ['app-logo-login', 'app-logo-side'];
+            const nameElements = ['app-name-login', 'app-name-side'];
+            
+            logoElements.forEach(id => {
+                let el = document.getElementById(id);
+                if(el) el.src = sysConfig.appLogo;
+            });
+            nameElements.forEach(id => {
+                let el = document.getElementById(id);
+                if(el) el.innerText = sysConfig.appName.toUpperCase();
+            });
+        }
+
+        // ==================== ENGINE RUNTIME INITIALIZATION ====================
         window.addEventListener('DOMContentLoaded', async () => {
-            await fetchAdminPassword();
-            await loadSystemSettings();
-            listenToDatabaseUpdates();
-            setupFormListeners();
-            // تشغيل محرك الاستماع لبوت التليجرام بالخلفية
-            startTelegramBotPolling();
+            // Clock runtime
+            setInterval(() => {
+                let d = new Date();
+                let clock = document.getElementById('live-clock');
+                if(clock) clock.innerText = d.toLocaleTimeString('ar-EG');
+            }, 1000);
+
+            await syncLocalSystemMatrix();
+            listenToTelegramBotUpdates(); // Start Background Telegram Command Engine Loop
         });
 
-        // جلب كلمة سر الإدارة المحدثة من السيرفر
-        async function fetchAdminPassword() {
-            try {
-                let res = await fetch(`${DB_URL}/adminSettings/password.json`);
-                let data = await res.json();
-                if(data) ADMIN_PASS = data;
-            } catch(e) { console.error("Error reading admin pass", e); }
-        }
+        // ==================== SECURITY & AUTHENTICATION PROTOCOLS ====================
+        function handleLogin(event) {
+            event.preventDefault();
+            let userIn = document.getElementById('login-username').value.trim();
+            let passIn = document.getElementById('login-password').value.trim();
 
-        // جلب إعدادات الهوية
-        async function loadSystemSettings() {
-            try {
-                let res = await fetch(`${DB_URL}/systemSettings.json`);
-                let data = await res.json();
-                if(data) {
-                    if(data.name) {
-                        document.getElementById('app-name').innerText = data.name;
-                        document.getElementById('login-title').innerText = data.name;
-                        document.getElementById('set-app-name').value = data.name;
-                    }
-                    if(data.logo) {
-                        document.getElementById('app-logo').src = data.logo;
-                        document.getElementById('login-logo').src = data.logo;
-                        document.getElementById('set-app-logo').value = data.logo;
-                    }
-                }
-            } catch(e) {}
-        }
+            let matchedUser = Object.values(usersMatrix).find(user => 
+                (user.username === userIn || user.email === userIn) && user.password === passIn
+            );
 
-        // حفظ إعدادات الهوية والشعار من لوحة الإدارة
-        async function saveSystemSettings() {
-            let name = document.getElementById('set-app-name').value;
-            let logo = document.getElementById('set-app-logo').value;
-            await fetch(`${DB_URL}/systemSettings.json`, {
-                method: 'PUT',
-                body: JSON.stringify({name, logo})
-            });
-            alert('تم تحديث الهوية البصرية والشعار بنجاح في قاعدة البيانات.');
-            location.reload();
-        }
-
-        // مراقبة وتحديث البيانات الحية بشكل فوري بدون عمل ريلود
-        function listenToDatabaseUpdates() {
-            // مراقبة المستخدمين
-            setInterval(async () => {
-                let res = await fetch(`${DB_URL}/users.json`);
-                ALL_USERS = await res.json() || {};
-                let resOrd = await fetch(`${DB_URL}/orders.json`);
-                ALL_ORDERS = await resOrd.json() || {};
+            if(matchedUser) {
+                currentUser = matchedUser;
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-layout').classList.remove('hidden');
                 
-                renderUsersTable();
-                renderOrdersTable();
-                renderFinanceTable();
-                calculateMetrics();
-            }, 3000);
-        }
+                // Initialize Account parameters
+                document.getElementById('current-user-display').innerText = currentUser.name;
+                document.getElementById('user-role-badge').innerText = currentUser.role;
+                document.getElementById('user-avatar').innerText = currentUser.name.charAt(0).toUpperCase();
 
-        // معالجة تسجيل الدخول والتحقق من الصلاحيات والـ Role-Based System
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            let username = document.getElementById('login-username').value.trim();
-            let pass = document.getElementById('login-password').value.trim();
-            let selectedRole = document.getElementById('login-role').value;
-
-            // التحقق من حساب المدير المباشر
-            if(selectedRole === 'admin' && username === 'admin' && pass === ADMIN_PASS) {
-                initUserSession({id: 'admin', name: 'المدير العام', role: 'admin'});
-                return;
-            }
-
-            // التحقق من بقية الحسابات في داتابيز فايربيز
-            if(ALL_USERS[username] && ALL_USERS[username].password === pass && ALL_USERS[username].role === selectedRole) {
-                initUserSession({id: username, name: ALL_USERS[username].name, role: ALL_USERS[username].role});
+                buildRoleBasedSidebar();
+                // Route to initial system module safely
+                switchSection(navigationRoles[currentUser.role][0].id);
+                renderDynamicUIComponents();
+                dispatchSystemNotification(`المستخدم ${currentUser.name} قام بتسجيل الدخول بنجاح برتبة ${currentUser.role}`);
             } else {
-                alert('خطأ في بيانات الدخول أو الصلاحية المحددة! يرجى التحقق.');
+                alert("خطأ في توثيق الهوية: اسم المستخدم أو كلمة المرور غير صحيحة!");
             }
-        });
-
-        function initUserSession(user) {
-            CURRENT_USER = user;
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main-app').style.display = 'block';
-            document.getElementById('current-user-display').innerText = user.name;
-            
-            let roleAr = {admin: 'المدير العام', supervisor: 'مشرف العمليات', employee: 'موظف تنفيذ', customer: 'حساب العميل'};
-            document.getElementById('current-role-display').innerText = roleAr[user.role];
-
-            // إخفاء الأزرار أو التابات التي لا تتوافق مع صلاحية المستخدم الحالية بناءً على الـ Attribute
-            document.querySelectorAll('[data-roles]').forEach(el => {
-                let rolesAllowed = el.getAttribute('data-roles').split(',');
-                if(rolesAllowed.includes(user.role)) {
-                    el.style.display = '';
-                } else {
-                    el.style.display = 'none';
-                }
-            });
-
-            // تسجيل لوج الدخول وبثه للتليجرام
-            pushLog(`قام ${user.name} (صلاحية: ${roleAr[user.role]}) بتسجيل الدخول الفعلي للمنظومة.`);
-            showSection('dashboard', 'لوحة التحكم');
-        }
-
-        // محرك التنقل الديناميكي الفوري لنظام الصفحة الواحدة SPA
-        function showSection(sectionId, arabicTitle) {
-            document.querySelectorAll('.system-section').forEach(sec => sec.style.display = 'none');
-            document.getElementById(sectionId).style.display = 'block';
-            
-            document.getElementById('current-page-title').innerText = arabicTitle;
-            document.getElementById('bread-crumb-page').innerText = arabicTitle;
-
-            // تحديث حالة الأزرار في القائمة الجانبية
-            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-            let event = window.event;
-            if(event && event.currentTarget) {
-                event.currentTarget.classList.add('active');
-            }
-            if(window.innerWidth <= 991) {
-                document.querySelector('.sidebar').classList.remove('active');
-            }
-        }
-
-        function toggleSidebar() {
-            document.querySelector('.sidebar').classList.toggle('active');
         }
 
         function logout() {
-            location.reload();
+            currentUser = null;
+            document.getElementById('main-layout').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('login-form').reset();
         }
 
-        // عمليات النماذج وإرسال البيانات للفايربيز
-        function setupFormListeners() {
-            // إنشاء مستخدم
-            document.getElementById('user-creation-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                let uid = document.getElementById('new-user-id').value.trim();
-                let name = document.getElementById('new-user-name').value.trim();
-                let pass = document.getElementById('new-user-pass').value.trim();
-                let role = document.getElementById('new-user-role').value;
+        // ==================== SPA ENGINE: INTER-SECTION NAVIGATION ====================
+        function buildRoleBasedSidebar() {
+            let navContainer = document.getElementById('sidebar-nav');
+            navContainer.innerHTML = '';
+            let tabs = navigationRoles[currentUser.role];
 
-                let userData = { name, password: pass, role };
-                await fetch(`${DB_URL}/users/${uid}.json`, { method: 'PUT', body: JSON.stringify(userData) });
+            tabs.forEach(tab => {
+                let btn = document.createElement('button');
+                btn.className = "sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold text-neutral-400 hover:text-white hover:bg-neutral-900/50 transition-all text-right";
+                btn.id = `nav-item-${tab.id}`;
+                btn.onclick = () => switchSection(tab.id);
+                btn.innerHTML = `<i class="fa-solid ${tab.icon} text-sm"></i> <span>${tab.label}</span>`;
+                navContainer.appendChild(btn);
+            });
+        }
+
+        function switchSection(sectionId) {
+            // Deactivate all functional blocks
+            document.querySelectorAll('.app-section').forEach(sec => {
+                sec.classList.remove('active-section');
+            });
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Activate targeting view
+            let targetSec = document.getElementById(`sec-${sectionId}`);
+            if(targetSec) targetSec.classList.add('active-section');
+
+            let targetNavItem = document.getElementById(`nav-item-${sectionId}`);
+            if(targetNavItem) targetNavItem.classList.add('active');
+
+            // Breadcrumbs and Headers mutation
+            let currentTabObject = navigationRoles[currentUser.role].find(t => t.id === sectionId);
+            if(currentTabObject) {
+                document.getElementById('breadcrumb-current').innerText = currentTabObject.label;
+                document.getElementById('header-page-title').innerText = currentTabObject.label;
+            }
+            
+            // Auto close drawer inside mobile ports
+            if(window.innerWidth < 768) {
+                document.getElementById('sidebar').classList.add('hidden');
+            }
+        }
+
+        function toggleSidebarMobile() {
+            let sb = document.getElementById('sidebar');
+            if(sb.classList.contains('hidden')) {
+                sb.classList.remove('hidden');
+            } else {
+                sb.classList.add('hidden');
+            }
+        }
+
+        // ==================== DYNAMIC DATA INTERPRETATION ENGINE ====================
+        function renderDynamicUIComponents() {
+            renderDashboardStatisticsAndCharts();
+            renderUsersTable();
+            renderOrdersTable();
+            renderFinanceTable();
+            populateModalDropdowns();
+        }
+
+        function renderDashboardStatisticsAndCharts() {
+            let grid = document.getElementById('dashboard-stats-grid');
+            grid.innerHTML = '';
+
+            let totalOrders = Object.keys(ordersMatrix).length;
+            let totalUsers = Object.keys(usersMatrix).length;
+            
+            let mathPaid = Object.values(paymentsMatrix).reduce((acc, curr) => acc + parseFloat(curr.paidAmount || 0), 0);
+            let mathDebt = Object.values(paymentsMatrix).reduce((acc, curr) => acc + parseFloat(curr.remainingDebt || 0), 0);
+
+            // Conditional view metrics calculated per systemic requirements
+            let metrics = [
+                { title: "الطلبيات النشطة بالنظام", val: totalOrders, desc: "إجمالي العقود والأوامر", icon: "fa-box", color: "text-blue-400" },
+                { title: "قاعدة بيانات الحسابات", val: totalUsers, desc: "مستفيدين وموظفين نشطين", icon: "fa-users", color: "text-purple-400" },
+                { title: "المدفوعات والمقبوضات", val: `${mathPaid.toFixed(2)} $`, desc: "التدفق النقدي الوارد", icon: "fa-wallet", color: "text-emerald-400" },
+                { title: "الديون والمديونيات المعلقة", val: `${mathDebt.toFixed(2)} $`, desc: "مستحقات جاري تحصيلها", icon: "fa-circle-dollar-to-slot", color: "text-amber-400" }
+            ];
+
+            metrics.forEach(m => {
+                grid.innerHTML += `
+                    <div class="glass-panel p-5 rounded-2xl flex items-center justify-between border-b-2 border-transparent hover:border-neutral-700 transition-all">
+                        <div class="text-right">
+                            <p class="text-xs text-neutral-400 font-medium">${m.title}</p>
+                            <h3 class="text-2xl font-bold mt-1 text-white">${m.val}</h3>
+                            <span class="text-[10px] text-neutral-500 block mt-0.5">${m.desc}</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-neutral-900 flex items-center justify-center text-lg ${m.color} border border-neutral-800">
+                            <i class="fa-solid ${m.icon}"></i>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Accounting metric block bindings
+            document.getElementById('fin-total-paid').innerText = `${mathPaid.toFixed(2)} $`;
+            document.getElementById('fin-total-debt').innerText = `${mathDebt.toFixed(2)} $`;
+            document.getElementById('fin-total-sales').innerText = `${(mathPaid + mathDebt).toFixed(2)} $`;
+
+            // Chart rendering engine lifecycle
+            setTimeout(() => {
+                let ctx = document.getElementById('analyticsChart');
+                if(!ctx) return;
                 
-                pushLog(`تم إنشاء مستخدم جديد في النظام باسم: ${name} ومعرف: ${uid}`);
-                document.getElementById('user-creation-form').reset();
-                alert('تم تسجيل وتوليد الحساب بنجاح وعكسه في الداتابيز.');
-            });
-
-            // إنشاء طلب
-            document.getElementById('order-creation-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                let custId = document.getElementById('order-cust-id').value.trim();
-                let details = document.getElementById('order-details').value.trim();
-                let qty = parseInt(document.getElementById('order-qty').value);
-                let cost = parseFloat(document.getElementById('order-cost').value);
-
-                let orderId = 'ORD-' + Date.now().toString().slice(-6);
-                let orderData = {
-                    id: orderId,
-                    customer: custId,
-                    details: details,
-                    qty: qty,
-                    cost: cost,
-                    status: 'pending',
-                    notes: 'تم توليد مسار العمل بنجاح'
-                };
-
-                await fetch(`${DB_URL}/orders/${orderId}.json`, { method: 'PUT', body: JSON.stringify(orderData) });
-                pushLog(`تم إدراج طلب تشغيل جديد رقم ${orderId} للعميل ${custId}`);
-                document.getElementById('order-creation-form').reset();
-                alert('تم رفع وضخ الطلب بنجاح.');
-            });
-
-            // تسجيل دفعة مالية
-            document.getElementById('payment-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                let custId = document.getElementById('pay-cust-id').value.trim();
-                let amt = parseFloat(document.getElementById('pay-amount').value);
-
-                let payId = 'PAY-' + Date.now().toString().slice(-6);
-                await fetch(`${DB_URL}/payments/${custId}/${payId}.json`, {
-                    method: 'PUT',
-                    body: JSON.stringify({ amount: amt, date: new Date().toLocaleDateString('ar-EG') })
+                if(chartInstance) chartInstance.destroy();
+                
+                chartInstance = new Chart(ctx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['مقبوضات نقدية', 'ديون معلقة', 'القيمة السوقية للمبيعات'],
+                        datasets: [{
+                            label: 'المؤشرات المالية بالدولار ($)',
+                            data: [mathPaid, mathDebt, (mathPaid + mathDebt)],
+                            backgroundColor: ['rgba(16, 185, 129, 0.2)', 'rgba(245, 158, 11, 0.2)', 'rgba(59, 130, 246, 0.2)'],
+                            borderColor: ['#10b981', '#f59e0b', '#3b82f6'],
+                            borderWidth: 2,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } },
+                            x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+                        }
+                    }
                 });
-
-                pushLog(`تم تسجيل إيصال استلام دفعة مالية بقيمة ${amt} من العميل ${custId}`);
-                document.getElementById('payment-form').reset();
-                alert('تم قيد السداد المالي بنجاح.');
-            });
+            }, 100);
         }
 
-        // تحديث وضعية وحالة الطلب للموظف أو المشرف
-        async function updateOrderStatus(orderId, newStatus) {
-            await fetch(`${DB_URL}/orders/${orderId}/status.json`, { method: 'PUT', body: JSON.stringify(newStatus) });
-            pushLog(`تم تعديل حالة الطلب ${orderId} إلى: ${newStatus}`);
-        }
-
-        // إضافة ملاحظة تشغيلية للطلب
-        async function updateOrderNotes(orderId) {
-            let note = prompt("أدخل الملاحظة أو تقرير الإنتاجية لتحديث مسار العمل:");
-            if(note) {
-                await fetch(`${DB_URL}/orders/${orderId}/notes.json`, { method: 'PUT', body: JSON.stringify(note) });
-                pushLog(`أضاف الموظف ملاحظة على طلب ${orderId}: ${note}`);
-            }
-        }
-
-        // حذف مستخدم من المنظومة (صلاحية الإدارة)
-        async function deleteUser(uid) {
-            if(confirm(`هل أنت متأكد من رغبتك في حذف الحساب ${uid} تماماً؟`)) {
-                await fetch(`${DB_URL}/users/${uid}.json`, { method: 'DELETE' });
-                pushLog(`تم حذف وإلغاء صلاحيات المستخدم: ${uid}`);
-            }
-        }
-
-        // دالة الحسابات والـ Metrics الذكية للوحة الرئيسية
-        function calculateMetrics() {
-            let totalOrders = Object.keys(ALL_ORDERS).length;
-            document.getElementById('stat-orders-count').innerText = totalOrders;
-
-            let totalPaid = 0;
-            // يمكن قراءة العمليات وحسابها ديناميكياً
-            document.getElementById('stat-total-paid').innerText = "جاري الحساب..";
-        }
-
-        // رندرة الجداول وبناء شاشات العرض المخصصة للصلاحيات
         function renderUsersTable() {
             let tbody = document.getElementById('users-table-body');
+            if(!tbody) return;
             tbody.innerHTML = '';
-            Object.keys(ALL_USERS).forEach(key => {
-                let u = ALL_USERS[key];
-                let row = `<tr>
-                    <td>${key}</td>
-                    <td>${u.name}</td>
-                    <td><span class="user-role-badge">${u.role}</span></td>
-                    <td>${CURRENT_USER && CURRENT_USER.role === 'admin' ? u.password : '••••••'}</td>
-                    <td>
-                        ${CURRENT_USER && CURRENT_USER.role === 'admin' ? `<button class="btn-action" style="background:var(--btn-danger)" onclick="deleteUser('${key}')">حذف</button>` : 'لا تملك صلاحية'}
-                    </td>
-                </tr>`;
-                tbody.innerHTML += row;
+
+            Object.values(usersMatrix).forEach(user => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-white/5 transition-all">
+                        <td class="p-4 font-semibold text-white">${user.name} <span class="text-xs text-neutral-500 block">@${user.username}</span></td>
+                        <td class="p-4 text-neutral-400 text-xs">${user.email}</td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold ${
+                                user.role === 'Admin' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+                                user.role === 'Supervisor' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' :
+                                user.role === 'Worker' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' :
+                                'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                            }">${user.role}</span>
+                        </td>
+                        <td class="p-4 font-mono text-xs text-neutral-500">${user.password}</td>
+                        <td class="p-4 text-center">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <button onclick="openUserModal('${user.id}')" class="p-2 text-yellow-400 bg-yellow-500/10 rounded-lg text-xs hover:bg-yellow-500/20"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="deleteUser('${user.id}')" class="p-2 text-red-400 bg-red-500/10 rounded-lg text-xs hover:bg-red-500/20 ${user.id === 'admin_root'?'hidden':''}"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
             });
+        }
+
+        let orderFilterStatus = "كل";
+        function filterOrders(status) {
+            orderFilterStatus = status;
+            renderOrdersTable();
         }
 
         function renderOrdersTable() {
             let tbody = document.getElementById('orders-table-body');
+            if(!tbody) return;
             tbody.innerHTML = '';
-            Object.keys(ALL_ORDERS).forEach(key => {
-                let o = ALL_ORDERS[key];
-                
-                // تصفية العرض بناءً على حساب العميل (العميل يرى طلباته فقط)
-                if(CURRENT_USER && CURRENT_USER.role === 'customer' && o.customer !== CURRENT_USER.id) return;
 
-                let statusOptions = `
-                    <select onchange="updateOrderStatus('${o.id}', this.value)" ${CURRENT_USER.role === 'customer' ? 'disabled' : ''}>
-                        <option value="pending" ${o.status === 'pending'?'selected':''}>قيد المراجعة</option>
-                        <option value="progress" ${o.status === 'progress'?'selected':''}>قيد التنفيذ</option>
-                        <option value="completed" ${o.status === 'completed'?'selected':''}>تم التسليم</option>
-                        <option value="cancelled" ${o.status === 'cancelled'?'selected':''}>ملغي</option>
-                    </select>
-                `;
+            let dataset = Object.values(ordersMatrix);
 
-                let row = `<tr>
-                    <td>${o.id}</td>
-                    <td>${o.customer}</td>
-                    <td>${o.details} (x${o.qty})</td>
-                    <td>${o.cost} ج.م</td>
-                    <td><span class="badge ${o.status}">${o.status}</span></td>
-                    <td>${statusOptions}</td>
-                    <td>
-                        <span style="font-size:0.85rem; color:var(--text-muted);">${o.notes || ''}</span>
-                        ${CURRENT_USER.role !== 'customer' ? `<button class="btn-action" style="margin-right:8px;" onclick="updateOrderNotes('${o.id}')">إضافة ملاحظة</button>` : ''}
-                    </td>
-                </tr>`;
-                tbody.innerHTML += row;
-            });
-        }
-
-        async function renderFinanceTable() {
-            let tbody = document.getElementById('finance-table-body');
-            tbody.innerHTML = '';
-            
-            // قراءة حية لبيانات السداد والربط المالي
-            let resPay = await fetch(`${DB_URL}/payments.json`);
-            let paymentsData = await resPay.json() || {};
-
-            Object.keys(ALL_USERS).forEach(uid => {
-                if(ALL_USERS[uid].role !== 'customer') return;
-                if(CURRENT_USER && CURRENT_USER.role === 'customer' && uid !== CURRENT_USER.id) return;
-
-                // حساب المسحوبات من توتال تكاليف الطلبات الصادرة له
-                let totalCost = 0;
-                Object.values(ALL_ORDERS).forEach(o => {
-                    if(o.customer === uid) totalCost += parseFloat(o.cost || 0);
-                });
-
-                // حساب المدفوعات له
-                let paid = 0;
-                if(paymentsData[uid]) {
-                    Object.values(paymentsData[uid]).forEach(p => paid += parseFloat(p.amount || 0));
-                }
-
-                let debt = totalCost - paid;
-
-                let row = `<tr>
-                    <td>${uid} (${ALL_USERS[uid].name})</td>
-                    <td>${totalCost} ج.م</td>
-                    <td>${paid} ج.m</td>
-                    <td style="color:${debt > 0 ? 'var(--btn-danger)':'var(--btn-success)'}">${debt} ج.م</td>
-                </tr>`;
-                tbody.innerHTML += row;
-            });
-        }
-
-        // محرك قيد السجلات وبث الإشعارات الحية للموقع وللبوت
-        async function pushLog(text) {
-            let logObj = { text: text, timestamp: new Date().toLocaleTimeString('ar-EG') };
-            await fetch(`${DB_URL}/systemLogs.json`, { method: 'POST', body: JSON.stringify(logObj) });
-            
-            // إرسال تنبيه فوري إلى تلجرام للإدارة والمسؤولين
-            sendTelegramMessage(`🔔 *إشعار نظام MOKO الآلي:* \n\n ${text}`);
-        }
-
-        // استقبال السجلات وعرضها في لوحة التحكم
-        setInterval(async () => {
-            let res = await fetch(`${DB_URL}/systemLogs.json?orderBy="$key"&limitToLast=8`);
-            let data = await res.json();
-            let container = document.getElementById('live-logs-container');
-            if(data) {
-                container.innerHTML = '';
-                Object.values(data).reverse().forEach(log => {
-                    container.innerHTML += `<div><span style="color:var(--primary-neon)">[${log.timestamp}]</span> ${log.text}</div>`;
-                });
+            // Filter context scope restrictions per User Role Persona Architecture
+            if(currentUser.role === 'Worker') {
+                dataset = dataset.filter(o => o.workerId === currentUser.id);
+            } else if(currentUser.role === 'Customer') {
+                dataset = dataset.filter(o => o.customerId === currentUser.id);
             }
-        }, 3000);
 
-        // إرسال البيانات المباشرة لبوت التليجرام
-        async function sendTelegramMessage(msg) {
-            // جلب الـ Chat ID المخزن مسبقاً لدى الخادم لإرسال الإشعار له
-            try {
-                let resId = await fetch(`${DB_URL}/adminSettings/telegramChatId.json`);
-                let chatId = await resId.json();
-                if(chatId) {
-                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: "Markdown" })
-                    });
+            // Tab routing execution filter
+            if(orderFilterStatus !== "كل") {
+                dataset = dataset.filter(o => o.status === orderFilterStatus);
+            }
+
+            dataset.forEach(order => {
+                let client = usersMatrix[order.customerId]?.name || "مستفيد غير معروف";
+                let worker = usersMatrix[order.workerId]?.name || "لم يتم التعيين";
+
+                let stateColor = order.status === 'تم التسليم' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                                 order.status === 'قيد التنفيذ' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
+                                 order.status === 'ملغي' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 
+                                 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+
+                let actionBlock = ``;
+                if(currentUser.role === 'Admin' || currentUser.role === 'Supervisor') {
+                    actionBlock = `
+                        <button onclick="openOrderModal('${order.id}')" class="p-2 text-yellow-400 bg-yellow-500/10 rounded-lg text-xs hover:bg-yellow-500/20" title="تعديل"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteOrder('${order.id}')" class="p-2 text-red-400 bg-red-500/10 rounded-lg text-xs hover:bg-red-500/20" title="حذف"><i class="fa-solid fa-trash"></i></button>
+                    `;
+                } else if(currentUser.role === 'Worker') {
+                    actionBlock = `
+                        <select onchange="updateOrderStatusInline('${order.id}', this.value)" class="bg-[#121218] text-xs text-white border border-neutral-800 rounded px-2 py-1">
+                            <option value="قيد التنفيذ" ${order.status==='قيد التنفيذ'?'selected':''}>قيد التنفيذ</option>
+                            <option value="تم التسليم" ${order.status==='تم التسليم'?'selected':''}>تم التسليم</option>
+                        </select>
+                    `;
+                } else {
+                    actionBlock = `<span class="text-xs text-neutral-500">لا توجد صلاحية</span>`;
                 }
-            } catch(e) {}
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-white/5 transition-all">
+                        <td class="p-4 font-mono text-xs text-neutral-400">#${order.id.substring(0,8)}</td>
+                        <td class="p-4 text-xs text-white font-medium">${client}</td>
+                        <td class="p-4 text-xs text-neutral-300">${order.productName}</td>
+                        <td class="p-4 text-xs text-neutral-400">${order.quantity}</td>
+                        <td class="p-4 text-xs text-purple-300">${worker}</td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold ${stateColor} border">${order.status}</span>
+                        </td>
+                        <td class="p-4 font-mono text-xs text-emerald-400 font-bold">${parseFloat(order.totalPrice).toFixed(2)} $</td>
+                        <td class="p-4 text-center"><div class="flex items-center justify-center gap-1.5">${actionBlock}</div></td>
+                    </tr>
+                `;
+            });
         }
 
-        // ================= 🧠 TELEGRAM BOT MANAGEMENT INTELLIGENCE =================
-        // نظام التوجيه والـ Polling لقراءة الأوامر من بوت التليجرام والتحكم الكامل بالموقع وتغيير كلمات السر
+        function renderFinanceTable() {
+            let tbody = document.getElementById('finance-table-body');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            let dataset = Object.values(paymentsMatrix);
+            if(currentUser.role === 'Customer') {
+                // Restrict transactions mapping to specified customer
+                let customOrders = Object.keys(ordersMatrix).filter(k => ordersMatrix[k].customerId === currentUser.id);
+                dataset = dataset.filter(p => customOrders.includes(p.orderId));
+            }
+
+            dataset.forEach(p => {
+                let linkedOrder = ordersMatrix[p.orderId];
+                let clientName = linkedOrder ? (usersMatrix[linkedOrder.customerId]?.name || "عميل مجهول") : "غير مرتبط بطلب";
+                tbody.innerHTML += `
+                    <tr class="hover:bg-white/5 transition-all">
+                        <td class="p-4 font-mono text-xs text-neutral-500">#${p.id.substring(0,8)}</td>
+                        <td class="p-4 text-xs font-semibold text-white">${clientName} <span class="text-[10px] text-neutral-500 block">طلب: ${linkedOrder?.productName || ''}</span></td>
+                        <td class="p-4 font-mono text-xs text-emerald-400 font-bold">+ ${parseFloat(p.paidAmount).toFixed(2)} $</td>
+                        <td class="p-4 font-mono text-xs text-amber-500 font-bold">${parseFloat(p.remainingDebt).toFixed(2)} $</td>
+                        <td class="p-4 text-neutral-400 text-xs">${p.timestamp}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function populateModalDropdowns() {
+            let clientSelect = document.getElementById('form-order-customer');
+            let workerSelect = document.getElementById('form-order-worker');
+            let payOrderSelect = document.getElementById('form-pay-order');
+
+            if(clientSelect) clientSelect.innerHTML = '';
+            if(workerSelect) workerSelect.innerHTML = '';
+            if(payOrderSelect) payOrderSelect.innerHTML = '';
+
+            Object.values(usersMatrix).forEach(user => {
+                if(user.role === 'Customer' && clientSelect) {
+                    clientSelect.innerHTML += `<option value="${user.id}">${user.name}</option>`;
+                }
+                if(user.role === 'Worker' && workerSelect) {
+                    workerSelect.innerHTML += `<option value="${user.id}">${user.name}</option>`;
+                }
+            });
+
+            Object.values(ordersMatrix).forEach(order => {
+                if(payOrderSelect) {
+                    let client = usersMatrix[order.customerId]?.name || "مستفيد";
+                    payOrderSelect.innerHTML += `<option value="${order.id}">${order.productName} - للعميل: ${client} (${order.totalPrice} $)</option>`;
+                }
+            });
+        }
+
+        function dispatchSystemNotification(text) {
+            let container = document.getElementById('dashboard-notifications');
+            if(!container) return;
+            let time = new Date().toLocaleTimeString('ar-EG');
+            let item = document.createElement('div');
+            item.className = "p-2.5 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 space-y-1";
+            item.innerHTML = `<p>${text}</p><span class="text-[9px] text-neutral-500 block text-left">${time}</span>`;
+            container.insertBefore(item, container.firstChild);
+            
+            // Dispatch async event straight down towards the telegram integration interface pipeline
+            dispatchTelegramMessage(`🔔 *إشعار نظام MOKO:* \n${text}`);
+        }
+
+        // ==================== OPERATIONAL DATA MUTATION & ACTIONS ====================
+        
+        // --- USERS TRANSACTIONS ---
+        function openUserModal(id = null) {
+            document.getElementById('user-modal').style.display = 'flex';
+            if(id && usersMatrix[id]) {
+                let u = usersMatrix[id];
+                document.getElementById('user-modal-title').innerText = "تعديل بيانات الحساب";
+                document.getElementById('user-edit-id').value = u.id;
+                document.getElementById('form-user-name').value = u.name;
+                document.getElementById('form-user-email').value = u.email;
+                document.getElementById('form-user-role').value = u.role;
+                document.getElementById('form-user-password').value = u.password;
+            } else {
+                document.getElementById('user-modal-title').innerText = "إضافة مستخدم جديد للنظام";
+                document.getElementById('user-form').reset();
+                document.getElementById('user-edit-id').value = '';
+            }
+        }
+        function closeUserModal() { document.getElementById('user-modal').style.display = 'none'; }
+        
+        async function saveUserForm(e) {
+            e.preventDefault();
+            let id = document.getElementById('user-edit-id').value;
+            let randId = id ? id : "user_" + Math.random().toString(36).substring(2, 11);
+            
+            let payload = {
+                id: randId,
+                name: document.getElementById('form-user-name').value.trim(),
+                username: document.getElementById('form-user-name').value.trim().toLowerCase().replace(/\s+/g, '_'),
+                email: document.getElementById('form-user-email').value.trim(),
+                role: document.getElementById('form-user-role').value,
+                password: document.getElementById('form-user-password').value.trim()
+            };
+
+            await writeDatabaseNode('users', randId, payload);
+            closeUserModal();
+            dispatchSystemNotification(`تمت إضافة/تعديل الحساب للمستخدم: ${payload.name} بنجاح كـ ${payload.role}`);
+        }
+
+        async function deleteUser(id) {
+            if(id === 'admin_root') return;
+            if(confirm('هل أنت متأكد من حذف هذا الحساب نهائياً من النظام؟')) {
+                let name = usersMatrix[id]?.name;
+                await deleteDatabaseNode('users', id);
+                dispatchSystemNotification(`تم حذف الحساب التابع للمستخدم: ${name}`);
+            }
+        }
+
+        // --- ORDERS TRANSACTIONS ---
+        function openOrderModal(id = null) {
+            document.getElementById('order-modal').style.display = 'flex';
+            populateModalDropdowns();
+            if(id && ordersMatrix[id]) {
+                let o = ordersMatrix[id];
+                document.getElementById('order-modal-title').innerText = "تعديل أمر التشغيل الحالي";
+                document.getElementById('order-edit-id').value = o.id;
+                document.getElementById('form-order-customer').value = o.customerId;
+                document.getElementById('form-order-product').value = o.productName;
+                document.getElementById('form-order-qty').value = o.quantity;
+                document.getElementById('form-order-price').value = o.totalPrice;
+                document.getElementById('form-order-worker').value = o.workerId;
+                document.getElementById('form-order-status').value = o.status;
+            } else {
+                document.getElementById('order-modal-title').innerText = "إنشاء أمر تشغيل جديد";
+                document.getElementById('order-form').reset();
+                document.getElementById('order-edit-id').value = '';
+            }
+        }
+        function closeOrderModal() { document.getElementById('order-modal').style.display = 'none'; }
+
+        async function saveOrderForm(e) {
+            e.preventDefault();
+            let id = document.getElementById('order-edit-id').value;
+            let randId = id ? id : "order_" + Math.random().toString(36).substring(2, 11);
+
+            let payload = {
+                id: randId,
+                customerId: document.getElementById('form-order-customer').value,
+                productName: document.getElementById('form-order-product').value.trim(),
+                quantity: parseInt(document.getElementById('form-order-qty').value),
+                totalPrice: parseFloat(document.getElementById('form-order-price').value),
+                workerId: document.getElementById('form-order-worker').value,
+                status: document.getElementById('form-order-status').value
+            };
+
+            await writeDatabaseNode('orders', randId, payload);
+            closeOrderModal();
+            dispatchSystemNotification(`تم تسجيل حزمة أمر العمل لمنتج: ${payload.productName} وحالته الحالية [${payload.status}]`);
+        }
+
+        async function updateOrderStatusInline(id, nextStatus) {
+            if(ordersMatrix[id]) {
+                ordersMatrix[id].status = nextStatus;
+                await writeDatabaseNode('orders', id, ordersMatrix[id]);
+                dispatchSystemNotification(`الموظف قام بتحديث حالة الطلب #${id.substring(0,5)} إلى [${nextStatus}]`);
+            }
+        }
+
+        async function deleteOrder(id) {
+            if(confirm('هل تود حذف هذا الأمر بالكامل من سجلات التشغيل؟')) {
+                await deleteDatabaseNode('orders', id);
+                dispatchSystemNotification(`تم حذف أمر تشغيل الـ ID المعين: #${id.substring(0,5)}`);
+            }
+        }
+
+        // --- ACCOUNTING AND FINANCIAL RECORD MUTATIONS ---
+        function openPaymentModal() {
+            document.getElementById('payment-modal').style.display = 'flex';
+            populateModalDropdowns();
+            updatePaymentCalculations();
+        }
+        function closePaymentModal() { document.getElementById('payment-modal').style.display = 'none'; }
+
+        function updatePaymentCalculations() {
+            let orderId = document.getElementById('form-pay-order').value;
+            let targetOrder = ordersMatrix[orderId];
+            if(targetOrder) {
+                let totalCost = parseFloat(targetOrder.totalPrice);
+                document.getElementById('form-pay-amount').value = totalCost;
+                document.getElementById('form-pay-debt').value = 0;
+            }
+            
+            // Add reactive calculations validation
+            document.getElementById('form-pay-amount').oninput = function() {
+                if(targetOrder) {
+                    let cost = parseFloat(targetOrder.totalPrice);
+                    let inputPaid = parseFloat(this.value) || 0;
+                    document.getElementById('form-pay-debt').value = Math.max(0, cost - inputPaid).toFixed(2);
+                }
+            };
+        }
+
+        async function savePaymentForm(e) {
+            e.preventDefault();
+            let randId = "trans_" + Math.random().toString(36).substring(2, 11);
+            let d = new Date();
+            let payload = {
+                id: randId,
+                orderId: document.getElementById('form-pay-order').value,
+                paidAmount: parseFloat(document.getElementById('form-pay-amount').value),
+                remainingDebt: parseFloat(document.getElementById('form-pay-debt').value),
+                timestamp: `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`
+            };
+
+            await writeDatabaseNode('payments', randId, payload);
+            closePaymentModal();
+            dispatchSystemNotification(`إدراج دفعة نقدية بقيمة ${payload.paidAmount} $ مقابل العقد التشغيلي المعيّن`);
+        }
+
+        // --- BRANDING INTERFACE CONFIGURATION PERSISTENCE ---
+        function saveBrandingSettings() {
+            let payload = {
+                appName: document.getElementById('setting-app-name').value.trim() || sysConfig.appName,
+                appLogo: document.getElementById('setting-app-logo').value.trim() || sysConfig.appLogo
+            };
+            fetch(`${FIREBASE_URL}configuration/branding.json`, {
+                method: 'PUT',
+                body: JSON.stringify(payload)
+            }).then(() => {
+                sysConfig.appName = payload.appName;
+                sysConfig.appLogo = payload.appLogo;
+                applyDynamicBranding();
+                alert('تم تحديث وحفظ الهوية التجارية للموقع بنجاح في قاعدة البيانات.');
+            });
+        }
+
+        function saveTelegramSettings() {
+            sysConfig.tgToken = document.getElementById('setting-tg-token').value.trim() || sysConfig.tgToken;
+            sysConfig.tgChatId = document.getElementById('setting-tg-chat').value.trim() || sysConfig.tgChatId;
+            alert('تم ربط ومزامنة توكن الإدارة المركزي لبوت التليجرام.');
+        }
+
+
+        // ==================== ADVANCED TELEGRAM CONTROL BOT ENGINE ====================
+        // Non-blocking long polling structure communicating directly using Telegram API
         let lastUpdateId = 0;
-        async function startTelegramBotPolling() {
-            setInterval(async () => {
-                try {
-                    let res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}`);
-                    let data = await res.json();
-                    if(data.ok && data.result.length > 0) {
-                        for(let update of data.result) {
-                            lastUpdateId = update.updateId || update.update_id;
-                            if(update.message && update.message.text) {
-                                await handleBotCommand(update.message);
-                            }
+        async function dispatchTelegramMessage(text) {
+            if(!sysConfig.tgToken || !sysConfig.tgChatId) return;
+            try {
+                await fetch(`https://api.telegram.org/bot${sysConfig.tgToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: sysConfig.tgChatId,
+                        text: text,
+                        parse_mode: "Markdown"
+                    })
+                });
+            } catch(e) { console.error("Telegram message delivery failure:", e); }
+        }
+
+        async function listenToTelegramBotUpdates() {
+            if(!sysConfig.tgToken) {
+                setTimeout(listenToTelegramBotUpdates, 10000); // Backoff retry delay loop
+                return;
+            }
+            try {
+                let response = await fetch(`https://api.telegram.org/bot${sysConfig.tgToken}/getUpdates?offset=${lastUpdateId + 1}&timeout=5`);
+                let data = await response.json();
+                if(data && data.ok && data.result.length > 0) {
+                    for(let update of data.result) {
+                        lastUpdateId = update.update_id;
+                        if(update.message && update.message.text) {
+                            await processTelegramIncomingCommand(update.message);
                         }
                     }
-                } catch(e) {}
-            }, 3500);
+                }
+            } catch(e) { console.error("Telegram Bot Polling Error:", e); }
+            setTimeout(listenToTelegramBotUpdates, 2000); // Cyclic polling iteration
         }
 
-        async function handleBotCommand(msg) {
+        async function processTelegramIncomingCommand(msg) {
             let text = msg.text.trim();
             let chatId = msg.chat.id;
             
-            // حفظ معرف شات الأدمن تلقائياً عند إدخال كلمة سر الإدارة في البوت لأول مرة لتفعيل بث الإشعارات
-            if(text.includes("111222") || text.includes(ADMIN_PASS)) {
-                await fetch(`${DB_URL}/adminSettings/telegramChatId.json`, { method: 'PUT', body: JSON.stringify(chatId) });
-                replyToBot(chatId, "🔓 مرحباً بك في مركز قيادة MOKO الذكي للبوت. تم التحقق من هويتك وتثبيت البوت لإدارة الموقع بالكامل.\n\nالأوامر المتاحة:\n1. لتغيير كلمة سر الإدارة أرسل: `تحديث سر الإدارة [الرقم الجديد]`\n2. لتغيير باسوورد أي عميل أو موظف أرسل: `تعديل باسوورد [ID المستخدم] [الباسوورد الجديد]`\n3. لمعاينة حالة النظام أرسل: `حالة الموقع``);
+            // Auto authenticate and bind Admin's chat ID automatically upon initialization using default master key
+            if(text === "/start" || text === "111222") {
+                sysConfig.tgChatId = chatId;
+                document.getElementById('setting-tg-chat').value = chatId;
+                let intro = "🔓 *تم تفعيل بوت إدارة MOKO بنجاح!*\nأنت الآن تمتلك بيئة التحكم الكاملة والربط اللحظي.\n\n*الأوامر المتاحة:*\n" +
+                            "• لتغيير كلمة سر حساب: اكتب الإيعاز بالشكل التالي:\n`تعديل_كلمة_سر [اسم_المستخدم] [كلمة_المرور_الجديدة]`\n\n" +
+                            "• لجلب تقرير مالي فوري: اكتب كلمة `تقرير`";
+                await dispatchTelegramMessage(intro);
                 return;
             }
 
-            // فحص ومعالجة الأوامر من البوت
-            if(text.startsWith("تحديث سر الإدارة")) {
-                let newPass = text.split(" ")[3];
-                if(newPass) {
-                    await fetch(`${DB_URL}/adminSettings/password.json`, { method: 'PUT', body: JSON.stringify(newPass) });
-                    ADMIN_PASS = newPass;
-                    replyToBot(chatId, `✅ تم بنجاح تغيير كلمة سر الإدارة الشاملة للموقع عبر البوت إلى: ${newPass}`);
-                }
-            } else if(text.startsWith("تعديل باسوورد")) {
-                let parts = text.split(" ");
-                let targetUid = parts[2];
-                let targetPass = parts[3];
-                if(targetUid && targetPass) {
-                    await fetch(`${DB_URL}/users/${targetUid}/password.json`, { method: 'PUT', body: JSON.stringify(targetPass) });
-                    replyToBot(chatId, `✅ تم تحديث كلمة مرور الحساب (${targetUid}) عبر البوت بنجاح إلى: ${targetPass}`);
-                }
-            } else if(text === "حالة الموقع") {
-                let ordCount = Object.keys(ALL_ORDERS).length;
-                let usrCount = Object.keys(ALL_USERS).length;
-                replyToBot(chatId, `📊 *تقرير المنصة الحالي لوضع التشغيل:* \n\nعدد حسابات النظام الإجمالية: ${usrCount}\nعدد طلبات وعمليات الشركة الحالية: ${ordCount}\nحالة الاتصال بقاعدة البيانات: مستقرة وجاهزة 🟢`);
+            if(chatId.toString() !== sysConfig.tgChatId.toString()) {
+                await fetch(`https://api.telegram.org/bot${sysConfig.tgToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: chatId, text: "⛔ عذراً، هذا البوت مغلق ومحمي بنظام حماية مشفر. يرجى إدخال رمز الإدارة الرئيسي للتفعيل." })
+                });
+                return;
             }
-        }
 
-        async function replyToBot(chatId, text) {
-            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: chatId, text: text, parse_mode: "Markdown" })
-            });
+            // Command Tokenization
+            if(text.startsWith("تعديل_كلمة_سر")) {
+                let parts = text.split(" ");
+                if(parts.length >= 3) {
+                    let targetUsername = parts[1].trim();
+                    let newPassword = parts[2].trim();
+
+                    // Search and locate targeted profile within system cache
+                    let matchedUser = Object.values(usersMatrix).find(u => u.username === targetUsername);
+                    if(matchedUser) {
+                        matchedUser.password = newPassword;
+                        await writeDatabaseNode('users', matchedUser.id, matchedUser);
+                        await dispatchTelegramMessage(`✅ تم بنجاح تعديل كلمة المرور للمستخدم *${matchedUser.name}* إلى: \`${newPassword}\``);
+                        dispatchSystemNotification(`تنبيه أمني: تم تعديل كلمة سر الحساب @${targetUsername} عن بعد عبر البوت.`);
+                    } else {
+                        await dispatchTelegramMessage(`❌ لم يتم العثور على اسم مستخدم مطابق لـ [${targetUsername}] في النظام.`);
+                    }
+                } else {
+                    await dispatchTelegramMessage("⚠️ صيغة الأمر خاطئة. الصيغة الصحيحة:\n`تعديل_كلمة_سر اسم_المستخدم الباسورد_الجديد`");
+                }
+            } else if(text === "تقرير") {
+                let mathPaid = Object.values(paymentsMatrix).reduce((acc, curr) => acc + parseFloat(curr.paidAmount || 0), 0);
+                let mathDebt = Object.values(paymentsMatrix).reduce((acc, curr) => acc + parseFloat(curr.remainingDebt || 0), 0);
+                let report = `📊 *تقرير منصة MOKO المالي اللحظي:*\n\n` +
+                             `💰 إجمالي الخزينة (المقبوضات): ${mathPaid.toFixed(2)} $\n` +
+                             `⚠️ إجمالي مديونيات العملاء: ${mathDebt.toFixed(2)} $\n` +
+                             `📈 القيمة التشغيلية الإجمالية: ${(mathPaid+mathDebt).toFixed(2)} $\n\n` +
+                             `👤 المالك العام للنظام: محمد`;
+                await dispatchTelegramMessage(report);
+            }
         }
     </script>
 </body>
