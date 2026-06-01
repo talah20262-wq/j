@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOKO System – Management Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-neon: #00f2fe;
+            --secondary-neon: #bd00ff;
+            --bg-dark: #0B0B0F;
+            --card-bg: rgba(20, 20, 28, 0.6);
+            --border-glass: rgba(255, 255, 255, 0.05);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --btn-danger: #ff4a4a;
+            --btn-success: #00ff87;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 10% 20%, rgba(189, 0, 255, 0.05) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(0, 242, 254, 0.05) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        /* --- Login Screen --- */
+        #login-screen {
+            position: fixed;
+            top: 0; right: 0; bottom: 0; left: 0;
+            z-index: 9999;
+            background: var(--bg-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            padding: 2.5rem;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 242, 254, 0.1);
+            text-align: center;
+        }
+
+        .login-card img {
+            max-height: 80px;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 10px var(--primary-neon));
+        }
+
+        .login-card h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, var(--primary-neon), var(--secondary-neon));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+            text-align: right;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            color: #fff;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            border-color: var(--primary-neon);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+        }
+
+        .btn-neon {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(45deg, var(--primary-neon), var(--secondary-neon));
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+        }
+
+        .btn-neon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(189, 0, 255, 0.4), 0 0 10px var(--primary-neon);
+        }
+
+        /* --- Main Layout --- */
+        #main-app {
+            display: none;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0; right: 0; bottom: 0;
+            width: 280px;
+            background: rgba(11, 11, 15, 0.85);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid var(--border-glass);
+            padding: 2rem 1.5rem;
+            z-index: 100;
+        }
+
+        .brand-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .brand-logo {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            object-fit: cover;
+            filter: drop-shadow(0 0 5px var(--primary-neon));
+        }
+
+        .brand-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: linear-gradient(45deg, var(--primary-neon), var(--text-main));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 18px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .nav-link i {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.04);
+            border-right: 4px solid var(--primary-neon);
+            box-shadow: inset 10px 0 20px rgba(0, 242, 254, 0.02);
+        }
+
+        .nav-link.active i {
+            color: var(--primary-neon);
+            filter: drop-shadow(0 0 8px var(--primary-neon));
+        }
+
+        /* Main Content Container */
+        .content-wrapper {
+            margin-right: 280px;
+            padding: 2rem 3rem;
+            min-height: 100vh;
+        }
+
+        /* Top Header */
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-glass);
+        }
+
+        .page-title-area h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .breadcrumbs {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .user-profile-widget {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info-text {
+            text-align: left;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .user-role-badge {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: rgba(189, 0, 255, 0.2);
+            color: #e0aaff;
+            border: 1px solid rgba(189, 0, 255, 0.3);
+        }
+
+        /* --- Dashboard Grid & UI Elements --- */
+        .system-section {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(0, 242, 254, 0.3);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-top: 5px;
+            font-family: 'Plus Jakarta Sans';
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .stat-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: rgba(255,255,255,0.02);
+        }
+
+        .stat-card.blue .stat-icon { color: var(--primary-neon); background: rgba(0, 242, 254, 0.1); }
+        .stat-card.purple .stat-icon { color: var(--secondary-neon); background: rgba(189, 0, 255, 0.1); }
+        .stat-card.success .stat-icon { color: var(--btn-success); background: rgba(0, 255, 135, 0.1); }
+
+        /* Standard Table & Cards Design */
+        .data-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .card-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+        }
+
+        th {
+            padding: 16px;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-glass);
+            font-size: 0.9rem;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.02);
+            font-size: 0.95rem;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.01);
+            color: #fff;
+        }
+
+        /* Status Badges */
+        .badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .badge.pending { background: rgba(255, 174, 0, 0.15); color: #ffae00; }
+        .badge.progress { background: rgba(0, 242, 254, 0.15); color: var(--primary-neon); }
+        .badge.completed { background: rgba(0, 255, 135, 0.15); color: var(--btn-success); }
+        .badge.cancelled { background: rgba(255, 74, 74, 0.15); color: var(--btn-danger); }
+
+        /* Actions & Utility Buttons */
+        .btn-action {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-glass);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .btn-action:hover {
+            background: var(--primary-neon);
+            color: var(--bg-dark);
+        }
+        .btn-add {
+            background: linear-gradient(45deg, var(--primary-neon), var(--secondary-neon));
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Forms Layout inside Panels */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Responsive Mobile Layout */
+        .menu-trigger {
+            display: none;
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        @media (max-width: 991px) {
+            .sidebar {
+                transform: translateX(100%);
+                position: fixed;
+                right: 0; top: 0; bottom: 0;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .content-wrapper {
+                margin-right: 0;
+                padding: 1.5rem;
+            }
+            .menu-trigger {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <img id="login-logo" src="https://images.cloudinary.com/demo/image/upload/sample.jpg" alt="MOKO Logo" class="brand-logo">
+            <h2 id="login-title">MOKO System</h2>
+            <form id="login-form">
+                <div class="input-group">
+                    <label>اسم المستخدم</label>
+                    <input type="text" id="login-username" required placeholder="أدخل اسم الحساب">
+                </div>
+                <div class="input-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="login-password" required placeholder="••••••••">
+                </div>
+                <div class="input-group">
+                    <label>نوع الحساب / الصلاحية</label>
+                    <select id="login-role">
+                        <option value="admin">إدارة (Admin)</option>
+                        <option value="supervisor">مشرف (Supervisor)</option>
+                        <option value="employee">موظف (Employee)</option>
+                        <option value="customer">عميل (Customer)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-neon">تسجيل الدخول</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="main-app">
+        
+        <aside class="sidebar">
+            <div class="brand-area">
+                <img id="app-logo" src="https://images.cloudinary.com/demo/image/upload/sample.jpg" alt="Logo" class="brand-logo">
+                <span id="app-name" class="brand-name">MOKO</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item" data-roles="admin,supervisor,employee,customer">
+                    <a class="nav-link active" onclick="showSection('dashboard', 'الرئيسية')">
+                        <i class="fa-solid fa-chart-pie"></i> لوحة التحكم
+                    </a>
+                </li>
+                <li class="nav-item" data-roles="admin,supervisor">
+                    <a class="nav-link" onclick="showSection('users-sec', 'إدارة المستخدمين')">
+                        <i class="fa-solid fa-users-gear"></i> الحسابات والمستخدمين
+                    </a>
+                </li>
+                <li class="nav-item" data-roles="admin,supervisor,employee,customer">
+                    <a class="nav-link" onclick="showSection('orders-sec', 'إدارة الطلبات')">
+                        <i class="fa-solid fa-boxes-stacked"></i> الطلبات والعمليات
+                    </a>
+                </li>
+                <li class="nav-item" data-roles="admin,supervisor,customer">
+                    <a class="nav-link" onclick="showSection('finance-sec', 'التحكم المالي')">
+                        <i class="fa-solid fa-wallet"></i> الحسابات المالية
+                    </a>
+                </li>
+                <li class="nav-item" data-roles="admin">
+                    <a class="nav-link" onclick="showSection('settings-sec', 'إعدادات النظام')">
+                        <i class="fa-solid fa-sliders"></i> إعدادات الهوية
+                    </a>
+                </li>
+                <li class="nav-item" style="margin-top: 2rem;">
+                    <a class="nav-link" onclick="logout()" style="color: var(--btn-danger);">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> تسجيل الخروج
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <main class="content-wrapper">
+            
+            <header class="top-header">
+                <div class="page-title-area">
+                    <button class="menu-trigger" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+                    <h1 id="current-page-title">لوحة التحكم</h1>
+                    <div class="breadcrumbs">MOKO System &gt; <span id="bread-crumb-page">الرئيسية</span></div>
+                </div>
+                <div class="user-profile-widget">
+                    <div class="user-info-text">
+                        <div class="user-name" id="current-user-display">محمد</div>
+                        <span class="user-role-badge" id="current-role-display">مدير النظام</span>
+                    </div>
+                </div>
+            </header>
+
+            <section id="dashboard" class="system-section" style="display: block;">
+                <div class="stats-grid">
+                    <div class="stat-card blue">
+                        <div>
+                            <div class="stat-label">إجمالي الطلبات</div>
+                            <div class="stat-value" id="stat-orders-count">0</div>
+                        </div>
+                        <div class="stat-icon"><i class="fa-solid fa-box"></i></div>
+                    </div>
+                    <div class="stat-card purple">
+                        <div>
+                            <div class="stat-label">المبالغ المحصلة</div>
+                            <div class="stat-value" id="stat-total-paid">0</div>
+                        </div>
+                        <div class="stat-icon"><i class="fa-solid fa-money-bill-wave"></i></div>
+                    </div>
+                    <div class="stat-card success">
+                        <div>
+                            <div class="stat-label">الديون المتبقية</div>
+                            <div class="stat-value" id="stat-total-debt">0</div>
+                        </div>
+                        <div class="stat-icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                    </div>
+                </div>
+
+                <div class="data-card">
+                    <div class="card-header-flex">
+                        <h2>آخر الإشعارات وتحديثات النظام اللحظية</h2>
+                        <i class="fa-solid fa-bell" style="color: var(--primary-neon);"></i>
+                    </div>
+                    <div id="live-logs-container" style="max-height: 200px; overflow-y: auto; font-size: 0.9rem; line-height: 1.8;">
+                        </div>
+                </div>
+            </section>
+
+            <section id="users-sec" class="system-section">
+                <div class="data-card admin-only" data-roles="admin">
+                    <div class="card-header-flex">
+                        <h2>إنشاء وتعديل حساب مستخدم جديد</h2>
+                    </div>
+                    <form id="user-creation-form">
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label>اسم المستخدم (ID الفريد في الدخول)</label>
+                                <input type="text" id="new-user-id" required>
+                            </div>
+                            <div class="input-group">
+                                <label>الاسم الظاهري</label>
+                                <input type="text" id="new-user-name" required>
+                            </div>
+                            <div class="input-group">
+                                <label>كلمة المرور</label>
+                                <input type="text" id="new-user-pass" required>
+                            </div>
+                            <div class="input-group">
+                                <label>الصلاحية</label>
+                                <select id="new-user-role">
+                                    <option value="customer">عميل</option>
+                                    <option value="employee">موظف</option>
+                                    <option value="supervisor">مشرف</option>
+                                    <option value="admin">مدير</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-add">حفظ وإضافة الحساب للمنظومة</button>
+                    </form>
+                </div>
+
+                <div class="data-card">
+                    <h2>قائمة الحسابات المسجلة بالنظام</h2>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID الحساب</th>
+                                    <th>الاسم</th>
+                                    <th>نوع الحساب</th>
+                                    <th>كلمة السر الحالية</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="orders-sec" class="system-section">
+                <div class="data-card" id="create-order-wrapper" data-roles="admin,supervisor">
+                    <h2>إنشاء مسار طلب أو مهمة تشغيلية جديدة</h2>
+                    <form id="order-creation-form" style="margin-top:1rem;">
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label>ربط بحساب عميل (ID)</label>
+                                <input type="text" id="order-cust-id" required>
+                            </div>
+                            <div class="input-group">
+                                <label>تفاصيل المنتج / الخدمة</label>
+                                <input type="text" id="order-details" required>
+                            </div>
+                            <div class="input-group">
+                                <label>الكمية التشغيلية</label>
+                                <input type="number" id="order-qty" value="1" required>
+                            </div>
+                            <div class="input-group">
+                                <label>إجمالي التكلفة المالية</label>
+                                <input type="number" id="order-cost" value="0" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-add">توليد الطلب وضخه للموظفين</button>
+                    </form>
+                </div>
+
+                <div class="data-card">
+                    <h2>سجلات التتبع لجميع طلبات ومراحل الشركة</h2>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>رقم الطلب</th>
+                                    <th>العميل</th>
+                                    <th>البيان والكمية</th>
+                                    <th>التكلفة</th>
+                                    <th>الوضعية التشغيلية</th>
+                                    <th>تعديل الحالة</th>
+                                    <th>ملاحظات العمليات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="finance-sec" class="system-section">
+                <div class="data-card" data-roles="admin,supervisor">
+                    <h2>تسجيل وضخ دفعة مالية جديدة من عميل</h2>
+                    <form id="payment-form" style="margin-top:1rem;">
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label>حساب العميل (ID)</label>
+                                <input type="text" id="pay-cust-id" required>
+                            </div>
+                            <div class="input-group">
+                                <label>المبلغ المدفوع حالياً</label>
+                                <input type="number" id="pay-amount" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-add">اعتماد وإدراج الفاتورة المالية</button>
+                    </form>
+                </div>
+
+                <div class="data-card">
+                    <h2>كشف الحسابات العام والتدفق المالي للعملاء</h2>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>معرف العميل</th>
+                                    <th>إجمالي المسحوبات المالية</th>
+                                    <th>إجمالي الدفعات المسددة</th>
+                                    <th>صافي الدين المتبقي للمؤسسة</th>
+                                </tr>
+                            </thead>
+                            <tbody id="finance-table-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="settings-sec" class="system-section">
+                <div class="data-card">
+                    <h2>التحكم في الهوية البصرية وشعار الموقع العام (المدير)</h2>
+                    <div style="margin-top:1.5rem;">
+                        <div class="input-group">
+                            <label>اسم الموقع الأساسي في لوحة التحكم</label>
+                            <input type="text" id="set-app-name" value="MOKO System">
+                        </div>
+                        <div class="input-group">
+                            <label>رابط لوجو المؤسسة (مرفوع عبر لوحة Cloudinary الخاصة بك)</label>
+                            <input type="text" id="set-app-logo" placeholder="https://res.cloudinary.com/...">
+                        </div>
+                        <button class="btn-add" onclick="saveSystemSettings()">تحديث الهوية الشاملة للمنصة</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        // تكوين الاستضافة وقناة الاتصال الذكية ببوت التليجرام الخاص بك بناء على البيانات المرفقة
+        const DB_URL = "https://mama-c6e6b-default-rtdb.firebaseio.com";
+        const BOT_TOKEN = "8888324487:AAFQxDsBlIMQgUbeuNrQ29d81jnmjHHjPr0";
+        
+        let CURRENT_USER = null;
+        let ALL_USERS = {};
+        let ALL_ORDERS = {};
+        let ADMIN_PASS = "111222"; // الافتراضية المحددة من قبلك
+
+        // عند بدء تشغيل المنصة بالكامل
+        window.addEventListener('DOMContentLoaded', async () => {
+            await fetchAdminPassword();
+            await loadSystemSettings();
+            listenToDatabaseUpdates();
+            setupFormListeners();
+            // تشغيل محرك الاستماع لبوت التليجرام بالخلفية
+            startTelegramBotPolling();
+        });
+
+        // جلب كلمة سر الإدارة المحدثة من السيرفر
+        async function fetchAdminPassword() {
+            try {
+                let res = await fetch(`${DB_URL}/adminSettings/password.json`);
+                let data = await res.json();
+                if(data) ADMIN_PASS = data;
+            } catch(e) { console.error("Error reading admin pass", e); }
+        }
+
+        // جلب إعدادات الهوية
+        async function loadSystemSettings() {
+            try {
+                let res = await fetch(`${DB_URL}/systemSettings.json`);
+                let data = await res.json();
+                if(data) {
+                    if(data.name) {
+                        document.getElementById('app-name').innerText = data.name;
+                        document.getElementById('login-title').innerText = data.name;
+                        document.getElementById('set-app-name').value = data.name;
+                    }
+                    if(data.logo) {
+                        document.getElementById('app-logo').src = data.logo;
+                        document.getElementById('login-logo').src = data.logo;
+                        document.getElementById('set-app-logo').value = data.logo;
+                    }
+                }
+            } catch(e) {}
+        }
+
+        // حفظ إعدادات الهوية والشعار من لوحة الإدارة
+        async function saveSystemSettings() {
+            let name = document.getElementById('set-app-name').value;
+            let logo = document.getElementById('set-app-logo').value;
+            await fetch(`${DB_URL}/systemSettings.json`, {
+                method: 'PUT',
+                body: JSON.stringify({name, logo})
+            });
+            alert('تم تحديث الهوية البصرية والشعار بنجاح في قاعدة البيانات.');
+            location.reload();
+        }
+
+        // مراقبة وتحديث البيانات الحية بشكل فوري بدون عمل ريلود
+        function listenToDatabaseUpdates() {
+            // مراقبة المستخدمين
+            setInterval(async () => {
+                let res = await fetch(`${DB_URL}/users.json`);
+                ALL_USERS = await res.json() || {};
+                let resOrd = await fetch(`${DB_URL}/orders.json`);
+                ALL_ORDERS = await resOrd.json() || {};
+                
+                renderUsersTable();
+                renderOrdersTable();
+                renderFinanceTable();
+                calculateMetrics();
+            }, 3000);
+        }
+
+        // معالجة تسجيل الدخول والتحقق من الصلاحيات والـ Role-Based System
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            let username = document.getElementById('login-username').value.trim();
+            let pass = document.getElementById('login-password').value.trim();
+            let selectedRole = document.getElementById('login-role').value;
+
+            // التحقق من حساب المدير المباشر
+            if(selectedRole === 'admin' && username === 'admin' && pass === ADMIN_PASS) {
+                initUserSession({id: 'admin', name: 'المدير العام', role: 'admin'});
+                return;
+            }
+
+            // التحقق من بقية الحسابات في داتابيز فايربيز
+            if(ALL_USERS[username] && ALL_USERS[username].password === pass && ALL_USERS[username].role === selectedRole) {
+                initUserSession({id: username, name: ALL_USERS[username].name, role: ALL_USERS[username].role});
+            } else {
+                alert('خطأ في بيانات الدخول أو الصلاحية المحددة! يرجى التحقق.');
+            }
+        });
+
+        function initUserSession(user) {
+            CURRENT_USER = user;
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            document.getElementById('current-user-display').innerText = user.name;
+            
+            let roleAr = {admin: 'المدير العام', supervisor: 'مشرف العمليات', employee: 'موظف تنفيذ', customer: 'حساب العميل'};
+            document.getElementById('current-role-display').innerText = roleAr[user.role];
+
+            // إخفاء الأزرار أو التابات التي لا تتوافق مع صلاحية المستخدم الحالية بناءً على الـ Attribute
+            document.querySelectorAll('[data-roles]').forEach(el => {
+                let rolesAllowed = el.getAttribute('data-roles').split(',');
+                if(rolesAllowed.includes(user.role)) {
+                    el.style.display = '';
+                } else {
+                    el.style.display = 'none';
+                }
+            });
+
+            // تسجيل لوج الدخول وبثه للتليجرام
+            pushLog(`قام ${user.name} (صلاحية: ${roleAr[user.role]}) بتسجيل الدخول الفعلي للمنظومة.`);
+            showSection('dashboard', 'لوحة التحكم');
+        }
+
+        // محرك التنقل الديناميكي الفوري لنظام الصفحة الواحدة SPA
+        function showSection(sectionId, arabicTitle) {
+            document.querySelectorAll('.system-section').forEach(sec => sec.style.display = 'none');
+            document.getElementById(sectionId).style.display = 'block';
+            
+            document.getElementById('current-page-title').innerText = arabicTitle;
+            document.getElementById('bread-crumb-page').innerText = arabicTitle;
+
+            // تحديث حالة الأزرار في القائمة الجانبية
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            let event = window.event;
+            if(event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
+            if(window.innerWidth <= 991) {
+                document.querySelector('.sidebar').classList.remove('active');
+            }
+        }
+
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        }
+
+        function logout() {
+            location.reload();
+        }
+
+        // عمليات النماذج وإرسال البيانات للفايربيز
+        function setupFormListeners() {
+            // إنشاء مستخدم
+            document.getElementById('user-creation-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                let uid = document.getElementById('new-user-id').value.trim();
+                let name = document.getElementById('new-user-name').value.trim();
+                let pass = document.getElementById('new-user-pass').value.trim();
+                let role = document.getElementById('new-user-role').value;
+
+                let userData = { name, password: pass, role };
+                await fetch(`${DB_URL}/users/${uid}.json`, { method: 'PUT', body: JSON.stringify(userData) });
+                
+                pushLog(`تم إنشاء مستخدم جديد في النظام باسم: ${name} ومعرف: ${uid}`);
+                document.getElementById('user-creation-form').reset();
+                alert('تم تسجيل وتوليد الحساب بنجاح وعكسه في الداتابيز.');
+            });
+
+            // إنشاء طلب
+            document.getElementById('order-creation-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                let custId = document.getElementById('order-cust-id').value.trim();
+                let details = document.getElementById('order-details').value.trim();
+                let qty = parseInt(document.getElementById('order-qty').value);
+                let cost = parseFloat(document.getElementById('order-cost').value);
+
+                let orderId = 'ORD-' + Date.now().toString().slice(-6);
+                let orderData = {
+                    id: orderId,
+                    customer: custId,
+                    details: details,
+                    qty: qty,
+                    cost: cost,
+                    status: 'pending',
+                    notes: 'تم توليد مسار العمل بنجاح'
+                };
+
+                await fetch(`${DB_URL}/orders/${orderId}.json`, { method: 'PUT', body: JSON.stringify(orderData) });
+                pushLog(`تم إدراج طلب تشغيل جديد رقم ${orderId} للعميل ${custId}`);
+                document.getElementById('order-creation-form').reset();
+                alert('تم رفع وضخ الطلب بنجاح.');
+            });
+
+            // تسجيل دفعة مالية
+            document.getElementById('payment-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                let custId = document.getElementById('pay-cust-id').value.trim();
+                let amt = parseFloat(document.getElementById('pay-amount').value);
+
+                let payId = 'PAY-' + Date.now().toString().slice(-6);
+                await fetch(`${DB_URL}/payments/${custId}/${payId}.json`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ amount: amt, date: new Date().toLocaleDateString('ar-EG') })
+                });
+
+                pushLog(`تم تسجيل إيصال استلام دفعة مالية بقيمة ${amt} من العميل ${custId}`);
+                document.getElementById('payment-form').reset();
+                alert('تم قيد السداد المالي بنجاح.');
+            });
+        }
+
+        // تحديث وضعية وحالة الطلب للموظف أو المشرف
+        async function updateOrderStatus(orderId, newStatus) {
+            await fetch(`${DB_URL}/orders/${orderId}/status.json`, { method: 'PUT', body: JSON.stringify(newStatus) });
+            pushLog(`تم تعديل حالة الطلب ${orderId} إلى: ${newStatus}`);
+        }
+
+        // إضافة ملاحظة تشغيلية للطلب
+        async function updateOrderNotes(orderId) {
+            let note = prompt("أدخل الملاحظة أو تقرير الإنتاجية لتحديث مسار العمل:");
+            if(note) {
+                await fetch(`${DB_URL}/orders/${orderId}/notes.json`, { method: 'PUT', body: JSON.stringify(note) });
+                pushLog(`أضاف الموظف ملاحظة على طلب ${orderId}: ${note}`);
+            }
+        }
+
+        // حذف مستخدم من المنظومة (صلاحية الإدارة)
+        async function deleteUser(uid) {
+            if(confirm(`هل أنت متأكد من رغبتك في حذف الحساب ${uid} تماماً؟`)) {
+                await fetch(`${DB_URL}/users/${uid}.json`, { method: 'DELETE' });
+                pushLog(`تم حذف وإلغاء صلاحيات المستخدم: ${uid}`);
+            }
+        }
+
+        // دالة الحسابات والـ Metrics الذكية للوحة الرئيسية
+        function calculateMetrics() {
+            let totalOrders = Object.keys(ALL_ORDERS).length;
+            document.getElementById('stat-orders-count').innerText = totalOrders;
+
+            let totalPaid = 0;
+            // يمكن قراءة العمليات وحسابها ديناميكياً
+            document.getElementById('stat-total-paid').innerText = "جاري الحساب..";
+        }
+
+        // رندرة الجداول وبناء شاشات العرض المخصصة للصلاحيات
+        function renderUsersTable() {
+            let tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = '';
+            Object.keys(ALL_USERS).forEach(key => {
+                let u = ALL_USERS[key];
+                let row = `<tr>
+                    <td>${key}</td>
+                    <td>${u.name}</td>
+                    <td><span class="user-role-badge">${u.role}</span></td>
+                    <td>${CURRENT_USER && CURRENT_USER.role === 'admin' ? u.password : '••••••'}</td>
+                    <td>
+                        ${CURRENT_USER && CURRENT_USER.role === 'admin' ? `<button class="btn-action" style="background:var(--btn-danger)" onclick="deleteUser('${key}')">حذف</button>` : 'لا تملك صلاحية'}
+                    </td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function renderOrdersTable() {
+            let tbody = document.getElementById('orders-table-body');
+            tbody.innerHTML = '';
+            Object.keys(ALL_ORDERS).forEach(key => {
+                let o = ALL_ORDERS[key];
+                
+                // تصفية العرض بناءً على حساب العميل (العميل يرى طلباته فقط)
+                if(CURRENT_USER && CURRENT_USER.role === 'customer' && o.customer !== CURRENT_USER.id) return;
+
+                let statusOptions = `
+                    <select onchange="updateOrderStatus('${o.id}', this.value)" ${CURRENT_USER.role === 'customer' ? 'disabled' : ''}>
+                        <option value="pending" ${o.status === 'pending'?'selected':''}>قيد المراجعة</option>
+                        <option value="progress" ${o.status === 'progress'?'selected':''}>قيد التنفيذ</option>
+                        <option value="completed" ${o.status === 'completed'?'selected':''}>تم التسليم</option>
+                        <option value="cancelled" ${o.status === 'cancelled'?'selected':''}>ملغي</option>
+                    </select>
+                `;
+
+                let row = `<tr>
+                    <td>${o.id}</td>
+                    <td>${o.customer}</td>
+                    <td>${o.details} (x${o.qty})</td>
+                    <td>${o.cost} ج.م</td>
+                    <td><span class="badge ${o.status}">${o.status}</span></td>
+                    <td>${statusOptions}</td>
+                    <td>
+                        <span style="font-size:0.85rem; color:var(--text-muted);">${o.notes || ''}</span>
+                        ${CURRENT_USER.role !== 'customer' ? `<button class="btn-action" style="margin-right:8px;" onclick="updateOrderNotes('${o.id}')">إضافة ملاحظة</button>` : ''}
+                    </td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        async function renderFinanceTable() {
+            let tbody = document.getElementById('finance-table-body');
+            tbody.innerHTML = '';
+            
+            // قراءة حية لبيانات السداد والربط المالي
+            let resPay = await fetch(`${DB_URL}/payments.json`);
+            let paymentsData = await resPay.json() || {};
+
+            Object.keys(ALL_USERS).forEach(uid => {
+                if(ALL_USERS[uid].role !== 'customer') return;
+                if(CURRENT_USER && CURRENT_USER.role === 'customer' && uid !== CURRENT_USER.id) return;
+
+                // حساب المسحوبات من توتال تكاليف الطلبات الصادرة له
+                let totalCost = 0;
+                Object.values(ALL_ORDERS).forEach(o => {
+                    if(o.customer === uid) totalCost += parseFloat(o.cost || 0);
+                });
+
+                // حساب المدفوعات له
+                let paid = 0;
+                if(paymentsData[uid]) {
+                    Object.values(paymentsData[uid]).forEach(p => paid += parseFloat(p.amount || 0));
+                }
+
+                let debt = totalCost - paid;
+
+                let row = `<tr>
+                    <td>${uid} (${ALL_USERS[uid].name})</td>
+                    <td>${totalCost} ج.م</td>
+                    <td>${paid} ج.m</td>
+                    <td style="color:${debt > 0 ? 'var(--btn-danger)':'var(--btn-success)'}">${debt} ج.م</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        // محرك قيد السجلات وبث الإشعارات الحية للموقع وللبوت
+        async function pushLog(text) {
+            let logObj = { text: text, timestamp: new Date().toLocaleTimeString('ar-EG') };
+            await fetch(`${DB_URL}/systemLogs.json`, { method: 'POST', body: JSON.stringify(logObj) });
+            
+            // إرسال تنبيه فوري إلى تلجرام للإدارة والمسؤولين
+            sendTelegramMessage(`🔔 *إشعار نظام MOKO الآلي:* \n\n ${text}`);
+        }
+
+        // استقبال السجلات وعرضها في لوحة التحكم
+        setInterval(async () => {
+            let res = await fetch(`${DB_URL}/systemLogs.json?orderBy="$key"&limitToLast=8`);
+            let data = await res.json();
+            let container = document.getElementById('live-logs-container');
+            if(data) {
+                container.innerHTML = '';
+                Object.values(data).reverse().forEach(log => {
+                    container.innerHTML += `<div><span style="color:var(--primary-neon)">[${log.timestamp}]</span> ${log.text}</div>`;
+                });
+            }
+        }, 3000);
+
+        // إرسال البيانات المباشرة لبوت التليجرام
+        async function sendTelegramMessage(msg) {
+            // جلب الـ Chat ID المخزن مسبقاً لدى الخادم لإرسال الإشعار له
+            try {
+                let resId = await fetch(`${DB_URL}/adminSettings/telegramChatId.json`);
+                let chatId = await resId.json();
+                if(chatId) {
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: "Markdown" })
+                    });
+                }
+            } catch(e) {}
+        }
+
+        // ================= 🧠 TELEGRAM BOT MANAGEMENT INTELLIGENCE =================
+        // نظام التوجيه والـ Polling لقراءة الأوامر من بوت التليجرام والتحكم الكامل بالموقع وتغيير كلمات السر
+        let lastUpdateId = 0;
+        async function startTelegramBotPolling() {
+            setInterval(async () => {
+                try {
+                    let res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}`);
+                    let data = await res.json();
+                    if(data.ok && data.result.length > 0) {
+                        for(let update of data.result) {
+                            lastUpdateId = update.updateId || update.update_id;
+                            if(update.message && update.message.text) {
+                                await handleBotCommand(update.message);
+                            }
+                        }
+                    }
+                } catch(e) {}
+            }, 3500);
+        }
+
+        async function handleBotCommand(msg) {
+            let text = msg.text.trim();
+            let chatId = msg.chat.id;
+            
+            // حفظ معرف شات الأدمن تلقائياً عند إدخال كلمة سر الإدارة في البوت لأول مرة لتفعيل بث الإشعارات
+            if(text.includes("111222") || text.includes(ADMIN_PASS)) {
+                await fetch(`${DB_URL}/adminSettings/telegramChatId.json`, { method: 'PUT', body: JSON.stringify(chatId) });
+                replyToBot(chatId, "🔓 مرحباً بك في مركز قيادة MOKO الذكي للبوت. تم التحقق من هويتك وتثبيت البوت لإدارة الموقع بالكامل.\n\nالأوامر المتاحة:\n1. لتغيير كلمة سر الإدارة أرسل: `تحديث سر الإدارة [الرقم الجديد]`\n2. لتغيير باسوورد أي عميل أو موظف أرسل: `تعديل باسوورد [ID المستخدم] [الباسوورد الجديد]`\n3. لمعاينة حالة النظام أرسل: `حالة الموقع``);
+                return;
+            }
+
+            // فحص ومعالجة الأوامر من البوت
+            if(text.startsWith("تحديث سر الإدارة")) {
+                let newPass = text.split(" ")[3];
+                if(newPass) {
+                    await fetch(`${DB_URL}/adminSettings/password.json`, { method: 'PUT', body: JSON.stringify(newPass) });
+                    ADMIN_PASS = newPass;
+                    replyToBot(chatId, `✅ تم بنجاح تغيير كلمة سر الإدارة الشاملة للموقع عبر البوت إلى: ${newPass}`);
+                }
+            } else if(text.startsWith("تعديل باسوورد")) {
+                let parts = text.split(" ");
+                let targetUid = parts[2];
+                let targetPass = parts[3];
+                if(targetUid && targetPass) {
+                    await fetch(`${DB_URL}/users/${targetUid}/password.json`, { method: 'PUT', body: JSON.stringify(targetPass) });
+                    replyToBot(chatId, `✅ تم تحديث كلمة مرور الحساب (${targetUid}) عبر البوت بنجاح إلى: ${targetPass}`);
+                }
+            } else if(text === "حالة الموقع") {
+                let ordCount = Object.keys(ALL_ORDERS).length;
+                let usrCount = Object.keys(ALL_USERS).length;
+                replyToBot(chatId, `📊 *تقرير المنصة الحالي لوضع التشغيل:* \n\nعدد حسابات النظام الإجمالية: ${usrCount}\nعدد طلبات وعمليات الشركة الحالية: ${ordCount}\nحالة الاتصال بقاعدة البيانات: مستقرة وجاهزة 🟢`);
+            }
+        }
+
+        async function replyToBot(chatId, text) {
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: chatId, text: text, parse_mode: "Markdown" })
+            });
+        }
+    </script>
+</body>
+</html>
