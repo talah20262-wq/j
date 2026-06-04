@@ -3,2000 +3,461 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MOKO System - Control Tower</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>مصروفي - إدارة المصاريف المتقدمة</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#090d16">
+    <!-- مكتبة لـ Icons رايقة -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-
+    <!-- مكتبة SheetJS لتصدير الـ Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+    
     <style>
+        :root {
+            --bg-gradient: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #090d16 100%);
+            --glass-bg: rgba(15, 23, 42, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --neon-blue: #38bdf8;
+            --neon-purple: #a855f7;
+            --neon-green: #22c55e;
+            --neon-red: #f43f5e;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         body {
-            font-family: 'Cairo', 'Inter', sans-serif;
-            background-color: #0B0B0F;
-            color: #f3f4f6;
-            overflow-x: hidden;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px 15px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
         }
-        .glass-panel {
-            background: rgba(18, 18, 24, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        /* ستايل الكروت الزجاجية الباقية */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        h2, h3 {
+            margin-top: 0;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        /* ستايل حقول الإدخال */
+        .input-group {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.03);
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        /* الأزرار المودرن */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 14px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(56, 189, 248, 0.4);
+        }
+
+        .btn-record {
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.2);
+            color: var(--neon-red);
+            margin-bottom: 12px;
+        }
+
+        .btn-record.recording {
+            background: var(--neon-red);
+            color: #fff;
+            animation: pulse 1.5s infinite;
+        }
+
+        .btn-excel {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+            margin-top: 15px;
+        }
+
+        /* شبكة الإحصائيات */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 16px;
+            border-radius: 16px;
+            text-align: center;
         }
-        .neon-text-blue {
-            color: #00f2fe;
-            text-shadow: 0 0 8px rgba(0, 242, 254, 0.5);
+
+        .stat-box h4 {
+            margin: 0 0 8px 0;
+            color: var(--text-muted);
+            font-size: 14px;
         }
-        .neon-text-purple {
-            color: #bd00ff;
-            text-shadow: 0 0 8px rgba(189, 0, 255, 0.5);
+
+        .stat-box p {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--neon-blue);
         }
-        .neon-border-blue:focus {
-            border-color: #00f2fe;
-            box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+
+        /* قائمة المصاريف الأخيرة */
+        .expense-item {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 12px;
+            border-right: 4px solid var(--neon-purple);
         }
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+
+        .expense-item-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            margin-bottom: 4px;
         }
-        ::-webkit-scrollbar-track {
-            background: #0B0B0F;
+
+        .expense-amount {
+            color: var(--neon-green);
         }
-        ::-webkit-scrollbar-thumb {
-            background: #1F1F2E;
-            border-radius: 10px;
+
+        .expense-details {
+            font-size: 14px;
+            color: var(--text-muted);
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #00f2fe;
+
+        /* بنر التثبيت التلقائي */
+        #installBanner {
+            background: linear-gradient(90deg, #1e293b, #0f172a);
+            border: 1px solid var(--glass-border);
+            padding: 16px;
+            border-radius: 16px;
+            display: none;
+            margin-bottom: 20px;
+            align-items: center;
+            justify-content: space-between;
         }
-        .active-menu-item {
-            background: linear-gradient(90deg, rgba(0, 242, 254, 0.1) 0%, rgba(189, 0, 255, 0.05) 100%);
-            border-right: 4px solid #00f2fe;
-            color: #white;
-        }
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            #print-sheet-area, #print-sheet-area * {
-                visibility: visible;
-            }
-            #print-sheet-area {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                color: black !important;
-                background: white !important;
-            }
+
+        .hidden { display: none !important; }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.4); }
+            70% { box-shadow: 0 0 0 12px rgba(244, 63, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
         }
     </style>
 </head>
-<body class="bg-[#0B0B0F] text-neutral-200 antialiased selection:bg-cyan-500 selection:text-black">
+<body>
 
-    <div id="print-sheet-area" class="hidden p-8 bg-white text-black"></div>
+<div class="container">
+    <!-- إشعار التثبيت -->
+    <div id="installBanner" class="glass-card">
+        <span style="font-size: 14px;"><i class="fa-solid fa-mobile-screen-button" style="color: var(--neon-blue); margin-left: 8px;"></i> ثبّت مصروفي كتطبيق سريع</span>
+        <button onclick="installApp()" style="width: auto; padding: 8px 16px; background: var(--neon-blue); color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">تثبيت</button>
+    </div>
 
-    <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-[#050507] bg-opacity-95">
-        <div class="glass-panel w-full max-w-md p-8 rounded-3xl relative overflow-hidden shadow-2xl mx-4">
-            <div class="absolute -top-10 -left-10 w-40 h-40 bg-[#00f2fe] opacity-10 rounded-full blur-3xl"></div>
-            <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-[#bd00ff] opacity-10 rounded-full blur-3xl"></div>
+    <!-- كارت تسجيل الدخول -->
+    <div id="loginSection" class="glass-card">
+        <h2 style="text-align: center; margin-bottom: 24px;"><i class="fa-solid fa-wallet" style="color: var(--neon-blue); margin-left: 10px;"></i>تطبيق مصروفي</h2>
+        <div class="input-group">
+            <input type="password" id="ownerCode" placeholder="أدخل رمز المالك (إذا كنت المالك)">
+        </div>
+        <button id="btnFbLogin" class="btn btn-primary">
+            <i class="fa-brands fa-facebook"></i> الدخول عبر فيسبوك
+        </button>
+    </div>
+
+    <!-- الواجهة الرئيسية -->
+    <div id="mainSection" class="hidden">
+        <div class="glass-card" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px;">
+            <span id="welcomeMsg" style="font-weight: 600;">أهلاً بك</span>
+            <button id="adminBtn" class="btn hidden" style="width: auto; padding: 8px 16px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff;" onclick="toggleAdminPanel()">
+                <i class="fa-solid fa-sliders"></i> اللوحة
+            </button>
+        </div>
+
+        <!-- لوحة التحكم للمالك -->
+        <div id="adminPanel" class="glass-card hidden">
+            <h3 style="color: var(--neon-purple);"><i class="fa-solid fa-chart-pie"></i> لوحة تحكم الإدارة</h3>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <h4>التقرير الأسبوعي</h4>
+                    <p id="weekTotal">0 ج.م</p>
+                </div>
+                <div class="stat-box">
+                    <h4>التقرير الشهري</h4>
+                    <p id="monthTotal">0 ج.م</p>
+                </div>
+            </div>
+            <button onclick="exportToExcel()" class="btn btn-excel">
+                <i class="fa-solid fa-file-excel"></i> تصدير تقرير Excel 2016
+            </button>
+        </div>
+
+        <!-- فورم الإدخال -->
+        <div id="addExpenseSection" class="glass-card">
+            <h3><i class="fa-solid fa-plus-circle" style="color: var(--neon-blue);"></i> تسجيل عملية صرف</h3>
+            <div class="input-group">
+                <input type="number" id="amount" placeholder="المبلغ المالي (ج.م)">
+            </div>
+            <div class="input-group">
+                <input type="text" id="reason" placeholder="بيان سبب الصرف...">
+            </div>
             
-            <div class="text-center mb-8 relative z-10">
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-neutral-900 border border-neutral-800 mb-4 shadow-inner">
-                    <i class="fa-solid fa-tower-cell text-2xl neon-text-blue" id="auth-logo-icon"></i>
-                </div>
-                <h1 class="text-2xl font-bold tracking-tight text-white" id="auth-app-name">MOKO CONTROL TOWER</h1>
-                <p class="text-xs text-neutral-400 mt-1">نظام التشغيل والإدارة المركزي الموحد</p>
-            </div>
-
-            <form id="login-form" onsubmit="handleSystemLogin(event)" class="space-y-5 relative z-10">
-                <div>
-                    <label class="block text-xs font-semibold text-neutral-400 mb-2">اسم المستخدم أو البريد الإلكتروني</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-500"><i class="fa-solid fa-user text-xs"></i></span>
-                        <input type="text" id="login-username" required class="w-full bg-neutral-900/60 border border-neutral-800 rounded-xl py-3 pr-10 pl-4 text-sm text-white focus:outline-none neon-border-blue transition-all" placeholder="username / email">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-neutral-400 mb-2">كلمة المرور الخاصة بالحساب</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-500"><i class="fa-solid fa-lock text-xs"></i></span>
-                        <input type="password" id="login-password" required class="w-full bg-neutral-900/60 border border-neutral-800 rounded-xl py-3 pr-10 pl-4 text-sm text-white focus:outline-none neon-border-blue transition-all" placeholder="••••••••">
-                    </div>
-                </div>
-                <button type="submit" class="w-full bg-gradient-to-r from-[#00f2fe] to-[#bd00ff] text-neutral-950 font-bold py-3 px-4 rounded-xl text-sm shadow-lg hover:opacity-90 transition-all cursor-pointer mt-2">
-                    تسجيل الدخول الآمن <i class="fa-solid fa-shield-halved mr-1"></i>
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <div id="main-app-layout" class="hidden min-h-screen flex flex-col md:flex-row relative">
-        
-        <aside id="system-sidebar" class="w-full md:w-64 bg-[#0d0d12] border-l border-neutral-900 flex flex-col justify-between fixed md:sticky top-0 h-auto md:h-screen z-40 transition-transform -translate-x-full md:translate-x-0">
-            <div>
-                <div class="p-5 border-b border-neutral-900 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <img id="sidebar-app-logo" src="" class="w-8 h-8 rounded-lg object-cover hidden">
-                        <div id="sidebar-logo-fallback" class="w-8 h-8 rounded-lg bg-neutral-900 flex items-center justify-center border border-neutral-800">
-                            <i class="fa-solid fa-shield-cat neon-text-blue text-sm"></i>
-                        </div>
-                        <div>
-                            <h2 class="font-bold text-sm text-white tracking-wide uppercase" id="sidebar-app-name">MOKO PLATFORM</h2>
-                            <span class="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> ONLINE NODE
-                            </span>
-                        </div>
-                    </div>
-                    <button class="md:hidden text-neutral-400" onclick="toggleMobileSidebar()">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-
-                <nav class="p-3 space-y-1 text-sm">
-                    <button onclick="switchSystemSection('dashboard')" id="btn-nav-dashboard" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-neutral-400 hover:text-white hover:bg-neutral-900/50 transition-all text-right">
-                        <span class="flex items-center gap-3"><i class="fa-solid fa-chart-pie w-5"></i> لوحة التحكم العامه</span>
-                        <i class="fa-solid fa-angle-left text-[10px] opacity-50"></i>
-                    </button>
-                    <button onclick="switchSystemSection('orders')" id="btn-nav-orders" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-neutral-400 hover:text-white hover:bg-neutral-900/50 transition-all text-right">
-                        <span class="flex items-center gap-3"><i class="fa-solid fa-box-open w-5"></i> إدارة الطلبات والعمليات</span>
-                        <i class="fa-solid fa-angle-left text-[10px] opacity-50"></i>
-                    </button>
-                    <button onclick="switchSystemSection('finance')" id="btn-nav-finance" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-neutral-400 hover:text-white hover:bg-neutral-900/50 transition-all text-right admin-conditional supervisor-conditional">
-                        <span class="flex items-center gap-3"><i class="fa-solid fa-wallet w-5"></i> الخزينة والحسابات المالية</span>
-                        <i class="fa-solid fa-angle-left text-[10px] opacity-50"></i>
-                    </button>
-                    <button onclick="switchSystemSection('users')" id="btn-nav-users" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-neutral-400 hover:text-white hover:bg-neutral-900/50 transition-all text-right admin-conditional supervisor-conditional">
-                        <span class="flex items-center gap-3"><i class="fa-solid fa-users-gear w-5"></i> إدارة المستخدمين والصلاحيات</span>
-                        <i class="fa-solid fa-angle-left text-[10px] opacity-50"></i>
-                    </button>
-                    <button onclick="switchSystemSection('chat')" id="btn-nav-chat" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-neutral-400 hover:text-white hover:bg-neutral-900/50 transition-all text-right">
-                        <span class="flex items-center gap-3"><i class="fa-solid fa-comments w-5"></i> مركز المراسلة الداخلي</span>
-                        <i class="fa-solid fa-angle-left text-[10px] opacity-50"></i>
-                    </button>
-                    <button onclick="switchSystemSection('bot-center')" id="btn-nav-bot-center" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-neutral-400 hover:text-white hover:bg-neutral-900/50 transition-all text-right admin-conditional">
-                        <span class="flex items-center gap-3"><i class="fa-solid fa-robot w-5"></i> مركز إدارة البوت الذكي</span>
-                        <i class="fa-solid fa-angle-left text-[10px] opacity-50"></i>
-                    </button>
-                    <button onclick="switchSystemSection('security')" id="btn-nav-security" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-neutral-400 hover:text-white hover:bg-neutral-900/50 transition-all text-right admin-conditional">
-                        <span class="flex items-center gap-3"><i class="fa-solid fa-shield-halved w-5"></i> وحدة الأمان والمراقبة</span>
-                        <i class="fa-solid fa-angle-left text-[10px] opacity-50"></i>
-                    </button>
-                    <button onclick="switchSystemSection('archive')" id="btn-nav-archive" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-neutral-400 hover:text-white hover:bg-neutral-900/50 transition-all text-right admin-conditional">
-                        <span class="flex items-center gap-3"><i class="fa-solid fa-box-archive w-5"></i> أرشيف النظام الشامل</span>
-                        <i class="fa-solid fa-angle-left text-[10px] opacity-50"></i>
-                    </button>
-                </nav>
-            </div>
-
-            <div class="p-4 border-t border-neutral-900 bg-neutral-950/40">
-                <div class="flex items-center gap-3 mb-3">
-                    <img id="sidebar-user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" class="w-9 h-9 rounded-xl object-cover border border-neutral-800">
-                    <div class="overflow-hidden">
-                        <h4 id="sidebar-user-name" class="font-bold text-xs text-white truncate">محمد (المالك)</h4>
-                        <span id="sidebar-user-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-[#bd00ff]/20 text-[#bd00ff] border border-[#bd00ff]/30 inline-block font-bold mt-0.5">Owner</span>
-                    </div>
-                </div>
-                <button onclick="triggerGlobalLogout()" class="w-full bg-neutral-900 hover:bg-red-950/30 hover:text-red-400 border border-neutral-800 text-neutral-400 font-semibold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer">
-                    <i class="fa-solid fa-power-off text-[11px]"></i> إنهاء الجلسة الآمنة
-                </button>
-            </div>
-        </aside>
-
-        <main class="flex-1 flex flex-col min-w-0 bg-[#0B0B0F]">
+            <button type="button" id="recordBtn" class="btn btn-record">
+                <i class="fa-solid fa-microphone"></i> تسجيل بيان صوتي (ريكورد)
+            </button>
+            <audio id="audioPreview" controls class="hidden" style="width:100%; margin-bottom:15px;"></audio>
             
-            <header class="glass-panel sticky top-0 z-30 px-6 py-4 flex items-center justify-between border-b border-neutral-900">
-                <div class="flex items-center gap-4">
-                    <button class="md:hidden text-xl text-white focus:outline-none" onclick="toggleMobileSidebar()">
-                        <i class="fa-solid fa-bars-staggered"></i>
-                    </button>
-                    <div>
-                        <h1 id="view-header-title" class="text-lg font-bold text-white">لوحة الإحصائيات المركزية</h1>
-                        <p class="text-[11px] text-neutral-400 hidden md:block">مراقبة حية وتدفق مستمر للبيانات التشغيلية والمالية</p>
-                    </div>
-                </div>
-                
-                <div class="flex items-center gap-3">
-                    <button onclick="triggerEmergencyLockdown()" id="btn-emergency-panic" class="bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white border border-red-500/20 px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer admin-conditional">
-                        <i class="fa-solid fa-triangle-exclamation animate-pulse"></i> إغلاق طوارئ للنظام
-                    </button>
-                    <div class="hidden sm:flex items-center gap-2 bg-neutral-900 border border-neutral-800 px-3 py-1.5 rounded-xl text-xs font-mono">
-                        <span class="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#00f2fe]"></span>
-                        <span class="text-neutral-400">Firebase Sync: OK</span>
-                    </div>
-                </div>
-            </header>
+            <button onclick="saveExpense()" class="btn btn-primary" style="background: linear-gradient(135deg, var(--neon-green), #059669); box-shadow: 0 4px 20px rgba(34, 197, 94, 0.2);">
+                <i class="fa-solid fa-check"></i> حفظ وإرسال العملية
+            </button>
+        </div>
 
-            <div class="p-6 space-y-6 flex-1">
-                
-                <section id="section-dashboard" class="space-y-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="metric-cards-container">
-                        </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="glass-panel p-5 rounded-2xl lg:col-span-2 flex flex-col justify-between min-h-[350px]">
-                            <div class="flex items-center justify-between mb-4">
-                                <h3 class="font-bold text-sm text-white flex items-center gap-2"><i class="fa-solid fa-chart-line text-cyan-400"></i> المؤشرات البيانية المجمعة</h3>
-                                <span class="text-[10px] text-neutral-500">تحديث لحظي</span>
-                            </div>
-                            <div class="relative flex-1 w-full h-full">
-                                <canvas id="mainAnalyticsChartEngine"></canvas>
-                            </div>
-                        </div>
-
-                        <div class="glass-panel p-5 rounded-2xl flex flex-col h-[350px]">
-                            <div class="flex items-center justify-between mb-3 pb-2 border-b border-neutral-900">
-                                <h3 class="font-bold text-sm text-white flex items-center gap-2"><i class="fa-solid fa-bolt text-amber-400"></i> سجل المراقبة والعمليات المباشر</h3>
-                                <span class="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20">LIVE</span>
-                            </div>
-                            <div id="dashboard-live-feed-stream" class="flex-1 overflow-y-auto space-y-2.5 text-xs text-neutral-400 pr-1">
-                                </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="section-orders" class="hidden space-y-4">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-neutral-950/40 p-4 rounded-xl border border-neutral-900">
-                        <div class="flex items-center gap-1.5 overflow-x-auto text-xs pb-1 sm:pb-0" id="orders-tab-filter-row">
-                            <button onclick="filterOrdersTableByStatus('كل')" class="px-3 py-1.5 rounded-lg bg-neutral-900 border border-neutral-800 text-white font-semibold">الكل</button>
-                            <button onclick="filterOrdersTableByStatus('قيد المراجعة')" class="px-3 py-1.5 rounded-lg text-neutral-400 hover:bg-neutral-900 transition-all">قيد المراجعة</button>
-                            <button onclick="filterOrdersTableByStatus('قيد التنفيذ')" class="px-3 py-1.5 rounded-lg text-neutral-400 hover:bg-neutral-900 transition-all">قيد التنفيذ</button>
-                            <button onclick="filterOrdersTableByStatus('تم التسليم')" class="px-3 py-1.5 rounded-lg text-neutral-400 hover:bg-neutral-900 transition-all">تم التسليم</button>
-                            <button onclick="filterOrdersTableByStatus('ملغي')" class="px-3 py-1.5 rounded-lg text-neutral-400 hover:bg-neutral-900 transition-all">ملغي</button>
-                        </div>
-                        <button onclick="openOrderModalWindow()" class="bg-gradient-to-r from-[#00f2fe] to-[#bd00ff] text-neutral-950 font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow transition-all cursor-pointer admin-conditional">
-                            <i class="fa-solid fa-plus"></i> إنشاء أمر تشغيل جديد
-                        </button>
-                    </div>
-
-                    <div class="glass-panel rounded-2xl overflow-hidden">
-                        <div class="overflow-x-auto w-full">
-                            <table class="w-full text-right text-xs border-collapse">
-                                <thead>
-                                    <tr class="bg-neutral-950/60 text-neutral-400 border-b border-neutral-900 font-semibold">
-                                        <th class="p-4">معرف الطلب</th>
-                                        <th class="p-4">العميل المستفيد</th>
-                                        <th class="p-4">المنتج / الخدمة</th>
-                                        <th class="p-4">الكمية</th>
-                                        <th class="p-4">المسؤول عن التنفيذ</th>
-                                        <th class="p-4">حالة الطلب</th>
-                                        <th class="p-4">التكلفة الإجمالية</th>
-                                        <th class="p-4 text-center">الإجراءات والتحكم</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="table-body-orders-matrix" class="divide-y divide-neutral-900/60">
-                                    </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="section-finance" class="hidden space-y-6 admin-conditional supervisor-conditional">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="glass-panel p-5 rounded-2xl bg-gradient-to-br from-emerald-950/20 to-transparent border-emerald-500/10">
-                            <p class="text-xs text-neutral-400 font-medium">المقبوضات النقدية (الخزينة الحالية)</p>
-                            <h3 id="finance-total-inflow-card" class="text-2xl font-bold text-emerald-400 mt-2 font-mono">0.00 $</h3>
-                        </div>
-                        <div class="glass-panel p-5 rounded-2xl bg-gradient-to-br from-amber-950/20 to-transparent border-amber-500/10">
-                            <p class="text-xs text-neutral-400 font-medium">الديون والمديونيات المعلقة للتحصيل</p>
-                            <h3 id="finance-total-debt-card" class="text-2xl font-bold text-amber-400 mt-2 font-mono">0.00 $</h3>
-                        </div>
-                        <div class="glass-panel p-5 rounded-2xl bg-neutral-950/40 flex items-center justify-between">
-                            <div>
-                                <h4 class="font-bold text-sm text-white">إغلاق الدورة المالية</h4>
-                                <p class="text-[10px] text-neutral-500 mt-1">تصفير الحسابات وترحيل الأرباح والخسائر لليوم الحالي</p>
-                            </div>
-                            <button onclick="executeFinanceCloseDayTransaction()" class="bg-red-500/10 hover:bg-red-600 border border-red-500/20 hover:text-white text-red-400 font-bold px-4 py-2 rounded-xl text-xs transition-all cursor-pointer admin-conditional">
-                                <i class="fa-solid fa-lock mr-1"></i> Close Day
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="glass-panel rounded-2xl overflow-hidden">
-                        <div class="p-4 bg-neutral-950/40 border-b border-neutral-900 flex items-center justify-between">
-                            <h3 class="font-bold text-xs text-white">سجل القيود المالية والدفعات المدرجة بالمنصة</h3>
-                            <button onclick="openPaymentModalWindow()" class="bg-emerald-500/10 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/20 text-xs font-bold px-3 py-1.5 rounded-xl transition-all cursor-pointer admin-conditional">
-                                <i class="fa-solid fa-hand-holding-dollar"></i> إدراج دفعة يدوية
-                            </button>
-                        </div>
-                        <div class="overflow-x-auto w-full">
-                            <table class="w-full text-right text-xs">
-                                <thead>
-                                    <tr class="bg-neutral-950/60 text-neutral-400 border-b border-neutral-900 font-semibold">
-                                        <th class="p-4">معرف العملية</th>
-                                        <th class="p-4">العميل والطلب المرتبط</th>
-                                        <th class="p-4">المبلغ المدفوع</th>
-                                        <th class="p-4">المتبقي كـ دين</th>
-                                        <th class="p-4">التاريخ والوقت اللحظي</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="table-body-finance-matrix" class="divide-y divide-neutral-900/60">
-                                    </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="section-users" class="hidden space-y-4 admin-conditional supervisor-conditional">
-                    <div class="flex items-center justify-between bg-neutral-950/40 p-4 rounded-xl border border-neutral-900">
-                        <h3 class="font-bold text-xs text-white">قاعدة بيانات وتراخيص الحسابات النشطة بالنظام</h3>
-                        <button onclick="openUserModalWindow()" class="bg-gradient-to-r from-[#00f2fe] to-[#bd00ff] text-neutral-950 font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow transition-all cursor-pointer admin-conditional">
-                            <i class="fa-solid fa-user-plus"></i> إضافة مستخدم للنظام
-                        </button>
-                    </div>
-
-                    <div class="glass-panel rounded-2xl overflow-hidden">
-                        <div class="overflow-x-auto w-full">
-                            <table class="w-full text-right text-xs">
-                                <thead>
-                                    <tr class="bg-neutral-950/60 text-neutral-400 border-b border-neutral-900 font-semibold">
-                                        <th class="p-4">الاسم الكامل / المعرف</th>
-                                        <th class="p-4">البريد الإلكتروني</th>
-                                        <th class="p-4">مستوى الصلاحية (Role)</th>
-                                        <th class="p-4">حالة الحساب العامة</th>
-                                        <th class="p-4">مفاتيح الوصول السرية</th>
-                                        <th class="p-4 text-center">التحكم والإجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="table-body-users-matrix" class="divide-y divide-neutral-900/60">
-                                    </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="section-chat" class="hidden h-[calc(100vh-180px)] flex flex-col md:flex-row glass-panel rounded-2xl overflow-hidden">
-                    <div class="w-full md:w-72 bg-neutral-950/40 border-l border-neutral-900 flex flex-col">
-                        <div class="p-4 border-b border-neutral-900 bg-neutral-950/80">
-                            <h3 class="font-bold text-xs text-white">قنوات التواصل النشطة</h3>
-                        </div>
-                        <div id="chat-channels-contacts-list" class="flex-1 overflow-y-auto p-2 space-y-1">
-                            </div>
-                    </div>
-                    <div class="flex-1 flex flex-col bg-neutral-900/20">
-                        <div id="chat-window-blank-fallback" class="flex-1 flex flex-col items-center justify-center text-neutral-500 text-xs p-6">
-                            <i class="fa-solid fa-comments-bubble-canvas text-4xl mb-3 opacity-30 text-cyan-400"></i>
-                            <p>يرجى اختيار قناة تواصل أو مستخدم لبدء المراسلة الفورية الآمنة</p>
-                        </div>
-                        <div id="chat-window-active-container" class="hidden flex-1 flex flex-col h-full overflow-hidden">
-                            <div class="p-4 border-b border-neutral-900 bg-neutral-950/40 flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#2ECC71]"></div>
-                                    <h4 id="chat-active-target-title" class="font-bold text-xs text-white">المستهدف</h4>
-                                </div>
-                            </div>
-                            <div id="chat-messages-stream-scroller" class="flex-1 overflow-y-auto p-4 space-y-3 text-xs flex flex-col">
-                                </div>
-                            <form id="chat-message-send-form" onsubmit="executeChatMessageTransmission(event)" class="p-4 border-t border-neutral-900 bg-neutral-950/60 flex items-center gap-3">
-                                <input type="text" id="chat-input-message-text" required class="flex-1 bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-cyan-500 transition-all placeholder-neutral-600" placeholder="اكتب رسالتك المشفرة هنا بشكل مباشر للحساب...">
-                                <button type="submit" class="w-10 h-10 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-black flex items-center justify-center text-sm transition-all shadow cursor-pointer">
-                                    <i class="fa-solid fa-paper-plane-top transform -rotate-45"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="section-bot-center" class="hidden space-y-6 admin-conditional">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="glass-panel p-5 rounded-2xl space-y-4">
-                            <h3 class="font-bold text-sm text-white flex items-center gap-2"><i class="fa-solid fa-robot neon-text-purple"></i> إعدادات تهيئة ومزامنة التليجرام الرئيسي</h3>
-                            <div class="space-y-3 text-xs">
-                                <div>
-                                    <label class="block font-semibold text-neutral-400 mb-2">تراخيص التوكن المركزي للبوت (Bot Token)</label>
-                                    <input type="text" id="setting-tg-bot-token-input" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-white font-mono focus:outline-none focus:border-purple-500 transition-all">
-                                </div>
-                                <div>
-                                    <label class="block font-semibold text-neutral-400 mb-2">معرف المالك الرئيسي المستهدف بالإشعارات والتحكم (Owner Chat ID)</label>
-                                    <input type="text" id="setting-tg-owner-chat-id-input" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-white font-mono focus:outline-none focus:border-purple-500 transition-all">
-                                </div>
-                                <button onclick="saveTelegramSettingsEngine()" class="bg-purple-600 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-purple-700 transition-all w-full cursor-pointer">
-                                    <i class="fa-solid fa-arrows-rotate mr-1"></i> حفظ ومزامنة قناة الاتصال بالتليجرام
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="glass-panel p-5 rounded-2xl space-y-4">
-                            <h3 class="font-bold text-sm text-white flex items-center gap-2"><i class="fa-solid fa-sliders neon-text-blue"></i> تخصيص الهوية التجارية ومسمى المنصة</h3>
-                            <div class="space-y-3 text-xs">
-                                <div>
-                                    <label class="block font-semibold text-neutral-400 mb-2">اسم المنصة / النظام</label>
-                                    <input type="text" id="setting-app-branding-name" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500 transition-all">
-                                </div>
-                                <div>
-                                    <label class="block font-semibold text-neutral-400 mb-2">أيقونة النظام كود أو رمز الخط (FontAwesome class أو SVG)</label>
-                                    <input type="text" id="setting-app-branding-icon-class" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-white font-mono focus:outline-none focus:border-cyan-500 transition-all">
-                                </div>
-                                <button onclick="saveApplicationBrandingSettingsEngine()" class="bg-cyan-500 text-black font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-cyan-600 transition-all w-full cursor-pointer">
-                                    <i class="fa-solid fa-floppy-disk mr-1"></i> تحديث الهوية البصرية للموقع وقاعدة البيانات
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="section-security" class="hidden space-y-4 admin-conditional">
-                    <div class="glass-panel p-4 rounded-xl border border-neutral-900 flex items-center justify-between">
-                        <div>
-                            <h3 class="font-bold text-xs text-white">سجلات تتبع النشاط والعمليات الأمنية الـ (Logs System)</h3>
-                            <p class="text-[10px] text-neutral-500 mt-0.5">تسجيل كامل وشامل لجميع الحركات المنفذة من عناوين الـ IP وطبيعة العمليات</p>
-                        </div>
-                        <button onclick="purgeSecurityAuditLogsEngine()" class="bg-red-500/10 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/20 text-xs font-bold px-3 py-1.5 rounded-xl transition-all cursor-pointer">
-                            <i class="fa-solid fa-dumpster-fire"></i> مسح السجل الأمني
-                        </button>
-                    </div>
-                    
-                    <div class="glass-panel rounded-2xl overflow-hidden">
-                        <div class="overflow-x-auto w-full">
-                            <table class="w-full text-right text-xs">
-                                <thead>
-                                    <tr class="bg-neutral-950/60 text-neutral-400 border-b border-neutral-900 font-semibold">
-                                        <th class="p-4">الرقم المرجعي</th>
-                                        <th class="p-4">المستخدم الفاعل</th>
-                                        <th class="p-4">الحركة / الإجراء المتخذ</th>
-                                        <th class="p-4">تصنيف وطبيعة الحدث</th>
-                                        <th class="p-4">عنوان الـ IP الافتراضي</th>
-                                        <th class="p-4">التاريخ والزمن اللحظي للمزامنة</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="table-body-security-audit-logs" class="divide-y divide-neutral-900/60 font-mono text-neutral-400">
-                                    </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="section-archive" class="hidden space-y-4 admin-conditional">
-                    <div class="glass-panel p-4 rounded-xl border border-neutral-900">
-                        <h3 class="font-bold text-xs text-white">أرشيف الاستعادة وحفظ الكيانات المحذوفة</h3>
-                        <p class="text-[10px] text-neutral-500 mt-0.5">البيانات لا تحذف بشكل نهائي بل يتم نقلها للأرشيف لتمكين الإدارة والمالك محمد من استعادتها بأي وقت</p>
-                    </div>
-
-                    <div class="glass-panel rounded-2xl overflow-hidden">
-                        <div class="overflow-x-auto w-full">
-                            <table class="w-full text-right text-xs">
-                                <thead>
-                                    <tr class="bg-neutral-950/60 text-neutral-400 border-b border-neutral-900 font-semibold">
-                                        <th class="p-4">رقم الأرشفة</th>
-                                        <th class="p-4">الجدول الأصلي الكيان</th>
-                                        <th class="p-4">تفاصيل البيانات المؤرشفة ومكوناتها</th>
-                                        <th class="p-4">تاريخ النقل للأرشيف</th>
-                                        <th class="p-4 text-center">استعادة وإرجاع البيانات</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="table-body-archived-elements-matrix" class="divide-y divide-neutral-900/60">
-                                    </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-            </div>
-        </main>
-    </div>
-
-    <div id="modal-wrapper-user-form-dialog" class="fixed inset-0 z-50 bg-[#050507]/80 backdrop-filter blur-sm hidden items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-lg p-6 rounded-3xl space-y-5 relative">
-            <h3 id="modal-user-title-text" class="font-bold text-sm text-white border-b border-neutral-900 pb-3">إضافة مستخدم جديد للنظام الموحد</h3>
-            <form id="form-element-user-entity" onsubmit="executeUserEntitySaveTransaction(event)" class="space-y-4 text-xs">
-                <input type="hidden" id="input-field-user-edit-id-target">
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-semibold text-neutral-400 mb-1.5">الاسم الكامل للمستخدم</label>
-                        <input type="text" id="form-user-input-full-name" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500 transition-all">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-neutral-400 mb-1.5">اسم الحساب (Username الفريد)</label>
-                        <input type="text" id="form-user-input-username-unique" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-white font-mono focus:outline-none focus:border-cyan-500 transition-all" placeholder="e.g., ahmed_moko">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-semibold text-neutral-400 mb-1.5">البريد الإلكتروني المعتمد</label>
-                        <input type="email" id="form-user-input-email" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-white font-mono focus:outline-none focus:border-cyan-500 transition-all">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-neutral-400 mb-1.5">كلمة المرور السرية للحساب</label>
-                        <input type="text" id="form-user-input-password-secret" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-white font-mono focus:outline-none focus:border-cyan-500 transition-all">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-semibold text-neutral-400 mb-1.5">مستوى الصلاحية (Role Persona)</label>
-                        <select id="form-user-input-role-select" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500 transition-all">
-                            <option value="client">حساب عميل خارجي (Customer Account)</option>
-                            <option value="employee">موظف منفذ ميداني (Worker / Employee)</option>
-                            <option value="supervisor">مشرف عمليات وسيط (Supervisor Account)</option>
-                            <option value="admin">مالك وإداري عام للنظام (Admin Full Control)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-neutral-400 mb-1.5">تحميل صورة البروفايل الشخصية للحساب مباشرة من الجهاز</label>
-                        <input type="file" id="form-user-input-avatar-file-upload" accept="image/*" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2 text-neutral-400 file:bg-neutral-800 file:border-0 file:rounded-lg file:text-white file:px-2.5 file:py-1 file:ml-2 file:text-xs">
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-end gap-3 pt-3 border-t border-neutral-900">
-                    <button type="button" onclick="closeUserModalWindow()" class="bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 font-bold px-4 py-2.5 rounded-xl cursor-pointer">إلغاء التعديل</button>
-                    <button type="submit" class="bg-gradient-to-r from-[#00f2fe] to-[#bd00ff] text-neutral-950 font-bold px-5 py-2.5 rounded-xl shadow cursor-pointer">حفظ وتثبيت البيانات</button>
-                </div>
-            </form>
+        <!-- أحدث العمليات -->
+        <div class="glass-card">
+            <h3 style="margin-bottom: 16px;"><i class="fa-solid fa-clock-rotate-left" style="color: var(--text-muted)"></i> أحدث العمليات المقيدة</h3>
+            <div id="expensesList"></div>
         </div>
     </div>
+</div>
 
-    <div id="modal-wrapper-order-form-dialog" class="fixed inset-0 z-50 bg-[#050507]/80 backdrop-filter blur-sm hidden items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-lg p-6 rounded-3xl space-y-5 relative">
-            <h3 id="modal-order-title-text" class="font-bold text-sm text-white border-b border-neutral-900 pb-3">إنشاء وتعديل حزمة أمر التشغيل المعني</h3>
-            <form id="form-element-order-entity" onsubmit="executeOrderEntitySaveTransaction(event)" class="space-y-4 text-xs">
-                <input type="hidden" id="input-field-order-edit-id-target">
+<!-- منطق Firebase الفني كاملاً -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithPopup, FacebookAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getDatabase, ref, set, push, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-semibold text-neutral-400 mb-1.5">العميل المستفيد المرتبط بالطلب</label>
-                        <select id="form-order-input-customer-id-select" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500 transition-all">
-                            </select>
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-neutral-400 mb-1.5">اسم المنتج / حزمة الخدمة المطلوبة</label>
-                        <input type="text" id="form-order-input-product-name" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500 transition-all">
-                    </div>
-                </div>
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "book-d1f7a.firebaseapp.com",
+        databaseURL: "https://book-d1f7a.firebaseio.com",
+        projectId: "book-d1f7a",
+        storageBucket: "book-d1f7a.appspot.com",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-semibold text-neutral-400 mb-1.5">الكمية المطلوبة للتشغيل والمبيعات</label>
-                        <input type="number" id="form-order-input-quantity" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-white font-mono focus:outline-none focus:border-cyan-500 transition-all">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-neutral-400 mb-1.5">التكلفة المالية الإجمالية للطلب ($)</label>
-                        <input type="number" step="0.01" id="form-order-input-total-price" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-white font-mono focus:outline-none focus:border-cyan-500 transition-all">
-                    </div>
-                </div>
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const provider = new FacebookAuthProvider();
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-semibold text-neutral-400 mb-1.5">تعيين الموظف المسؤول عن التنفيذ والميدان</label>
-                        <select id="form-order-input-worker-id-select" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500 transition-all">
-                            </select>
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-neutral-400 mb-1.5">حالة مسار العمل والتشغيل الحالية (Workflow Status)</label>
-                        <select id="form-order-input-status-select" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500 transition-all">
-                            <option value="قيد المراجعة">قيد المراجعة والتدقيق الافتراضي</option>
-                            <option value="قيد التنفيذ">قيد التنفيذ والعمليات الميدانية النشطة</option>
-                            <option value="تم التسليم">تم التسليم النهائي والاعتماد المالي الكامل</option>
-                            <option value="ملغي">ملغي ومستبعد كلياً من دورة التشغيل</option>
-                        </select>
-                    </div>
-                </div>
+    let currentUser = null;
+    let mediaRecorder;
+    let audioChunks = [];
+    let base64Audio = "";
 
-                <div class="flex items-center justify-end gap-3 pt-3 border-t border-neutral-900">
-                    <button type="button" onclick="closeOrderModalWindow()" class="bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 font-bold px-4 py-2.5 rounded-xl cursor-pointer">إلغاء الأمر</button>
-                    <button type="submit" class="bg-gradient-to-r from-[#00f2fe] to-[#bd00ff] text-neutral-950 font-bold px-5 py-2.5 rounded-xl shadow cursor-pointer">حفظ وتعميد الطلب</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    document.getElementById('btnFbLogin').addEventListener('click', () => {
+        const codeInput = document.getElementById('ownerCode').value;
+        signInWithPopup(auth, provider).then(async (result) => {
+            const user = result.user;
+            if(codeInput === "2009") {
+                await set(ref(db, 'system/owner'), { uid: user.uid, name: user.displayName });
+            }
+            checkUserStatus(user);
+        }).catch(err => alert("خطأ بالربط: " + err.message));
+    });
 
-    <div id="modal-wrapper-payment-form-dialog" class="fixed inset-0 z-50 bg-[#050507]/80 backdrop-filter blur-sm hidden items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-md p-6 rounded-3xl space-y-5 relative">
-            <h3 class="font-bold text-sm text-white border-b border-neutral-900 pb-3">إدراج وتوثيق دفعة مالية يدوية جديدة للحساب</h3>
-            <form id="form-element-payment-entity" onsubmit="executePaymentEntitySaveTransaction(event)" class="space-y-4 text-xs">
-                <div>
-                    <label class="block font-semibold text-neutral-400 mb-1.5">الطلب المعني بالربط والتحصيل المستهدف ماليًا</label>
-                    <select id="form-pay-input-order-id-select" onchange="synchronizeReactivePaymentCalculationsEngine()" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500 transition-all">
-                        </select>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-semibold text-neutral-400 mb-1.5">المبلغ المدفوع كاش حالياً ($)</label>
-                        <input type="number" step="0.01" id="form-pay-input-amount-paid" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-white font-mono focus:outline-none focus:border-cyan-500 transition-all">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-neutral-400 mb-1.5">المتبقي تلقائياً كـ دين معلق</label>
-                        <input type="number" step="0.01" id="form-pay-input-remaining-debt" readonly class="w-full bg-neutral-950 border border-neutral-900 rounded-xl p-3 text-amber-500 font-mono focus:outline-none">
-                    </div>
-                </div>
-                <div class="flex items-center justify-end gap-3 pt-3 border-t border-neutral-900">
-                    <button type="button" onclick="closePaymentModalWindow()" class="bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 font-bold px-4 py-2.5 rounded-xl cursor-pointer">إلغاء القيد</button>
-                    <button type="submit" class="bg-emerald-600 text-white font-bold px-5 py-2.5 rounded-xl shadow cursor-pointer">اعتماد التوثيق المالي</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    onAuthStateChanged(auth, (user) => {
+        if (user) checkUserStatus(user);
+    });
 
+    async function checkUserStatus(user) {
+        currentUser = user;
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('mainSection').classList.remove('hidden');
+        document.getElementById('welcomeMsg').innerHTML = `<i class="fa-solid fa-user-circle"></i> ${user.displayName}`;
 
-    <script>
-        // --- 1. ENDPOINT CONSTANTS & GLOBAL MATRIX ARCHITECTURE STATE LAYERS ---
-        const DATABASE_REST_ENDPOINT = "https://mama-c6e6b-default-rtdb.firebaseio.com/";
-        const SYSTEM_MASTER_ADMIN_KEY = "111222";
+        const snapshot = await get(ref(db, 'system/owner'));
+        if(snapshot.exists() && snapshot.val().uid === user.uid) {
+            document.getElementById('adminBtn').classList.remove('hidden');
+            document.getElementById('adminPanel').classList.remove('hidden');
+            loadStatsAndAdminData();
+        } else {
+            loadStatsAndAdminData(); // متاح العرض للشفافية
+        }
+    }
 
-        // Internal application cache matrices structures (Representing multi-user databases)
-        let usersMatrix = {};
-        let ordersMatrix = {};
-        let paymentsMatrix = {};
-        let auditLogsMatrix = {};
-        let archivalMatrix = {};
-        let internalChatsMatrix = {};
+    window.saveExpense = function() {
+        const amount = document.getElementById('amount').value;
+        const reason = document.getElementById('reason').value;
+        if(!amount) return alert("برجاء إدخال قيمة المبلغ المعاملة");
 
-        // Default configurations visualization identity fallback structure setup layers
-        let systemBrandingConfig = {
-            appName: "MOKO SYSTEM",
-            appLogo: "",
-            tgToken: "8888324487:AAFQxDsBlIMQgUbeuNrQ29d81jnmjHHjPr0",
-            tgChatId: "8338334656" // Default target owner chat ID fallback binding mapped here
+        const expenseData = {
+            uid: currentUser.uid,
+            userName: currentUser.displayName,
+            amount: parseFloat(amount),
+            reason: reason || "تم التقييد بدون بيان مكتوب",
+            audio: base64Audio,
+            date: new Date().toISOString(),
+            day: new Date().toLocaleDateString('ar-EG', {weekday: 'long'}),
+            timestamp: Date.now()
         };
 
-        // Runtime states track sessions pipelines
-        let currentUserSession = null;
-        let chartInstanceEngine = null;
-        let activeChatSessionTargetId = null;
-        let telegramLongPollingActiveLoop = true;
-        let lastProcessedTelegramUpdateId = 0;
-        let orderActiveFilterCriteria = "كل";
-
-        // --- 2. DYNAMIC REALTIME CRUD FIRING DATABASE COMMUNICATIONS (REST OVER ATOMIC NODES) ---
-        async function fetchSystemDatabaseNodeData(node) {
-            try {
-                let response = await fetch(`${DATABASE_REST_ENDPOINT}${node}.json`);
-                let data = await response.json();
-                return data ? data : {};
-            } catch (err) {
-                console.error(`Database atomic transaction fetch fault occurred over node: [${node}]`, err);
-                return {};
-            }
-        }
-
-        async function writeSystemDatabaseNodeData(node, elementId, payload) {
-            try {
-                await fetch(`${DATABASE_REST_ENDPOINT}${node}/${elementId}.json`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-            } catch (err) {
-                console.error(`Database write node breakdown exception triggered on [${node}/${elementId}]`, err);
-            }
-        }
-
-        async function deleteSystemDatabaseNodeData(node, elementId) {
-            try {
-                await fetch(`${DATABASE_REST_ENDPOINT}${node}/${elementId}.json`, {
-                    method: 'DELETE'
-                });
-            } catch (err) {
-                console.error(`Database erase instruction fault executing over [${node}/${elementId}]`, err);
-            }
-        }
-
-        // --- 3. SYSTEM ROOT INITIALIZATION ARCHITECTURE CYCLE PIPELINE ---
-        window.addEventListener('DOMContentLoaded', async () => {
-            await synchronizeEntireSystemStateMatrices();
-            applyBrandingIdentityConfigurationsToInterface();
-            evaluatePersistentLocalStorageSessionState();
-            
-            // Core asynchronous threads executions cycle initialization tasks loops
-            setInterval(async () => {
-                if (currentUserSession) {
-                    await synchronizeEntireSystemStateMatrices();
-                    renderDynamicUIComponentsElements();
-                }
-            }, 6000); // 6 Sec real-time reactive pull cycle pipeline
-
-            // Launch non-blocking telegram bot operations control loop polling subsystem channels engine execution tasks
-            listenToTelegramBotCentralPollingUpdatesEngine();
+        push(ref(db, 'expenses'), expenseData).then(() => {
+            document.getElementById('amount').value = "";
+            document.getElementById('reason').value = "";
+            document.getElementById('audioPreview').classList.add('hidden');
+            base64Audio = "";
         });
+    }
 
-        async function synchronizeEntireSystemStateMatrices() {
-            usersMatrix = await fetchSystemDatabaseNodeData('users');
-            ordersMatrix = await fetchSystemDatabaseNodeData('orders');
-            paymentsMatrix = await fetchSystemDatabaseNodeData('payments');
-            auditLogsMatrix = await fetchSystemDatabaseNodeData('logs');
-            archivalMatrix = await fetchSystemDatabaseNodeData('archive');
-            internalChatsMatrix = await fetchSystemDatabaseNodeData('chats');
-            
-            let systemRemoteBranding = await fetchSystemDatabaseNodeData('configuration/branding');
-            if (systemRemoteBranding && systemRemoteBranding.appName) {
-                systemBrandingConfig.appName = systemRemoteBranding.appName;
-                systemBrandingConfig.appLogo = systemRemoteBranding.appLogo;
-            }
-            let systemRemoteTelegramConfig = await fetchSystemDatabaseNodeData('configuration/telegram');
-            if (systemRemoteTelegramConfig && systemRemoteTelegramConfig.tgToken) {
-                systemBrandingConfig.tgToken = systemRemoteTelegramConfig.tgToken;
-                systemBrandingConfig.tgChatId = systemRemoteTelegramConfig.tgChatId;
-            }
+    function loadStatsAndAdminData() {
+        onValue(ref(db, 'expenses'), (snapshot) => {
+            let totalWeek = 0, totalMonth = 0, listHtml = "";
+            const now = Date.now();
+            const dataForExcel = [];
 
-            // Fallback generation logic inject automatically if root user identity data missing inside databases tables rows
-            if (Object.keys(usersMatrix).length === 0 || !Object.values(usersMatrix).find(u => u.role === 'admin')) {
-                let defaultAdminPayload = {
-                    id: "admin_root",
-                    name: "محمد",
-                    username: "admin",
-                    email: "admin@moko.com",
-                    role: "admin",
-                    password: SYSTEM_MASTER_ADMIN_KEY,
-                    status: "active",
-                    avatar: ""
-                };
-                await writeSystemDatabaseNodeData('users', defaultAdminPayload.id, defaultAdminPayload);
-                usersMatrix[defaultAdminPayload.id] = defaultAdminPayload;
-            }
-        }
+            snapshot.forEach((child) => {
+                const exp = child.val();
+                const diff = now - exp.timestamp;
 
-        function applyBrandingIdentityConfigurationsToInterface() {
-            document.getElementById('auth-app-name').innerText = systemBrandingConfig.appName.toUpperCase();
-            document.getElementById('sidebar-app-name').innerText = systemBrandingConfig.appName.toUpperCase();
-            document.getElementById('setting-app-branding-name').value = systemBrandingConfig.appName;
-            document.getElementById('setting-app-branding-icon-class').value = systemBrandingConfig.appLogo || "fa-shield-cat";
-            document.getElementById('setting-tg-bot-token-input').value = systemBrandingConfig.tgToken;
-            document.getElementById('setting-tg-owner-chat-id-input').value = systemBrandingConfig.tgChatId;
-            
-            if (systemBrandingConfig.appLogo && systemBrandingConfig.appLogo.startsWith('fa-')) {
-                document.getElementById('sidebar-logo-fallback').innerHTML = `<i class="fa-solid ${systemBrandingConfig.appLogo} neon-text-blue text-sm"></i>`;
-                document.getElementById('auth-logo-icon').className = `fa-solid ${systemBrandingConfig.appLogo} text-2xl neon-text-blue`;
-            }
-        }
+                if(diff <= 7 * 24 * 60 * 60 * 1000) totalWeek += exp.amount;
+                if(diff <= 30 * 24 * 60 * 60 * 1000) totalMonth += exp.amount;
 
-        function evaluatePersistentLocalStorageSessionState() {
-            let cachedUser = localStorage.getItem('moko_active_session_user');
-            if (cachedUser) {
-                let parsedUser = JSON.parse(cachedUser);
-                // Validate if user profile is still valid and not deleted or modified password
-                let actualLiveProfile = usersMatrix[parsedUser.id];
-                if (actualLiveProfile && actualLiveProfile.password === parsedUser.password && actualLiveProfile.status === 'active') {
-                    executeSessionEstablishmentWorkflowPipeline(actualLiveProfile);
-                } else {
-                    triggerGlobalLogout();
-                }
-            }
-        }
-
-        // --- 4. AUTHENTICATION LOGOUT AND SESSION REVISIONS INTERACTION MANAGERS ---
-        function handleSystemLogin(event) {
-            event.preventDefault();
-            let userField = document.getElementById('login-username').value.trim().toLowerCase();
-            let passField = document.getElementById('login-password').value.trim();
-
-            let targetProfileMatch = Object.values(usersMatrix).find(u => 
-                (u.username.toLowerCase() === userField || u.email.toLowerCase() === userField) && 
-                u.password === passField
-            );
-
-            if (targetProfileMatch) {
-                if (targetProfileMatch.status === 'blocked') {
-                    alert('عذراً، هذا الحساب محجوب ومقيد من الدخول للنظام حالياً بتوجيهات الإدارة.');
-                    return;
-                }
-                localStorage.setItem('moko_active_session_user', JSON.stringify(targetProfileMatch));
-                executeSessionEstablishmentWorkflowPipeline(targetProfileMatch);
-                dispatchSystemSecurityAuditLogMapping(targetProfileMatch.id, "تسجيل دخول ناجح للمنصة", "login");
-            } else {
-                alert('فشل التحقق والأمان الرقمي! يرجى مراجعة مسمى الحساب وكلمة السر المعتمدة المحفوظة.');
-            }
-        }
-
-        function executeSessionEstablishmentWorkflowPipeline(userProfile) {
-            currentUserSession = userProfile;
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('main-app-layout').classList.remove('hidden');
-            
-            // Personalize interface elements labels dynamically matching persona profile traits
-            document.getElementById('sidebar-user-name').innerText = userProfile.name;
-            document.getElementById('sidebar-user-badge').innerText = userProfile.role.toUpperCase();
-            
-            if (userProfile.avatar) {
-                document.getElementById('sidebar-user-avatar').src = userProfile.avatar;
-            } else {
-                document.getElementById('sidebar-user-avatar').src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80";
-            }
-
-            // Apply Role-Based Access Controls (RBAC visibility layouts tags overrides filtering classes metrics)
-            applyRoleBasedAccessControlRestrictionsToLayout(userProfile.role);
-            
-            // Default active landing switch context route section
-            switchSystemSection('dashboard');
-            renderDynamicUIComponentsElements();
-        }
-
-        function applyRoleBasedAccessControlRestrictionsToLayout(role) {
-            // Hide everything conditional by default first then evaluate rules configurations maps
-            document.querySelectorAll('.admin-conditional').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.supervisor-conditional').forEach(el => el.classList.add('hidden'));
-
-            if (role === 'admin') {
-                document.querySelectorAll('.admin-conditional').forEach(el => el.classList.remove('hidden'));
-                document.querySelectorAll('.supervisor-conditional').forEach(el => el.classList.remove('hidden'));
-            } else if (role === 'supervisor') {
-                document.querySelectorAll('.supervisor-conditional').forEach(el => el.classList.remove('hidden'));
-            }
-        }
-
-        function triggerGlobalLogout() {
-            if (currentUserSession) {
-                dispatchSystemSecurityAuditLogMapping(currentUserSession.id, "تسجيل خروج يدوي من النظام", "logout");
-            }
-            currentUserSession = null;
-            localStorage.removeItem('moko_active_session_user');
-            document.getElementById('login-form').reset();
-            document.getElementById('main-app-layout').classList.add('hidden');
-            document.getElementById('auth-screen').classList.remove('hidden');
-        }
-
-        async function triggerEmergencyLockdown() {
-            if (confirm('تنبيه أمني خطير! هل تود تفعيل بروتوكول الإغلاق التام للنظام وحظر وصول جميع الحسابات فوراً؟')) {
-                // Block all accounts dynamically inside database nodes elements maps grid parameters except target supreme owner profile
-                Object.values(usersMatrix).forEach(async (user) => {
-                    if (user.id !== 'admin_root' && user.name !== 'محمد') {
-                        user.status = 'blocked';
-                        await writeSystemDatabaseNodeData('users', user.id, user);
-                    }
+                dataForExcel.push({
+                    'اليوم': exp.day,
+                    'التاريخ': exp.date.split('T')[0],
+                    'المستخدم': exp.userName,
+                    'المبلغ': exp.amount,
+                    'السبب': exp.reason
                 });
-                dispatchSystemTelegramNotificationBroadcastMessage(`🚨 **بروتوكول طوارئ أحمر:** المالك قام بعمل Lockdown وقفل النظام وتجميد الحسابات تماماً!`);
-                alert('تم تفعيل وضع الإغلاق وحجب جميع الموظفين والعملاء عن النظام بنجاح وتوجيه الإشعار لـ تيليجرام.');
-                triggerGlobalLogout();
-            }
-        }
 
-        // --- 5. SINGLE PAGE APPLICATION ROUTING SECTIONS CONTROLLER SWAP LAYERS ---
-        function switchSystemSection(sectionId) {
-            // Hide all active view panels mapping interfaces elements blocks arrays layers grid fields
-            let sections = ['dashboard', 'orders', 'finance', 'users', 'chat', 'bot-center', 'security', 'archive'];
-            sections.forEach(s => {
-                let el = document.getElementById(`section-${s}`);
-                if (el) el.classList.add('hidden');
-                
-                let btn = document.getElementById(`btn-nav-${s}`);
-                if (btn) btn.classList.remove('active-menu-item');
-            });
-
-            // Display selected block element context view window details
-            document.getElementById(`section-${sectionId}`).classList.remove('hidden');
-            document.getElementById(`btn-nav-${sectionId}`).classList.add('active-menu-item');
-            
-            // Set view tracking headers parameters values configurations text strings indicators mapping descriptors
-            let titlesMap = {
-                'dashboard': 'لوحة التحكم العامه والتحليلات اللحظية',
-                'orders': 'إدارة الطلبات والعمليات وأوامر التشغيل المفتوحة',
-                'finance': 'الخزينة والحسابات القيود المالية وسجلات التراكم النقدي',
-                'users': 'صلاحيات وتراخيص نظام الحسابات والموظفين',
-                'chat': 'مركز التواصل والمراسلة الفورية الداخلي المؤمن',
-                'bot-center': 'مركز إدارة البوت الذكي والمزامنة الإلكترونية لتليجرام',
-                'security': 'وحدة المراقبة الأمنية وسجلات تعقب العمليات الفورية',
-                'archive': 'أرشيف استرجاع الكيانات والملفات المحذوفة من قاعدة البيانات'
-            };
-            document.getElementById('view-header-title').innerText = titlesMap[sectionId];
-            
-            // Hide hamburger menu toggle automatically on small smartphones viewports layouts metrics responsive frames
-            document.getElementById('system-sidebar').classList.add('-translate-x-full');
-            
-            if (sectionId === 'dashboard') {
-                setTimeout(() => { rebuildDashboardAnalyticsGraphsEngine(); }, 150);
-            }
-        }
-
-        function toggleMobileSidebar() {
-            let sidebar = document.getElementById('system-sidebar');
-            if (sidebar.classList.contains('-translate-x-full')) {
-                sidebar.classList.remove('-translate-x-full');
-            } else {
-                sidebar.classList.add('-translate-x-full');
-            }
-        }
-
-        // --- 6. RENDERERS ENGINE MAPPINGS (BUILDING DATA VISUAL COMPONENTS DYNAMICALLY) ---
-        function renderDynamicUIComponentsElements() {
-            if (!currentUserSession) return;
-            
-            // Render specific fragments arrays dependent blocks
-            renderMetricsCardsDashboardBlock();
-            renderOrdersCentralDatabaseTable();
-            
-            if (currentUserSession.role === 'admin' || currentUserSession.role === 'supervisor') {
-                renderFinanceDatabaseTableMatrix();
-                renderUsersDatabaseTableMatrix();
-                renderSecurityAuditLogsDatabaseTable();
-                renderArchivalDatabaseTableMatrix();
-            }
-            
-            renderInternalChatInterfaceChannelsContacts();
-            populateModalWindowsSelectDropdownsOptions();
-        }
-
-        function renderMetricsCardsDashboardBlock() {
-            let container = document.getElementById('metric-cards-container');
-            if (!container) return;
-
-            let allOrdersArr = Object.values(ordersMatrix);
-            let allPaymentsArr = Object.values(paymentsMatrix);
-
-            // Scope logic configurations metrics dependent filtering permissions level personas definitions rules mappings
-            if (currentUserSession.role === 'employee') {
-                allOrdersArr = allOrdersArr.filter(o => o.employee_id === currentUserSession.id);
-            } else if (currentUserSession.role === 'client') {
-                allOrdersArr = allOrdersArr.filter(o => o.customer_id === currentUserSession.id);
-            }
-
-            let totalOrdersCount = allOrdersArr.length;
-            let activeOrdersCount = allOrdersArr.filter(o => o.status === 'قيد التنفيذ' || o.status === 'قيد المراجعة').length;
-            
-            // Calculate financial metrics indicators records arrays
-            let totalInflowPaid = 0;
-            let totalPendingDebts = 0;
-
-            if (currentUserSession.role === 'client') {
-                // Client gets personal tracking calculations only
-                totalInflowPaid = allPaymentsArr.reduce((acc, curr) => {
-                    let o = ordersMatrix[curr.orderId];
-                    return (o && o.customer_id === currentUserSession.id) ? acc + parseFloat(curr.paidAmount || 0) : acc;
-                }, 0);
-                
-                totalPendingDebts = allOrdersArr.reduce((acc, curr) => acc + parseFloat(curr.total_price || 0), 0) - totalInflowPaid;
-                if (totalPendingDebts < 0) totalPendingDebts = 0;
-            } else {
-                // Admins & Supervisors get general aggregated corporate treasury sums numbers configurations maps
-                totalInflowPaid = allPaymentsArr.reduce((acc, curr) => acc + parseFloat(curr.paidAmount || 0), 0);
-                totalPendingDebts = allPaymentsArr.reduce((acc, curr) => acc + parseFloat(curr.remainingDebt || 0), 0);
-            }
-
-            container.innerHTML = `
-                <div class="glass-panel p-5 rounded-2xl flex items-center justify-between">
-                    <div>
-                        <p class="text-xs text-neutral-400 font-medium">إجمالي ملفات العقود والطلبيات</p>
-                        <h3 class="text-2xl font-bold text-white mt-1 font-mono">${totalOrdersCount}</h3>
-                        <span class="text-[10px] text-neutral-500 block mt-1">المسجلة بملفات النظام</span>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-lg text-cyan-400 shadow-inner">
-                        <i class="fa-solid fa-box"></i>
-                    </div>
-                </div>
-                <div class="glass-panel p-5 rounded-2xl flex items-center justify-between">
-                    <div>
-                        <p class="text-xs text-neutral-400 font-medium">العمليات التشغيلية النشطة</p>
-                        <h3 class="text-2xl font-bold text-amber-400 mt-1 font-mono">${activeOrdersCount}</h3>
-                        <span class="text-[10px] text-neutral-500 block mt-1">حالات جاري معالجتها حالياً</span>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-lg text-amber-400 shadow-inner">
-                        <i class="fa-solid fa-hourglass-half animate-spin" style="animation-duration: 4s;"></i>
-                    </div>
-                </div>
-                <div class="glass-panel p-5 rounded-2xl flex items-center justify-between">
-                    <div>
-                        <p class="text-xs text-neutral-400 font-medium">${currentUserSession.role === 'client' ? 'مدفوعاتي المالية المودعة' : 'المقبوضات والسيولة الواردة'}</p>
-                        <h3 class="text-2xl font-bold text-emerald-400 mt-1 font-mono">${totalInflowPaid.toFixed(2)} $</h3>
-                        <span class="text-[10px] text-neutral-500 block mt-1">صافي التدفق النقدي الموثق</span>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-lg text-emerald-400 shadow-inner">
-                        <i class="fa-solid fa-wallet"></i>
-                    </div>
-                </div>
-                <div class="glass-panel p-5 rounded-2xl flex items-center justify-between">
-                    <div>
-                        <p class="text-xs text-neutral-400 font-medium">${currentUserSession.role === 'client' ? 'المبالغ المتبقية المستحقة عليّ' : 'الديون المستحقة للتحصيل'}</p>
-                        <h3 class="text-2xl font-bold text-red-400 mt-1 font-mono">${totalPendingDebts.toFixed(2)} $</h3>
-                        <span class="text-[10px] text-neutral-500 block mt-1">ملفات مستحقات معلقة بالذمة</span>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-lg text-red-400 shadow-inner">
-                        <i class="fa-solid fa-hand-holding-dollar"></i>
-                    </div>
-                </div>
-            `;
-        }
-
-        function rebuildDashboardAnalyticsGraphsEngine() {
-            let canvas = document.getElementById('mainAnalyticsChartEngine');
-            if (!canvas) return;
-
-            let allPayments = Object.values(paymentsMatrix);
-            let paidSum = allPayments.reduce((acc, curr) => acc + parseFloat(curr.paidAmount || 0), 0);
-            let debtSum = allPayments.reduce((acc, curr) => acc + parseFloat(curr.remainingDebt || 0), 0);
-
-            if (chartInstanceEngine) chartInstanceEngine.destroy();
-
-            chartInstanceEngine = new Chart(canvas.getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: ['السيولة المحصلة بالخزينة ($)', 'الديون والمستحقات الخارجية ($)', 'القيمة التشغيلية الاجمالية للمبيعات ($)'],
-                    datasets: [{
-                        data: [paidSum, debtSum, (paidSum + debtSum)],
-                        backgroundColor: ['rgba(46, 204, 113, 0.15)', 'rgba(231, 76, 60, 0.15)', 'rgba(0, 242, 254, 0.15)'],
-                        borderColor: ['#2ECC71', '#E74C3C', '#00f2fe'],
-                        borderWidth: 2,
-                        borderRadius: 12,
-                        barThickness: 28
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { grid: { color: 'rgba(255, 255, 255, 0.03)' }, ticks: { color: '#9ca3af', font: { family: 'Cairo' } } },
-                        x: { grid: { display: false }, ticks: { color: '#9ca3af', font: { family: 'Cairo' } } }
-                    }
-                }
-            });
-
-            // Populate static live log updates feed preview context
-            let streamBox = document.getElementById('dashboard-live-feed-stream');
-            if (streamBox) {
-                streamBox.innerHTML = '';
-                let elements = Object.values(auditLogsMatrix).sort((a,b) => b.id - a.id).slice(0, 8);
-                if (elements.length === 0) {
-                    streamBox.innerHTML = `<p class="text-neutral-600 text-center pt-8">لا توجد حركات مسجلة حالياً بنظام التعقب الحركي.</p>`;
-                }
-                elements.forEach(l => {
-                    let userLabel = usersMatrix[l.user_id]?.name || "نظام مستقل";
-                    streamBox.innerHTML += `
-                        <div class="p-2 rounded-xl bg-neutral-900/50 border border-neutral-900 flex flex-col gap-1">
-                            <div class="flex items-center justify-between text-[10px]">
-                                <span class="font-bold text-neutral-300">${userLabel}</span>
-                                <span class="text-neutral-500 font-mono">${l.created_at}</span>
-                            </div>
-                            <p class="text-neutral-400 font-medium">${l.action}</p>
+                listHtml += `
+                    <div class="expense-item">
+                        <div class="expense-item-header">
+                            <span>${exp.userName}</span>
+                            <span class="expense-amount">${exp.amount} ج.م</span>
                         </div>
-                    `;
-                });
-            }
-        }
-
-        function renderOrdersCentralDatabaseTable() {
-            let tbody = document.getElementById('table-body-orders-matrix');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-
-            let dataSet = Object.values(ordersMatrix);
-
-            // Execute access controls row separations filters algorithms pipelines parameters definitions maps rules
-            if (currentUserSession.role === 'employee') {
-                dataSet = dataSet.filter(o => o.employee_id === currentUserSession.id);
-            } else if (currentUserSession.role === 'client') {
-                dataSet = dataSet.filter(o => o.customer_id === currentUserSession.id);
-            }
-
-            // Implement horizontal filter state constraints tags overrides elements selection parameters routing maps
-            if (orderActiveFilterCriteria !== "كل") {
-                dataSet = dataSet.filter(o => o.status === orderActiveFilterCriteria);
-            }
-
-            if (dataSet.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-neutral-500 font-medium">لا توجد أوامر تشغيل أو طلبات مطابقة لمعايير التصفية والوصول الحالية المحددة.</td></tr>`;
-                return;
-            }
-
-            dataSet.forEach(order => {
-                let clientProfile = usersMatrix[order.customer_id];
-                let clientLabel = clientProfile ? clientProfile.name : "عميل مجهول الهوية";
-                let workerLabel = usersMatrix[order.employee_id]?.name || "لم يتم التعيين بعد";
-                
-                let avatarUrl = (clientProfile && clientProfile.avatar) ? clientProfile.avatar : "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80";
-
-                let statusColorStyle = "bg-neutral-900 text-neutral-400 border-neutral-800";
-                if (order.status === 'تم التسليم') statusColorStyle = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-                if (order.status === 'قيد التنفيذ') statusColorStyle = "bg-cyan-500/10 text-cyan-400 border-cyan-500/20";
-                if (order.status === 'قيد المراجعة') statusColorStyle = "bg-amber-500/10 text-amber-400 border-amber-500/20";
-                if (order.status === 'ملغي') statusColorStyle = "bg-red-500/10 text-red-400 border-red-500/20";
-
-                let operationalActionsBlockHtml = ``;
-                if (currentUserSession.role === 'admin' || currentUserSession.name === 'محمد') {
-                    operationalActionsBlockHtml = `
-                        <div class="flex items-center justify-center gap-1.5">
-                            <button onclick="executePrintInvoiceSheetForm('${order.id}')" class="p-2 rounded-lg bg-neutral-900 border border-neutral-800 text-white hover:bg-neutral-800 transition-all cursor-pointer" title="طباعة الشيت الورقي الفوري"><i class="fa-solid fa-print"></i></button>
-                            <button onclick="openOrderModalWindow('${order.id}')" class="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500 hover:text-black transition-all cursor-pointer" title="تعديل تفاصيل الطلب"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="executeOrderEraseDestructionPipeline('${order.id}')" class="p-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all cursor-pointer" title="حذف ونقل للأرشيف"><i class="fa-solid fa-trash-can"></i></button>
+                        <div class="expense-details">
+                            <i class="fa-solid fa-align-right" style="font-size:11px;"></i> ${exp.reason} <br>
+                            <small style="color:var(--text-muted); font-size:11px;">${exp.day} | ${exp.date.split('T')[0]}</small>
+                            ${exp.audio ? `<br><audio src="${exp.audio}" controls style="height:28px; margin-top:8px; width:100%;"></audio>` : ''}
                         </div>
-                    `;
-                } else if (currentUserSession.role === 'employee' || currentUserSession.role === 'supervisor') {
-                    operationalActionsBlockHtml = `
-                        <select onchange="updateOrderStatusFromInlineSelectorTableRow('${order.id}', this.value)" class="bg-neutral-900 border border-neutral-800 rounded-lg p-1.5 text-xs text-white focus:outline-none focus:border-cyan-500">
-                            <option value="قيد المراجعة" ${order.status === 'قيد المراجعة' ? 'selected' : ''}>قيد المراجعة</option>
-                            <option value="قيد التنفيذ" ${order.status === 'قيد التنفيذ' ? 'selected' : ''}>قيد التنفيذ</option>
-                            <option value="تم التسليم" ${order.status === 'تم التسليم' ? 'selected' : ''}>تم التسليم</option>
-                            <option value="ملغي" ${order.status === 'ملغي' ? 'selected' : ''}>ملغي</option>
-                        </select>
-                    `;
-                } else {
-                    operationalActionsBlockHtml = `<span class="text-neutral-600 font-mono text-[10px]">عرض فقط</span>`;
+                    </div>`;
+            });
+
+            document.getElementById('weekTotal').innerText = totalWeek + " ج.م";
+            document.getElementById('monthTotal').innerText = totalMonth + " ج.م";
+            document.getElementById('expensesList').innerHTML = listHtml;
+            window.allExpensesData = dataForExcel;
+        });
+    }
+
+    // ريكورد الـ Audio
+    const recordBtn = document.getElementById('recordBtn');
+    recordBtn.addEventListener('click', async () => {
+        if (mediaRecorder && mediaRecorder.state === "recording") {
+            mediaRecorder.stop();
+            recordBtn.innerHTML = '<i class="fa-solid fa-microphone"></i> تسجيل بيان صوتي (ريكورد)';
+            recordBtn.classList.remove('recording');
+        } else {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+                const reader = new FileReader();
+                reader.readAsDataURL(audioBlob);
+                reader.onloadend = () => {
+                    base64Audio = reader.result;
+                    const audioPreview = document.getElementById('audioPreview');
+                    audioPreview.src = base64Audio;
+                    audioPreview.classList.remove('hidden');
                 }
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-neutral-900/30 transition-all border-b border-neutral-900/40">
-                        <td class="p-4 font-mono font-bold text-neutral-400">#${order.id.substring(0, 8)}</td>
-                        <td class="p-4">
-                            <div class="flex items-center gap-2.5">
-                                <img src="${avatarUrl}" class="w-7 h-7 rounded-lg object-cover border border-neutral-800">
-                                <span class="font-bold text-white block">${clientLabel}</span>
-                            </div>
-                        </td>
-                        <td class="p-4 font-medium text-neutral-200">${order.productName}</td>
-                        <td class="p-4 font-mono font-semibold text-neutral-400">${order.quantity}</td>
-                        <td class="p-4 text-purple-300 font-medium">${workerLabel}</td>
-                        <td class="p-4">
-                            <span class="px-2.5 py-1 rounded-full font-bold text-[10px] border ${statusColorStyle}">${order.status}</span>
-                        </td>
-                        <td class="p-4 font-mono font-bold text-emerald-400">${parseFloat(order.total_price).toFixed(2)} $</td>
-                        <td class="p-4 text-center">${operationalActionsBlockHtml}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        function renderFinanceDatabaseTableMatrix() {
-            let tbody = document.getElementById('table-body-finance-matrix');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-
-            let dataSet = Object.values(paymentsMatrix);
-            
-            let paidSum = dataSet.reduce((acc, curr) => acc + parseFloat(curr.paidAmount || 0), 0);
-            let debtSum = dataSet.reduce((acc, curr) => acc + parseFloat(curr.remainingDebt || 0), 0);
-            
-            document.getElementById('finance-total-inflow-card').innerText = `${paidSum.toFixed(2)} $`;
-            document.getElementById('finance-total-debt-card').innerText = `${debtSum.toFixed(2)} $`;
-
-            if (dataSet.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-neutral-500 font-medium">سجل القيود المالية فارغ حالياً تماماً من أي تسويات نقدية مسجلة.</td></tr>`;
-                return;
-            }
-
-            dataSet.forEach(p => {
-                let linkedOrder = ordersMatrix[p.orderId];
-                let orderDesc = linkedOrder ? `طلب: ${linkedOrder.productName}` : "طلب مجهول/محذوف مسبقاً";
-                let clientDesc = linkedOrder ? (usersMatrix[linkedOrder.customer_id]?.name || "عميل مجهول") : "غير مرتبط بعقد";
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-neutral-900/30 transition-all border-b border-neutral-900/40">
-                        <td class="p-4 font-mono text-neutral-500">#${p.id.substring(0,8)}</td>
-                        <td class="p-4">
-                            <span class="font-bold text-white block">${clientDesc}</span>
-                            <span class="text-[10px] text-neutral-500 block mt-0.5 font-mono">${orderDesc}</span>
-                        </td>
-                        <td class="p-4 font-mono font-bold text-emerald-400">+ ${parseFloat(p.paidAmount).toFixed(2)} $</td>
-                        <td class="p-4 font-mono font-bold text-red-400">${parseFloat(p.remainingDebt).toFixed(2)} $</td>
-                        <td class="p-4 text-neutral-400 font-mono">${p.timestamp}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        function renderUsersDatabaseTableMatrix() {
-            let tbody = document.getElementById('table-body-users-matrix');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-
-            if (Object.keys(usersMatrix).length === 0) return;
-
-            Object.values(usersMatrix).forEach(user => {
-                let badgeStyle = "bg-blue-500/10 text-blue-400 border-blue-500/20";
-                if (user.role === 'admin') badgeStyle = "bg-red-500/10 text-red-400 border-red-500/20";
-                if (user.role === 'supervisor') badgeStyle = "bg-cyan-500/10 text-cyan-400 border-cyan-500/20";
-                if (user.role === 'employee') badgeStyle = "bg-purple-500/10 text-purple-400 border-purple-500/20";
-
-                let statusBadgeStyle = user.status === 'active' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20';
-                let statusText = user.status === 'active' ? 'نشط ومصرح' : 'محجوب ومقيد';
-
-                let disabledTag = (user.id === 'admin_root' || user.name === 'محمد') ? 'hidden' : '';
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-neutral-900/30 transition-all border-b border-neutral-900/40">
-                        <td class="p-4 font-bold text-white">${user.name} <span class="text-[10px] font-mono font-semibold text-neutral-500 block mt-0.5">@${user.username}</span></td>
-                        <td class="p-4 font-mono text-neutral-400">${user.email}</td>
-                        <td class="p-4"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeStyle}">${user.role.toUpperCase()}</span></td>
-                        <td class="p-4"><span class="px-2 py-0.5 rounded text-[10px] font-semibold border ${statusBadgeStyle}">${statusText}</span></td>
-                        <td class="p-4 font-mono text-neutral-600 tracking-widest hover:text-white transition-all select-all cursor-pointer">${user.password}</td>
-                        <td class="p-4 text-center">
-                            <div class="flex items-center justify-center gap-1.5">
-                                <button onclick="openUserModalWindow('${user.id}')" class="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500 hover:text-black transition-all cursor-pointer" title="تعديل ترخيص الحساب"><i class="fa-solid fa-user-pen"></i></button>
-                                <button onclick="toggleUserAccountSuspensionStatePipeline('${user.id}')" class="p-2 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white transition-all cursor-pointer ${disabledTag}" title="تغيير حالة التنشيط/الحظر بـ كليك واحدة"><i class="fa-solid fa-ban"></i></button>
-                                <button onclick="executeUserEntityPermanentPurgePipeline('${user.id}')" class="p-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all cursor-pointer ${disabledTag}" title="حذف نهائي فوري"><i class="fa-solid fa-user-minus"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function renderSecurityAuditLogsDatabaseTable() {
-            let tbody = document.getElementById('table-body-security-audit-logs');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-
-            let logs = Object.values(auditLogsMatrix).sort((a,b) => b.id - a.id);
-            if (logs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-neutral-600 font-medium">السجل الأمني آمن ونظيف تماماً ولا توجد قيود حالية مدرجة.</td></tr>`;
-                return;
-            }
-
-            logs.forEach(l => {
-                let userRef = usersMatrix[l.user_id]?.name || "نظام ميكانيكي";
-                let typeStyle = "text-neutral-400";
-                if (l.type === 'delete' || l.type === 'block') typeStyle = "text-red-400 font-bold";
-                if (l.type === 'login') typeStyle = "text-cyan-400 font-bold";
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-neutral-900/20 border-b border-neutral-900/40">
-                        <td class="p-4 text-neutral-600">#${l.id}</td>
-                        <td class="p-4 text-neutral-300 font-bold">${userRef}</td>
-                        <td class="p-4 text-neutral-200 font-sans">${l.action}</td>
-                        <td class="p-4 ${typeStyle}">${l.type.toUpperCase()}</td>
-                        <td class="p-4 text-neutral-500">${l.ip_address}</td>
-                        <td class="p-4 text-neutral-400">${l.created_at}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        function renderArchivalDatabaseTableMatrix() {
-            let tbody = document.getElementById('table-body-archived-elements-matrix');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-
-            let archives = Object.values(archivalMatrix);
-            if (archives.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-neutral-600 font-medium">سلة المحذوفات والأرشيف فارغة تماماً.</td></tr>`;
-                return;
-            }
-
-            archives.forEach(a => {
-                let innerData = typeof a.data === 'string' ? JSON.parse(a.data) : a.data;
-                let previewText = innerData.productName || innerData.name || "مكون غير مصنف دلالياً";
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-neutral-900/30 border-b border-neutral-900/40 text-xs">
-                        <td class="p-4 font-mono text-neutral-500">#${a.id}</td>
-                        <td class="p-4 font-bold text-neutral-300">${a.table_name.toUpperCase()}</td>
-                        <td class="p-4 text-neutral-400 font-sans truncate max-w-xs">الكيان الأصيل: (${previewText})</td>
-                        <td class="p-4 text-neutral-500 font-mono">${a.created_at}</td>
-                        <td class="p-4 text-center">
-                            <button onclick="executeRestoreArchivedEntityTransactionPipeline('${a.id}')" class="bg-cyan-500/10 hover:bg-cyan-500 text-cyan-400 hover:text-black border border-cyan-500/20 font-bold px-3 py-1.5 rounded-xl transition-all cursor-pointer">
-                                <i class="fa-solid fa-rotate-left mr-1"></i> استعادة فاقد البيانات
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function renderInternalChatInterfaceChannelsContacts() {
-            let box = document.getElementById('chat-channels-contacts-list');
-            if (!box) return;
-            box.innerHTML = '';
-
-            let targets = Object.values(usersMatrix);
-            
-            // Filters contact structures dependent upon persona limits maps rules
-            if (currentUserSession.role === 'client') {
-                // Client only can write to master operational admin owners networks
-                targets = targets.filter(u => u.role === 'admin' || u.name === 'محمد');
-            } else {
-                // Admins & Supervisors can loop communication nodes with everyone profiles listing entries
-                targets = targets.filter(u => u.id !== currentUserSession.id);
-            }
-
-            if (targets.length === 0) {
-                box.innerHTML = `<p class="text-neutral-600 text-center text-[10px] pt-4">لا توجد أطراف مراسلة متاحة.</p>`;
-                return;
-            }
-
-            targets.forEach(u => {
-                let isSelectedStyle = activeChatSessionTargetId === u.id ? 'bg-neutral-900 text-white border-r-2 border-cyan-400' : 'text-neutral-400 hover:bg-neutral-900/40';
-                box.innerHTML += `
-                    <button onclick="establishActiveChatConversationChannel('${u.id}')" class="w-full text-right p-3 rounded-xl flex items-center gap-3 transition-all ${isSelectedStyle}">
-                        <div class="w-2 h-2 rounded-full bg-neutral-700"></div>
-                        <div>
-                            <span class="font-bold text-xs block text-neutral-200">${u.name}</span>
-                            <span class="text-[9px] text-neutral-500 font-mono uppercase">${u.role}</span>
-                        </div>
-                    </button>
-                `;
-            });
-        }
-
-        function populateModalWindowsSelectDropdownsOptions() {
-            let customerSelect = document.getElementById('form-order-customer-id-select');
-            let workerSelect = document.getElementById('form-order-worker-id-select');
-            let payOrderSelect = document.getElementById('form-pay-order-id-select');
-
-            if (customerSelect) {
-                customerSelect.innerHTML = '';
-                Object.values(usersMatrix).filter(u => u.role === 'client').forEach(c => {
-                    customerSelect.innerHTML += `<option value="${c.id}">${c.name} (@${c.username})</option>`;
-                });
-            }
-
-            if (workerSelect) {
-                workerSelect.innerHTML = '';
-                Object.values(usersMatrix).filter(u => u.role === 'employee' || u.role === 'supervisor').forEach(w => {
-                    workerSelect.innerHTML += `<option value="${w.id}">${w.name} (${w.role})</option>`;
-                });
-            }
-
-            if (payOrderSelect) {
-                payOrderSelect.innerHTML = '';
-                Object.values(ordersMatrix).forEach(o => {
-                    let clientLabel = usersMatrix[o.customer_id]?.name || "مستفيد";
-                    payOrderSelect.innerHTML += `<option value="${o.id}">${o.productName} - العميل: ${clientLabel} (${o.total_price} $)</option>`;
-                });
-            }
-        }
-
-        // --- 7. REACTIVE OPERATIONAL CONTROLLERS FILTERS INTERFACES ACTION WORKFLOWS ---
-        function filterOrdersTableByStatus(status) {
-            orderActiveFilterCriteria = status;
-            
-            // Toggle highlight styles across DOM action filters rows objects array components lists
-            let buttons = document.querySelectorAll('#orders-tab-filter-row button');
-            buttons.forEach(btn => {
-                if (btn.innerText.trim() === status) {
-                    btn.className = "px-3 py-1.5 rounded-lg bg-neutral-900 border border-neutral-800 text-white font-semibold";
-                } else {
-                    btn.className = "px-3 py-1.5 rounded-lg text-neutral-400 hover:bg-neutral-900 transition-all";
-                }
-            });
-            renderOrdersCentralDatabaseTable();
-        }
-
-        async function updateOrderStatusFromInlineSelectorTableRow(orderId, nextStatus) {
-            let targetOrder = ordersMatrix[orderId];
-            if (targetOrder) {
-                let prior = targetOrder.status;
-                targetOrder.status = nextStatus;
-                await writeSystemDatabaseNodeData('orders', orderId, targetOrder);
-                
-                dispatchSystemSecurityAuditLogMapping(currentUserSession.id, `تحديث حالة الطلب #${orderId.substring(0,6)} من [${prior}] إلى [${nextStatus}]`, "update");
-                dispatchSystemTelegramNotificationBroadcastMessage(`📦 **تحديث حالة العمل للطلب:**\nالطلب المرجعي: #${orderId.substring(0,6)}\nالمنتج: ${targetOrder.productName}\nالحالة الجديدة: [${nextStatus}]\nبواسطة المسؤول: ${currentUserSession.name}`);
-                
-                await synchronizeEntireSystemStateMatrices();
-                renderDynamicUIComponentsElements();
-            }
-        }
-
-        // --- 8. DATA OPERATIONS MUTATIONS SUB-SYSTEM WORKFLOW TRANSACTION SCHEMAS (CRUD) ---
-        
-        // --- USERS MANAGEMENT PIPELINE ---
-        function openUserModalWindow(userId = null) {
-            document.getElementById('modal-wrapper-user-form-dialog').style.display = 'flex';
-            if (userId && usersMatrix[userId]) {
-                let u = usersMatrix[userId];
-                document.getElementById('modal-user-title-text').innerText = "تعديل تراخيص وصلاحيات بيانات الحساب";
-                document.getElementById('input-field-user-edit-id-target').value = u.id;
-                document.getElementById('form-user-input-full-name').value = u.name;
-                document.getElementById('form-user-input-username-unique').value = u.username;
-                document.getElementById('form-user-input-username-unique').disabled = true;
-                document.getElementById('form-user-input-email').value = u.email;
-                document.getElementById('form-user-input-password-secret').value = u.password;
-                document.getElementById('form-user-input-role-select').value = user.role;
-            } else {
-                document.getElementById('modal-user-title-text').innerText = "إنشاء وترخيص حساب مستخدم جديد بالنظام الموحد";
-                document.getElementById('form-element-user-entity').reset();
-                document.getElementById('input-field-user-edit-id-target').value = '';
-                document.getElementById('form-user-input-username-unique').disabled = false;
-            }
-        }
-
-        function closeUserModalWindow() { document.getElementById('modal-wrapper-user-form-dialog').style.display = 'none'; }
-
-        async function executeUserEntitySaveTransaction(event) {
-            event.preventDefault();
-            if (currentUserSession.role !== 'admin' && currentUserSession.name !== 'محمد') {
-                alert('خطأ بالأذونات الأمنية المطلوبة! التعديل للمالك والمسؤول المباشر فقط.');
-                return;
-            }
-
-            let id = document.getElementById('input-field-user-edit-id-target').value;
-            let targetId = id ? id : "user_" + Math.random().toString(36).substring(2, 11);
-            let usernameClean = document.getElementById('form-user-input-username-unique').value.trim().toLowerCase().replace(/\s+/g, '_');
-            
-            // Check username collisions parameters matching lists blocks records
-            if (!id && Object.values(usersMatrix).find(u => u.username.toLowerCase() === usernameClean)) {
-                alert('اسم المستخدم هذا محجوز مسبقاً لحساب آخر! يرجى اختيار مسمى فريد تماماً.');
-                return;
-            }
-
-            let avatarBase64StringData = id ? (usersMatrix[id]?.avatar || "") : "";
-            let fileInput = document.getElementById('form-user-input-avatar-file-upload');
-            if (fileInput.files && fileInput.files[0]) {
-                avatarBase64StringData = await convertLocalFileUploadToBase64EngineDataPayload(fileInput.files[0]);
-            }
-
-            let payload = {
-                id: targetId,
-                name: document.getElementById('form-user-input-full-name').value.trim(),
-                username: usernameClean,
-                email: document.getElementById('form-user-input-email').value.trim(),
-                password: document.getElementById('form-user-input-password-secret').value.trim(),
-                role: document.getElementById('form-user-input-role-select').value,
-                status: id ? (usersMatrix[id]?.status || "active") : "active",
-                avatar: avatarBase64StringData
             };
-
-            await writeSystemDatabaseNodeData('users', targetId, payload);
-            dispatchSystemSecurityAuditLogMapping(currentUserSession.id, `إضافة/تعديل ملف المستخدم المعرف باسم الحساب @${payload.username}`, "update");
-            dispatchSystemTelegramNotificationBroadcastMessage(`👥 **تعديل ترخيص مستخدم بالنظام:**\nالاسم: ${payload.name}\nاليوزر: @${payload.username}\nالصلاحية: [${payload.role.toUpperCase()}]\nالعملية تمت بواسطة المالك محمد.`);
-            
-            closeUserModalWindow();
-            await synchronizeEntireSystemStateMatrices();
-            renderDynamicUIComponentsElements();
+            mediaRecorder.start();
+            recordBtn.innerHTML = '<i class="fa-solid fa-stop-circle"></i> جاري التسجيل... اضغط للحفظ';
+            recordBtn.classList.add('recording');
         }
+    });
 
-        async function toggleUserAccountSuspensionStatePipeline(userId) {
-            if (userId === 'admin_root' || usersMatrix[userId]?.name === 'محمد') return;
-            let u = usersMatrix[userId];
-            if (u) {
-                u.status = u.status === 'active' ? 'blocked' : 'active';
-                await writeSystemDatabaseNodeData('users', userId, u);
-                dispatchSystemSecurityAuditLogMapping(currentUserSession.id, `تعديل حالة تنشيط حساب المستخدم @${u.username} إلى [${u.status}]`, "block");
-                dispatchSystemTelegramNotificationBroadcastMessage(`⚠️ **تعديل أمني للحسابات:**\nالحساب التابع للمستخدم: ${u.name} (@${u.username}) تم تحويل حالته الأمنية كلياً إلى: [${u.status.toUpperCase()}] من قبل الإدارة.`);
-                
-                await synchronizeEntireSystemStateMatrices();
-                renderDynamicUIComponentsElements();
-            }
+    window.exportToExcel = function() {
+        if(!window.allExpensesData || window.allExpensesData.length === 0) return;
+        const worksheet = XLSX.utils.json_to_sheet(window.allExpensesData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "المصاريف");
+        XLSX.writeFile(workbook, `مصروفي_${new Date().toISOString().split('T')[0]}.xlsx`);
+    }
+</script>
+
+<script>
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('installBanner').style.display = 'flex';
+    });
+    window.installApp = function() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(() => { document.getElementById('installBanner').style.display = 'none'; });
         }
-
-        async function executeUserEntityPermanentPurgePipeline(userId) {
-            if (userId === 'admin_root' || usersMatrix[userId]?.name === 'محمد') return;
-            if (confirm('تنبيه أمني! هل أنت متأكد من مسح ملفات وترخيص هذا الحساب نهائياً من سجلات الشركة؟')) {
-                let backupNode = usersMatrix[userId];
-                // Move contents block into safety archive tables nodes dynamic models fields
-                await executeArchivalDataRelocationPipeline('users', backupNode);
-                
-                await deleteSystemDatabaseNodeData('users', userId);
-                dispatchSystemSecurityAuditLogMapping(currentUserSession.id, `إزالة وطرد كامل لملفات المستخدم @${backupNode.username} مع النقل لسلة المحذوفات`, "delete");
-                
-                await synchronizeEntireSystemStateMatrices();
-                renderDynamicUIComponentsElements();
-            }
-        }
-
-        // --- ORDERS MANAGEMENT PIPELINE ---
-        function openOrderModalWindow(orderId = null) {
-            document.getElementById('modal-wrapper-order-form-dialog').style.display = 'flex';
-            populateModalWindowsSelectDropdownsOptions();
-            
-            if (orderId && ordersMatrix[orderId]) {
-                let o = ordersMatrix[orderId];
-                document.getElementById('modal-order-title-text').innerText = "تعديل ومراجعة قيد حزمة أمر العمل النشط";
-                document.getElementById('input-field-order-edit-id-target').value = o.id;
-                document.getElementById('form-order-input-customer-id-select').value = o.customer_id;
-                document.getElementById('form-order-input-product-name').value = o.productName;
-                document.getElementById('form-order-input-quantity').value = o.quantity;
-                document.getElementById('form-order-input-total-price').value = o.total_price;
-                document.getElementById('form-order-input-worker-id-select').value = o.employee_id;
-                document.getElementById('form-order-input-status-select').value = o.status;
-            } else {
-                document.getElementById('modal-order-title-text').innerText = "إنشاء وتعميد أمر تشغيل ومبيعات جديد";
-                document.getElementById('form-element-order-entity').reset();
-                document.getElementById('input-field-order-edit-id-target').value = '';
-            }
-        }
-
-        function closeOrderModalWindow() { document.getElementById('modal-wrapper-order-form-dialog').style.display = 'none'; }
-
-        async function executeOrderEntitySaveTransaction(event) {
-            event.preventDefault();
-            if (currentUserSession.role !== 'admin' && currentUserSession.name !== 'محمد') {
-                alert('خطأ بالصلاحيات الهيكلية! إنشاء وتعديل الطلبات المالية محصور كلياً للمالك محمد.');
-                return;
-            }
-
-            let id = document.getElementById('input-field-order-edit-id-target').value;
-            let targetOrderId = id ? id : "order_" + Math.random().toString(36).substring(2, 11);
-
-            let payload = {
-                id: targetOrderId,
-                customer_id: document.getElementById('form-order-input-customer-id-select').value,
-                productName: document.getElementById('form-order-input-product-name').value.trim(),
-                quantity: parseInt(document.getElementById('form-order-input-quantity').value),
-                total_price: parseFloat(document.getElementById('form-order-input-total-price').value),
-                employee_id: document.getElementById('form-order-input-worker-id-select').value,
-                status: document.getElementById('form-order-input-status-select').value,
-                created_at: id ? (ordersMatrix[id]?.created_at || new Date().toLocaleString()) : new Date().toLocaleString()
-            };
-
-            await writeSystemDatabaseNodeData('orders', targetOrderId, payload);
-            
-            // Sync automated matching payment entry nodes fields objects records automatically if it is a new configuration model order
-            if (!id) {
-                let autoPaymentId = "trans_" + Math.random().toString(36).substring(2, 11);
-                let paymentPayload = {
-                    id: autoPaymentId,
-                    orderId: targetOrderId,
-                    paidAmount: payload.total_price, // Assuming auto paid fully on initialization unless manual alteration applied later
-                    remainingDebt: 0,
-                    timestamp: new Date().toLocaleString()
-                };
-                await writeSystemDatabaseNodeData('payments', autoPaymentId, paymentPayload);
-            }
-
-            dispatchSystemSecurityAuditLogMapping(currentUserSession.id, `تثبيت وتعديل عبوة العقد لمنتج التشغيل: ${payload.productName}`, "update");
-            dispatchSystemTelegramNotificationBroadcastMessage(`📦 **تعميد أمر تشغيل مبيعات بالمنصة:**\nالمنتج المطلوب: ${payload.productName}\nالقيمة الاجمالية: ${payload.total_price} $\nالكمية: ${payload.quantity}\nالعميل: ${usersMatrix[payload.customer_id]?.name || 'مستفيد'}\nالحالة المعتمدة: [${payload.status}]\nبواسطة المالك محمد عبر لوحة التحكم.`);
-            
-            closeOrderModalWindow();
-            await synchronizeEntireSystemStateMatrices();
-            renderDynamicUIComponentsElements();
-        }
-
-        async function executeOrderEraseDestructionPipeline(orderId) {
-            if (currentUserSession.role !== 'admin' && currentUserSession.name !== 'محمد') return;
-            if (confirm('تنبيه إلغاء وحذف العقود! هل تود استبعاد هذا الطلب تماماً من جداول العمليات ونقله للأرشيف الآمن؟')) {
-                let backupNode = ordersMatrix[orderId];
-                await executeArchivalDataRelocationPipeline('orders', backupNode);
-                
-                await deleteSystemDatabaseNodeData('orders', orderId);
-                
-                // Clear linked payments automatically from operations listing rows tables mappings records
-                let linkedPayments = Object.values(paymentsMatrix).filter(p => p.orderId === orderId);
-                for (let payObj of linkedPayments) {
-                    await deleteSystemDatabaseNodeData('payments', payObj.id);
-                }
-
-                dispatchSystemSecurityAuditLogMapping(currentUserSession.id, `مسح واستبعاد كامل للطلب المعرف #${orderId.substring(0,6)} وترحيله للأرشيف للسلامة المادية للمعلومات`, "delete");
-                
-                await synchronizeEntireSystemStateMatrices();
-                renderDynamicUIComponentsElements();
-            }
-        }
-
-        // --- MANUAL PAYMENTS MANAGEMENT PIPELINE ---
-        function openPaymentModalWindow() {
-            document.getElementById('modal-wrapper-payment-form-dialog').style.display = 'flex';
-            populateModalWindowsSelectDropdownsOptions();
-            synchronizeReactivePaymentCalculationsEngine();
-        }
-
-        function closePaymentModalWindow() { document.getElementById('modal-wrapper-payment-form-dialog').style.display = 'none'; }
-
-        function synchronizeReactivePaymentCalculationsEngine() {
-            let orderId = document.getElementById('form-pay-input-order-id-select').value;
-            let targetOrder = ordersMatrix[orderId];
-            if (targetOrder) {
-                let cost = parseFloat(targetOrder.total_price || 0);
-                document.getElementById('form-pay-input-amount-paid').value = cost;
-                document.getElementById('form-pay-input-remaining-debt').value = 0;
-                
-                document.getElementById('form-pay-input-amount-paid').oninput = function() {
-                    let userIn = parseFloat(this.value) || 0;
-                    document.getElementById('form-pay-input-remaining-debt').value = Math.max(0, cost - userIn).toFixed(2);
-                };
-            }
-        }
-
-        async function executePaymentEntitySaveTransaction(event) {
-            event.preventDefault();
-            let randId = "trans_" + Math.random().toString(36).substring(2, 11);
-            let payload = {
-                id: randId,
-                orderId: document.getElementById('form-pay-input-order-id-select').value,
-                paidAmount: parseFloat(document.getElementById('form-pay-input-amount-paid').value),
-                remainingDebt: parseFloat(document.getElementById('form-pay-input-remaining-debt').value),
-                timestamp: new Date().toLocaleString()
-            };
-
-            await writeSystemDatabaseNodeData('payments', randId, payload);
-            dispatchSystemSecurityAuditLogMapping(currentUserSession.id, `إدراج يدوي وتدقيق لقيد قسيمة مادية مخصصة بمبلغ ${payload.paidAmount} $`, "update");
-            
-            closePaymentModalWindow();
-            await synchronizeEntireSystemStateMatrices();
-            renderDynamicUIComponentsElements();
-        }
-
-        async function executeFinanceCloseDayTransaction() {
-            if (currentUserSession.role !== 'admin' && currentUserSession.name !== 'محمد') return;
-            if (confirm('تنبيه مالي وإداري حرج! هل تود قفل الدورة المالية الحالية الآن وترحيل الإيرادات والأداء الإجمالي لبوت التليجرام؟')) {
-                let allPayments = Object.values(paymentsMatrix);
-                let paidSum = allPayments.reduce((acc, curr) => acc + parseFloat(curr.paidAmount || 0), 0);
-                let debtSum = allPayments.reduce((acc, curr) => acc + parseFloat(curr.remainingDebt || 0), 0);
-                
-                let reportStringHtml = `
-💰 **إغلاق يومي مالي نهائي للدورة الحالية** 💰
------------------------------------------
-🏢 اسم المنصة الموحدة: ${systemBrandingConfig.appName}
-👤 مسؤول المراقبة والتعميد: المالك محمد
-📈 القيمة المجمعة الإجمالية لحجم المبيعات: ${(paidSum + debtSum).toFixed(2)} $
-💵 صافي الإيرادات النقدية المودعة بالخزينة: ${paidSum.toFixed(2)} $
-⚠️ إجمالي المديونيات المعلقة في ذمة العملاء: ${debtSum.toFixed(2)} $
-⏱️ تاريخ ووقت ترحيل القفل المركزي: ${new Date().toLocaleString()}
------------------------------------------
-✔️ النظام يعمل بكفاءة استقرار معيارية 100%.
-                `;
-                
-                dispatchSystemTelegramNotificationBroadcastMessage(reportStringHtml);
-                dispatchSystemSecurityAuditLogMapping(currentUserSession.id, "إغلاق اليوم المالي (Close Day Process Completed)", "finance");
-                alert('تم إغلاق الدورة وتصفير القيود الإدارية بنجاح وإرسال التقرير المجمع للمالك عبر بوت تليجرام.');
-            }
-        }
-
-        // --- 9. CONFIGURATION UTILITIES BRANDING ENGINE FOR MANAGEMENT LAYERS ---
-        async function saveApplicationBrandingSettingsEngine() {
-            let nameField = document.getElementById('setting-app-branding-name').value.trim();
-            let iconField = document.getElementById('setting-app-branding-icon-class').value.trim();
-            
-            let payload = { appName: nameField || systemBrandingConfig.appName, appLogo: iconField || "fa-shield-cat" };
-            await fetch(`${DATABASE_REST_ENDPOINT}configuration/branding.json`, { method: 'PUT', body: JSON.stringify(payload) });
-            
-            alert('تم تثبيت الهوية التجارية الجديدة بنجاح في قاعدة البيانات.');
-            await synchronizeEntireSystemStateMatrices();
-            applyBrandingIdentityConfigurationsToInterface();
-        }
-
-        async function saveTelegramSettingsEngine() {
-            let tokenIn = document.getElementById('setting-tg-bot-token-input').value.trim();
-            let chatIn = document.getElementById('setting-tg-owner-chat-id-input').value.trim();
-            
-            let payload = { tgToken: tokenIn, tgChatId: chatIn };
-            await fetch(`${DATABASE_REST_ENDPOINT}configuration/telegram.json`, { method: 'PUT', body: JSON.stringify(payload) });
-            
-            alert('تم حفظ وتحديث مسارات الاتصال والتراخيص الخاصة ببوت التليجرام بنجاح.');
-            await synchronizeEntireSystemStateMatrices();
-            applyBrandingIdentityConfigurationsToInterface();
-        }
-
-        // --- 10. ARCHIVAL & SAFETY BUFFER BACKUP SYSTEM (SOFT DELETE / RECOVERY) ---
-        async function executeArchivalDataRelocationPipeline(tableName, dataObject) {
-            let archiveId = "arch_" + Date.now();
-            let archivalPayload = {
-                id: archiveId,
-                table_name: tableName,
-                data: JSON.stringify(dataObject),
-                created_at: new Date().toLocaleString()
-            };
-            await writeSystemDatabaseNodeData('archive', archiveId, archivalPayload);
-        }
-
-        async function executeRestoreArchivedEntityTransactionPipeline(archiveId) {
-            let archiveRecord = archivalMatrix[archiveId];
-            if (archiveRecord) {
-                let innerPayloadData = JSON.parse(archiveRecord.data);
-                let originTable = archiveRecord.table_name;
-                
-                // Write back payload object tracking model elements parameters definitions fields lines rows maps values indices
-                await writeSystemDatabaseNodeData(originTable, innerPayloadData.id, innerPayloadData);
-                // Wipe entry from the buffer safety archival nodes maps lists
-                await deleteSystemDatabaseNodeData('archive', archiveId);
-                
-                dispatchSystemSecurityAuditLogMapping(currentUserSession.id, `بروتوكول استرجاع فاقد: استعادة الكيان المرجعي التابع لجدول [${originTable}] من الأرشيف`, "update");
-                
-                await synchronizeEntireSystemStateMatrices();
-                renderDynamicUIComponentsElements();
-            }
-        }
-
-        async function purgeSecurityAuditLogsEngine() {
-            if (confirm('هل أنت متأكد من مسح جميع سجلات التعقب الأمني وتصفير الـ Logs نهائياً؟')) {
-                await fetch(`${DATABASE_REST_ENDPOINT}logs.json`, { method: 'DELETE' });
-                await synchronizeEntireSystemStateMatrices();
-                renderDynamicUIComponentsElements();
-            }
-        }
-
-        // --- 11. INTERNAL CHAT INTER-COMMUNICATION ROUTINES SCHEMAS PIPELINES ---
-        function establishActiveChatConversationChannel(userId) {
-            activeChatSessionTargetId = userId;
-            document.getElementById('chat-window-blank-fallback').classList.add('hidden');
-            document.getElementById('chat-window-active-container').classList.remove('hidden');
-            
-            let targetProfile = usersMatrix[userId];
-            document.getElementById('chat-active-target-title').innerText = `${targetProfile.name} [قناة مراسلة مشفرة - ${targetProfile.role.toUpperCase()}]`;
-            
-            streamAndSynchronizeChatMessageInterfaceContentPanel();
-            renderInternalChatInterfaceChannelsContacts();
-        }
-
-        function streamAndSynchronizeChatMessageInterfaceContentPanel() {
-            let box = document.getElementById('chat-messages-stream-scroller');
-            if (!box || !activeChatSessionTargetId) return;
-            box.innerHTML = '';
-
-            let allMessages = Object.values(internalChatsMatrix);
-            // Filter conversations running strictly between sender node elements and destination parameters target mappings indicators values
-            let relevantChats = allMessages.filter(m => 
-                (m.sender_id === currentUserSession.id && m.receiver_id === activeChatSessionTargetId) ||
-                (m.sender_id === activeChatSessionTargetId && m.receiver_id === currentUserSession.id)
-            ).sort((a,b) => a.timestamp_ms - b.timestamp_ms);
-
-            if (relevantChats.length === 0) {
-                box.innerHTML = `<p class="text-neutral-600 text-center text-[10px] py-12">بداية مشفرة وآمنة لخط قناة المحادثات المباشرة الداخلي الموحد...</p>`;
-                return;
-            }
-
-            relevantChats.forEach(msg => {
-                let isMe = msg.sender_id === currentUserSession.id;
-                let alignmentClass = isMe ? 'self-end bg-gradient-to-l from-cyan-600 to-cyan-700 text-white rounded-br-none' : 'self-start bg-neutral-900 border border-neutral-800 text-neutral-200 rounded-bl-none';
-                
-                box.innerHTML += `
-                    <div class="max-w-[75%] p-3 rounded-2xl space-y-1 ${alignmentClass}">
-                        <p class="font-medium font-sans leading-relaxed break-words select-text">${msg.message}</p>
-                        <span class="text-[8px] opacity-40 font-mono block text-left">${msg.time_label}</span>
-                    </div>
-                `;
-            });
-
-            // Scroll container viewport down right automatically to accommodate focus elements views indices rows maps pipelines
-            box.scrollTop = box.scrollHeight;
-        }
-
-        async function executeChatMessageTransmission(event) {
-            event.preventDefault();
-            let inputNode = document.getElementById('chat-input-message-text');
-            let msgText = inputNode.value.trim();
-            if (!msgText || !activeChatSessionTargetId) return;
-
-            let messageId = "msg_" + Date.now();
-            let payload = {
-                id: messageId,
-                sender_id: currentUserSession.id,
-                receiver_id: activeChatSessionTargetId,
-                message: msgText,
-                timestamp_ms: Date.now(),
-                time_label: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
-            };
-
-            await writeSystemDatabaseNodeData('chats', messageId, payload);
-            inputNode.value = '';
-            
-            // Re-fetch data frames atomic records lines immediately to maintain smooth interactions views mappings rules parameters
-            internalChatsMatrix = await fetchSystemDatabaseNodeData('chats');
-            streamAndSynchronizeChatMessageInterfaceContentPanel();
-        }
-
-        // --- 12. ADVANCED CENTRAL CONTROL TELEGRAM LONG-POLLING API INTERFACE BOT CORE ENGINE (AI ROUTINES) ---
-        async function dispatchSystemTelegramNotificationBroadcastMessage(text) {
-            if (!systemBrandingConfig.tgToken || !systemBrandingConfig.tgChatId) return;
-            try {
-                await fetch(`https://api.telegram.org/bot${systemBrandingConfig.tgToken}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: systemBrandingConfig.tgChatId,
-                        text: text,
-                        parse_mode: "Markdown"
-                    })
-                });
-            } catch (err) {
-                console.error("Telegram REST network messaging layer transmission fail standard exception occurred", err);
-            }
-        }
-
-        async function listenToTelegramBotCentralPollingUpdatesEngine() {
-            while (telegramLongPollingActiveLoop) {
-                if (!systemBrandingConfig.tgToken) {
-                    await new Promise(r => setTimeout(r, 8000));
-                    continue;
-                }
-                try {
-                    let res = await fetch(`https://api.telegram.org/bot${systemBrandingConfig.tgToken}/getUpdates?offset=${lastProcessedTelegramUpdateId + 1}&timeout=15`);
-                    let data = await res.json();
-                    
-                    if (data && data.ok && data.result.length > 0) {
-                        for (let update of data.result) {
-                            lastProcessedTelegramUpdateId = update.update_id;
-                            if (update.message && update.message.text) {
-                                await processIncomingTelegramCommandInterpreterPipeline(update.message);
-                            }
-                        }
-                    }
-                } catch (e) {
-                    console.error("Telegram polling gateway cycle failure exception loop context caught:", e);
-                }
-                await new Promise(r => setTimeout(r, 2500));
-            }
-        }
-
-        async function processIncomingTelegramCommandInterpreterPipeline(msg) {
-            let rawText = msg.text.trim();
-            let chatId = msg.chat.id.toString();
-            
-            // Authentication gateway binding parameters rules checking
-            if (rawText === "/start" || rawText === SYSTEM_MASTER_ADMIN_KEY) {
-                systemBrandingConfig.tgChatId = chatId;
-                await fetch(`${DATABASE_REST_ENDPOINT}configuration/telegram.json`, {
-                    method: 'PUT',
-                    body: JSON.stringify(systemBrandingConfig)
-                });
-                
-                let introWelcomeMsgMarkdown = `
-🔓 **تم تفعيل لوحة التشغيل وبوت الأوامر المركزي MOKO بنجاح!**
---------------------------------------------------
-أنت الآن متصل مباشرة بمركز القيادة البرمجي للنظام الموحد كمتحكم مطلق.
-
-⚙️ **أقوى الأوامر والعمليات الفورية المتاحة للتحكم والتعديل التلقائي:**
-• \`/shutdown_system\` ❌ قفل تام وتعطيل جميع حسابات المنصة فوراً.
-• \`تعديل_كلمة_سر [اسم_المستخدم] [الرمز_الجديد]\` 🔐 تغيير مفاتيح الوصول عن بعد.
-• \`تقرير\` 📊 جلب بيان كشف مالي وحركي شامل ولحظي للخزينة والديون.
-• \`اضف_مستخدم [الاسم] [اليوزر] [كلمة_السر] [الصلاحية]\` 👤 إضافة حساب فورياً لقاعدة البيانات.
-• \`حذف_طلب [معرف_الطلب]\` 📦 إلغاء ترحيل أي أمر تشغيل تلقائياً.
---------------------------------------------------
-💡 *النظام يمتلك محرك تفسير ذكي متكامل لمراقبة الحركات.*
-                `;
-                await dispatchSystemTelegramNotificationBroadcastMessage(introWelcomeMsgMarkdown);
-                return;
-            }
-
-            // Enforce restrictive authentication validation routines checks before parsing administrative keywords bounds arrays
-            if (chatId !== systemBrandingConfig.tgChatId) {
-                try {
-                    await fetch(`https://api.telegram.org/bot${systemBrandingConfig.tgToken}/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: chatId,
-                            text: "⛔ الوصول غير مصرح! البوت مشفر ومحمي بنظام حماية عسكري. يرجى إدخال مفتاح المالك الرئيسي لتخويل الوصول."
-                        })
-                    });
-                } catch (ex) {}
-                return;
-            }
-
-            // Command Interpreter Tokenizer Parser Engine (Executing AI Context Matching rules manually)
-            if (rawText === "/shutdown_system") {
-                Object.keys(usersMatrix).forEach(async (k) => {
-                    if (k !== 'admin_root' && usersMatrix[k].name !== 'محمد') {
-                        usersMatrix[k].status = "blocked";
-                        await writeSystemDatabaseNodeData('users', k, usersMatrix[k]);
-                    }
-                });
-                await dispatchSystemTelegramNotificationBroadcastMessage("🚨 **تأكيد أمني قاطع:** تم تنفيذ أمر التعطيل الشامل بنجاح، وطرد وتجميد جميع الحسابات المفتوحة للمنصة حالياً.");
-                return;
-            }
-            
-            if (rawText === "delete") {
-                systemBrandingConfig.tgChatId = "";
-                await fetch(`${DATABASE_REST_ENDPOINT}configuration/telegram.json`, { method: 'DELETE' });
-                await dispatchSystemTelegramNotificationBroadcastMessage("⚠️ تم مسح وفصل معرف المالك الحالي من نظام البوت بنجاح.");
-                return;
-            }
-
-            if (rawText === "تقرير") {
-                let allPayments = Object.values(paymentsMatrix);
-                let paidSum = allPayments.reduce((acc, curr) => acc + parseFloat(curr.paidAmount || 0), 0);
-                let debtSum = allPayments.reduce((acc, curr) => acc + parseFloat(curr.remainingDebt || 0), 0);
-                
-                let reportText = `
-📊 **التقرير المالي المركزي اللحظي المسترجع من المنصة:**
---------------------------------------------
-💵 السيولة الكاش بالخزينة: ${paidSum.toFixed(2)} $
-⚠️ الديون المستحقة بالخارج: ${debtSum.toFixed(2)} $
-📈 اجمالي قيمة دورة المبيعات: ${(paidSum + debtSum).toFixed(2)} $
-👥 عدد الحسابات المقيدة بالملفات: ${Object.keys(usersMatrix).length} حساب نشط.
-📦 اجمالي العقود وطلبات المبيعات: ${Object.keys(ordersMatrix).length} طلب تشغيل.
---------------------------------------------
-👤 مالك النظام المعتمد المباشر: محمد
-                `;
-                await dispatchSystemTelegramNotificationBroadcastMessage(reportText);
-                return;
-            }
-
-            if (rawText.startsWith("تعديل_كلمة_سر")) {
-                let segments = rawText.split(" ");
-                if (segments.length >= 3) {
-                    let targetUser = segments[1].trim();
-                    let newPass = segments[2].trim();
-                    
-                    let matchProfile = Object.values(usersMatrix).find(u => u.username === targetUser);
-                    if (matchProfile) {
-                        matchProfile.password = newPass;
-                        await writeSystemDatabaseNodeData('users', matchProfile.id, matchProfile);
-                        await dispatchSystemTelegramNotificationBroadcastMessage(`✅ **تم تعديل وتعديل مفاتيح الحساب عن بعد:**\nالحساب: ${matchProfile.name}\nكلمة السر الجديدة: \`${newPass}\``);
-                        dispatchSystemSecurityAuditLogMapping("system_node", `تعديل كلمة مرور الحساب @${targetUser} عن بعد عبر التليجرام`, "block");
-                    } else {
-                        await dispatchSystemTelegramNotificationBroadcastMessage("❌ لم يتم العثور على اسم مستخدم مطابق للبيانات المرسلة في ملفات النظام.");
-                    }
-                } else {
-                    await dispatchSystemTelegramNotificationBroadcastMessage("⚠️ صيغة الإدخال خاطئة! الصيغة المعتمدة: `تعديل_كلمة_سر اسم_المستخدم الرمز_الجديد`");
-                }
-                return;
-            }
-
-            if (rawText.startsWith("اضف_مستخدم")) {
-                let segments = rawText.split(" ");
-                if (segments.length >= 5) {
-                    let name = segments[1];
-                    let user = segments[2].toLowerCase();
-                    let pass = segments[3];
-                    let role = segments[4]; // client, employee, supervisor
-                    
-                    let newId = "user_" + Math.random().toString(36).substring(2, 11);
-                    let payload = {
-                        id: newId,
-                        name: name,
-                        username: user,
-                        email: `${user}@moko-system.com`,
-                        password: pass,
-                        role: role,
-                        status: "active",
-                        avatar: ""
-                    };
-                    await writeSystemDatabaseNodeData('users', newId, payload);
-                    await dispatchSystemTelegramNotificationBroadcastMessage(`✅ **تم إنشاء الحساب وإضافته فورياً لقاعدة البيانات:**\nالاسم: ${name}\nاليوزر: @${user}\nالصلاحية الممنوحة: [${role.toUpperCase()}]`);
-                    dispatchSystemSecurityAuditLogMapping("system_node", `إضافة الحساب @${user} عن بعد عبر أوامر التليجرام التلقائية`, "create");
-                } else {
-                    await dispatchSystemTelegramNotificationBroadcastMessage("⚠️ الصيغة خاطئة! الصيغة المعتمدة:\n\`اضف_مستخدم الاسم اليوزر كلمة_السر الصلاحية\`");
-                }
-                return;
-            }
-
-            if (rawText.startsWith("حذف_طلب")) {
-                let segments = rawText.split(" ");
-                if (segments.length >= 2) {
-                    let orderIdTarget = segments[1].trim();
-                    let matchedOrderObj = Object.values(ordersMatrix).find(o => o.id.startsWith(orderIdTarget) || o.id === orderIdTarget);
-                    
-                    if (matchedOrderObj) {
-                        await executeArchivalDataRelocationPipeline('orders', matchedOrderObj);
-                        await deleteSystemDatabaseNodeData('orders', matchedOrderObj.id);
-                        await dispatchSystemTelegramNotificationBroadcastMessage(`✅ تم بنجاح حذف أمر التشغيل للخدمة (${matchedOrderObj.productName}) ونقله للأرشيف الآمن.`);
-                    } else {
-                        await dispatchSystemTelegramNotificationBroadcastMessage("❌ لم نجد أي طلب تشغيل يطابق المعرف المكتوب بالمنصة.");
-                    }
-                }
-                return;
-            }
-
-            // Universal fallback verification affirmation reply feedback loops
-            await dispatchSystemTelegramNotificationBroadcastMessage("✔️ نظام MOKO متصل ومستقر لحظياً وجاهز لاستقبال الأوامر التالية المعتمدة.");
-        }
-
-        // --- 13. GLOBAL PRINTING ENGINE & CONVERTERS UTILITY INTERFACES LAYERS ---
-        function executePrintInvoiceSheetForm(orderId) {
-            let order = ordersMatrix[orderId];
-            if (!order) return;
-            
-            let client = usersMatrix[order.customer_id]?.name || "مستفيد كريم";
-            let printArea = document.getElementById('print-sheet-area');
-            
-            printArea.innerHTML = `
-                <div style="font-family:'Cairo',sans-serif; text-align:right; border:3px solid #111; padding:30px; border-radius:12px; direction:rtl;">
-                    <div style="text-align:center; margin-bottom:20px;">
-                        <h1 style="margin:0; font-size:24px; font-weight:bold;">${systemBrandingConfig.appName.toUpperCase()}</h1>
-                        <p style="margin:5px 0; font-size:12px; color:#555;">شيت أمر تشغيل الفاتورة الضريبية الموحدة</p>
-                    </div>
-                    <hr style="border:1px solid #111; margin:20px 0;">
-                    <table style="width:100%; font-size:14px; line-height:2;">
-                        <tr><td><strong>الرقم المرجعي الفريد للطلب:</strong></td><td style="font-family:mono;">#${order.id}</td></tr>
-                        <tr><td><strong>العميل المستهدف:</strong></td><td>${client}</td></tr>
-                        <tr><td><strong>المنتج / بيان الخدمة:</strong></td><td>${order.productName}</td></tr>
-                        <tr><td><strong>الكمية المدرجة:</strong></td><td>${order.quantity}</td></tr>
-                        <tr><td><strong>حالة الاعتماد التشغيلي الحالي:</strong></td><td>[ ${order.status} ]</td></tr>
-                        <tr><td><strong>تاريخ ووقت إصدار الشيت:</strong></td><td>${new Date().toLocaleString()}</td></tr>
-                    </table>
-                    <hr style="border:1px dashed #111; margin:20px 0;">
-                    <div style="text-align:left; font-size:18px; font-weight:bold; margin-top:20px;">
-                        <span>المبلغ الإجمالي المستحق: </span>
-                        <span style="border-bottom:2px solid #111; padding-bottom:2px;">${parseFloat(order.total_price).toFixed(2)} $</span>
-                    </div>
-                    <div style="margin-top:40px; text-align:center; font-size:10px; color:#666;">
-                        توقيع وتعميد مركز الإدارة الرئيسي للمنصة: ** محمد **
-                    </div>
-                </div>
-            `;
-            
-            window.print();
-        }
-
-        async function convertLocalFileUploadToBase64EngineDataPayload(file) {
-            return new Promise((resolve, reject) => {
-                let reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-                reader.readAsDataURL(file);
-            });
-        }
-
-        async function dispatchSystemSecurityAuditLogMapping(userId, actionText, typeKey) {
-            let logId = Date.now();
-            let payload = {
-                id: logId,
-                user_id: userId,
-                action: actionText,
-                type: typeKey,
-                created_at: new Date().toLocaleString(),
-                ip_address: "192.168.1.100 (Virtual Security Binding)"
-            };
-            await writeSystemDatabaseNodeData('logs', logId, payload);
-        }
-    </script>
+    }
+    window.toggleAdminPanel = function() {
+        document.getElementById('adminPanel').classList.toggle('hidden');
+    }
+</script>
 </body>
 </html>
