@@ -1,463 +1,109 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مصروفي - إدارة المصاريف المتقدمة</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#090d16">
-    <!-- مكتبة لـ Icons رايقة -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- مكتبة SheetJS لتصدير الـ Excel -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
-    
-    <style>
-        :root {
-            --bg-gradient: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #090d16 100%);
-            --glass-bg: rgba(15, 23, 42, 0.45);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --neon-blue: #38bdf8;
-            --neon-purple: #a855f7;
-            --neon-green: #22c55e;
-            --neon-red: #f43f5e;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOKO Expenses</title>
 
-        * {
-            box-sizing: border-box;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background: var(--bg-gradient);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px 15px;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 480px;
-        }
-
-        /* ستايل الكروت الزجاجية الباقية */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        }
-
-        h2, h3 {
-            margin-top: 0;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        /* ستايل حقول الإدخال */
-        .input-group {
-            position: relative;
-            margin-bottom: 16px;
-        }
-
-        input {
-            width: 100%;
-            padding: 16px 16px;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(255, 255, 255, 0.03);
-            color: #fff;
-            font-size: 16px;
-            outline: none;
-        }
-
-        input:focus {
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
-            background: rgba(255, 255, 255, 0.07);
-        }
-
-        /* الأزرار المودرن */
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border-radius: 14px;
-            border: none;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
-            color: #fff;
-            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(56, 189, 248, 0.4);
-        }
-
-        .btn-record {
-            background: rgba(244, 63, 94, 0.1);
-            border: 1px solid rgba(244, 63, 94, 0.2);
-            color: var(--neon-red);
-            margin-bottom: 12px;
-        }
-
-        .btn-record.recording {
-            background: var(--neon-red);
-            color: #fff;
-            animation: pulse 1.5s infinite;
-        }
-
-        .btn-excel {
-            background: linear-gradient(135deg, #22c55e, #15803d);
-            color: white;
-            margin-top: 15px;
-        }
-
-        /* شبكة الإحصائيات */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .stat-box {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 16px;
-            border-radius: 16px;
-            text-align: center;
-        }
-
-        .stat-box h4 {
-            margin: 0 0 8px 0;
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-
-        .stat-box p {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--neon-blue);
-        }
-
-        /* قائمة المصاريف الأخيرة */
-        .expense-item {
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 14px;
-            padding: 14px;
-            margin-bottom: 12px;
-            border-right: 4px solid var(--neon-purple);
-        }
-
-        .expense-item-header {
-            display: flex;
-            justify-content: space-between;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .expense-amount {
-            color: var(--neon-green);
-        }
-
-        .expense-details {
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-
-        /* بنر التثبيت التلقائي */
-        #installBanner {
-            background: linear-gradient(90deg, #1e293b, #0f172a);
-            border: 1px solid var(--glass-border);
-            padding: 16px;
-            border-radius: 16px;
-            display: none;
-            margin-bottom: 20px;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .hidden { display: none !important; }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.4); }
-            70% { box-shadow: 0 0 0 12px rgba(244, 63, 94, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
-        }
-    </style>
+<style>
+body{
+    font-family:Tahoma;
+    background:#f5f7fb;
+    margin:0;
+}
+header{
+    background:#0f172a;
+    color:white;
+    padding:15px;
+    text-align:center;
+}
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+}
+.card{
+    background:white;
+    padding:15px;
+    margin-bottom:15px;
+    border-radius:10px;
+}
+input,textarea{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+}
+button{
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:10px 20px;
+    cursor:pointer;
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+td,th{
+    border:1px solid #ddd;
+    padding:8px;
+}
+</style>
 </head>
 <body>
 
+<header>
+    <h2>نظام إدارة المصروفات MOKO</h2>
+</header>
+
 <div class="container">
-    <!-- إشعار التثبيت -->
-    <div id="installBanner" class="glass-card">
-        <span style="font-size: 14px;"><i class="fa-solid fa-mobile-screen-button" style="color: var(--neon-blue); margin-left: 8px;"></i> ثبّت مصروفي كتطبيق سريع</span>
-        <button onclick="installApp()" style="width: auto; padding: 8px 16px; background: var(--neon-blue); color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">تثبيت</button>
-    </div>
 
-    <!-- كارت تسجيل الدخول -->
-    <div id="loginSection" class="glass-card">
-        <h2 style="text-align: center; margin-bottom: 24px;"><i class="fa-solid fa-wallet" style="color: var(--neon-blue); margin-left: 10px;"></i>تطبيق مصروفي</h2>
-        <div class="input-group">
-            <input type="password" id="ownerCode" placeholder="أدخل رمز المالك (إذا كنت المالك)">
-        </div>
-        <button id="btnFbLogin" class="btn btn-primary">
-            <i class="fa-brands fa-facebook"></i> الدخول عبر فيسبوك
-        </button>
-    </div>
-
-    <!-- الواجهة الرئيسية -->
-    <div id="mainSection" class="hidden">
-        <div class="glass-card" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px;">
-            <span id="welcomeMsg" style="font-weight: 600;">أهلاً بك</span>
-            <button id="adminBtn" class="btn hidden" style="width: auto; padding: 8px 16px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff;" onclick="toggleAdminPanel()">
-                <i class="fa-solid fa-sliders"></i> اللوحة
-            </button>
-        </div>
-
-        <!-- لوحة التحكم للمالك -->
-        <div id="adminPanel" class="glass-card hidden">
-            <h3 style="color: var(--neon-purple);"><i class="fa-solid fa-chart-pie"></i> لوحة تحكم الإدارة</h3>
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <h4>التقرير الأسبوعي</h4>
-                    <p id="weekTotal">0 ج.م</p>
-                </div>
-                <div class="stat-box">
-                    <h4>التقرير الشهري</h4>
-                    <p id="monthTotal">0 ج.م</p>
-                </div>
-            </div>
-            <button onclick="exportToExcel()" class="btn btn-excel">
-                <i class="fa-solid fa-file-excel"></i> تصدير تقرير Excel 2016
-            </button>
-        </div>
-
-        <!-- فورم الإدخال -->
-        <div id="addExpenseSection" class="glass-card">
-            <h3><i class="fa-solid fa-plus-circle" style="color: var(--neon-blue);"></i> تسجيل عملية صرف</h3>
-            <div class="input-group">
-                <input type="number" id="amount" placeholder="المبلغ المالي (ج.م)">
-            </div>
-            <div class="input-group">
-                <input type="text" id="reason" placeholder="بيان سبب الصرف...">
-            </div>
-            
-            <button type="button" id="recordBtn" class="btn btn-record">
-                <i class="fa-solid fa-microphone"></i> تسجيل بيان صوتي (ريكورد)
-            </button>
-            <audio id="audioPreview" controls class="hidden" style="width:100%; margin-bottom:15px;"></audio>
-            
-            <button onclick="saveExpense()" class="btn btn-primary" style="background: linear-gradient(135deg, var(--neon-green), #059669); box-shadow: 0 4px 20px rgba(34, 197, 94, 0.2);">
-                <i class="fa-solid fa-check"></i> حفظ وإرسال العملية
-            </button>
-        </div>
-
-        <!-- أحدث العمليات -->
-        <div class="glass-card">
-            <h3 style="margin-bottom: 16px;"><i class="fa-solid fa-clock-rotate-left" style="color: var(--text-muted)"></i> أحدث العمليات المقيدة</h3>
-            <div id="expensesList"></div>
-        </div>
-    </div>
+<div class="card">
+    <button onclick="loginFacebook()">تسجيل الدخول بفيسبوك</button>
+    <h3 id="username">غير مسجل</h3>
 </div>
 
-<!-- منطق Firebase الفني كاملاً -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithPopup, FacebookAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getDatabase, ref, set, push, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+<div class="card">
+    <h3>إضافة مصروف</h3>
 
-    const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "book-d1f7a.firebaseapp.com",
-        databaseURL: "https://book-d1f7a.firebaseio.com",
-        projectId: "book-d1f7a",
-        storageBucket: "book-d1f7a.appspot.com",
-        messagingSenderId: "YOUR_SENDER_ID",
-        appId: "YOUR_APP_ID"
-    };
+    <input type="number" id="amount" placeholder="المبلغ">
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-    const provider = new FacebookAuthProvider();
+    <textarea id="reason" placeholder="سبب الصرف"></textarea>
 
-    let currentUser = null;
-    let mediaRecorder;
-    let audioChunks = [];
-    let base64Audio = "";
+    <button onclick="saveExpense()">حفظ</button>
+</div>
 
-    document.getElementById('btnFbLogin').addEventListener('click', () => {
-        const codeInput = document.getElementById('ownerCode').value;
-        signInWithPopup(auth, provider).then(async (result) => {
-            const user = result.user;
-            if(codeInput === "2009") {
-                await set(ref(db, 'system/owner'), { uid: user.uid, name: user.displayName });
-            }
-            checkUserStatus(user);
-        }).catch(err => alert("خطأ بالربط: " + err.message));
-    });
+<div class="card">
+    <h3>الإحصائيات</h3>
 
-    onAuthStateChanged(auth, (user) => {
-        if (user) checkUserStatus(user);
-    });
+    <p>اليوم: <span id="daily">0</span></p>
+    <p>الأسبوع: <span id="weekly">0</span></p>
+    <p>الشهر: <span id="monthly">0</span></p>
+</div>
 
-    async function checkUserStatus(user) {
-        currentUser = user;
-        document.getElementById('loginSection').classList.add('hidden');
-        document.getElementById('mainSection').classList.remove('hidden');
-        document.getElementById('welcomeMsg').innerHTML = `<i class="fa-solid fa-user-circle"></i> ${user.displayName}`;
+<div class="card">
+    <button onclick="exportExcel()">تصدير Excel</button>
+</div>
 
-        const snapshot = await get(ref(db, 'system/owner'));
-        if(snapshot.exists() && snapshot.val().uid === user.uid) {
-            document.getElementById('adminBtn').classList.remove('hidden');
-            document.getElementById('adminPanel').classList.remove('hidden');
-            loadStatsAndAdminData();
-        } else {
-            loadStatsAndAdminData(); // متاح العرض للشفافية
-        }
-    }
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>التاريخ</th>
+                <th>المستخدم</th>
+                <th>السبب</th>
+                <th>المبلغ</th>
+            </tr>
+        </thead>
+        <tbody id="expensesTable"></tbody>
+    </table>
+</div>
 
-    window.saveExpense = function() {
-        const amount = document.getElementById('amount').value;
-        const reason = document.getElementById('reason').value;
-        if(!amount) return alert("برجاء إدخال قيمة المبلغ المعاملة");
+</div>
 
-        const expenseData = {
-            uid: currentUser.uid,
-            userName: currentUser.displayName,
-            amount: parseFloat(amount),
-            reason: reason || "تم التقييد بدون بيان مكتوب",
-            audio: base64Audio,
-            date: new Date().toISOString(),
-            day: new Date().toLocaleDateString('ar-EG', {weekday: 'long'}),
-            timestamp: Date.now()
-        };
+<script type="module" src="app.js"></script>
 
-        push(ref(db, 'expenses'), expenseData).then(() => {
-            document.getElementById('amount').value = "";
-            document.getElementById('reason').value = "";
-            document.getElementById('audioPreview').classList.add('hidden');
-            base64Audio = "";
-        });
-    }
-
-    function loadStatsAndAdminData() {
-        onValue(ref(db, 'expenses'), (snapshot) => {
-            let totalWeek = 0, totalMonth = 0, listHtml = "";
-            const now = Date.now();
-            const dataForExcel = [];
-
-            snapshot.forEach((child) => {
-                const exp = child.val();
-                const diff = now - exp.timestamp;
-
-                if(diff <= 7 * 24 * 60 * 60 * 1000) totalWeek += exp.amount;
-                if(diff <= 30 * 24 * 60 * 60 * 1000) totalMonth += exp.amount;
-
-                dataForExcel.push({
-                    'اليوم': exp.day,
-                    'التاريخ': exp.date.split('T')[0],
-                    'المستخدم': exp.userName,
-                    'المبلغ': exp.amount,
-                    'السبب': exp.reason
-                });
-
-                listHtml += `
-                    <div class="expense-item">
-                        <div class="expense-item-header">
-                            <span>${exp.userName}</span>
-                            <span class="expense-amount">${exp.amount} ج.م</span>
-                        </div>
-                        <div class="expense-details">
-                            <i class="fa-solid fa-align-right" style="font-size:11px;"></i> ${exp.reason} <br>
-                            <small style="color:var(--text-muted); font-size:11px;">${exp.day} | ${exp.date.split('T')[0]}</small>
-                            ${exp.audio ? `<br><audio src="${exp.audio}" controls style="height:28px; margin-top:8px; width:100%;"></audio>` : ''}
-                        </div>
-                    </div>`;
-            });
-
-            document.getElementById('weekTotal').innerText = totalWeek + " ج.م";
-            document.getElementById('monthTotal').innerText = totalMonth + " ج.م";
-            document.getElementById('expensesList').innerHTML = listHtml;
-            window.allExpensesData = dataForExcel;
-        });
-    }
-
-    // ريكورد الـ Audio
-    const recordBtn = document.getElementById('recordBtn');
-    recordBtn.addEventListener('click', async () => {
-        if (mediaRecorder && mediaRecorder.state === "recording") {
-            mediaRecorder.stop();
-            recordBtn.innerHTML = '<i class="fa-solid fa-microphone"></i> تسجيل بيان صوتي (ريكورد)';
-            recordBtn.classList.remove('recording');
-        } else {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            audioChunks = [];
-            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-            mediaRecorder.onstop = () => {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
-                const reader = new FileReader();
-                reader.readAsDataURL(audioBlob);
-                reader.onloadend = () => {
-                    base64Audio = reader.result;
-                    const audioPreview = document.getElementById('audioPreview');
-                    audioPreview.src = base64Audio;
-                    audioPreview.classList.remove('hidden');
-                }
-            };
-            mediaRecorder.start();
-            recordBtn.innerHTML = '<i class="fa-solid fa-stop-circle"></i> جاري التسجيل... اضغط للحفظ';
-            recordBtn.classList.add('recording');
-        }
-    });
-
-    window.exportToExcel = function() {
-        if(!window.allExpensesData || window.allExpensesData.length === 0) return;
-        const worksheet = XLSX.utils.json_to_sheet(window.allExpensesData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "المصاريف");
-        XLSX.writeFile(workbook, `مصروفي_${new Date().toISOString().split('T')[0]}.xlsx`);
-    }
-</script>
-
-<script>
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        document.getElementById('installBanner').style.display = 'flex';
-    });
-    window.installApp = function() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then(() => { document.getElementById('installBanner').style.display = 'none'; });
-        }
-    }
-    window.toggleAdminPanel = function() {
-        document.getElementById('adminPanel').classList.toggle('hidden');
-    }
-</script>
 </body>
 </html>
