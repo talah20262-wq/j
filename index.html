@@ -3,107 +3,348 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MOKO Expenses</title>
+<title>MOKO | إدارة المصروفات</title>
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<link rel="manifest" href="manifest.json">
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
+
+:root{
+--primary:#0F172A;
+--secondary:#2563EB;
+--bg:#F8FAFC;
+--text:#111827;
+--success:#16A34A;
+--danger:#DC2626;
+--card:#ffffff;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Cairo',sans-serif;
+}
+
 body{
-    font-family:Tahoma;
-    background:#f5f7fb;
-    margin:0;
+background:var(--bg);
+color:var(--text);
 }
+
 header{
-    background:#0f172a;
-    color:white;
-    padding:15px;
-    text-align:center;
+background:var(--primary);
+color:white;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
 }
+
+.logo{
+font-size:22px;
+font-weight:bold;
+}
+
+.userBox{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.userBox img{
+width:40px;
+height:40px;
+border-radius:50%;
+}
+
 .container{
-    max-width:900px;
-    margin:auto;
-    padding:20px;
+padding:20px;
 }
+
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+margin-bottom:20px;
+}
+
 .card{
-    background:white;
-    padding:15px;
-    margin-bottom:15px;
-    border-radius:10px;
+background:white;
+padding:20px;
+border-radius:15px;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
-input,textarea{
-    width:100%;
-    padding:10px;
-    margin-top:5px;
+
+.card h3{
+font-size:15px;
+margin-bottom:10px;
 }
+
+.card span{
+font-size:25px;
+font-weight:bold;
+color:var(--secondary);
+}
+
+.formBox{
+background:white;
+padding:20px;
+border-radius:15px;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+margin-bottom:20px;
+}
+
+.formBox h2{
+margin-bottom:15px;
+}
+
+input,textarea,select{
+width:100%;
+padding:12px;
+border:1px solid #ddd;
+border-radius:10px;
+margin-top:8px;
+margin-bottom:15px;
+}
+
 button{
-    background:#2563eb;
-    color:white;
-    border:none;
-    padding:10px 20px;
-    cursor:pointer;
+border:none;
+padding:12px 20px;
+border-radius:10px;
+cursor:pointer;
 }
+
+.btn-primary{
+background:var(--secondary);
+color:white;
+}
+
+.btn-danger{
+background:var(--danger);
+color:white;
+}
+
+.btn-success{
+background:var(--success);
+color:white;
+}
+
+.tableBox{
+background:white;
+padding:20px;
+border-radius:15px;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+overflow:auto;
+}
+
 table{
-    width:100%;
-    border-collapse:collapse;
+width:100%;
+border-collapse:collapse;
 }
-td,th{
-    border:1px solid #ddd;
-    padding:8px;
+
+table th,
+table td{
+padding:12px;
+border-bottom:1px solid #eee;
+text-align:center;
 }
+
+.ownerPanel{
+display:none;
+margin-top:20px;
+}
+
+.ownerPanel.active{
+display:block;
+}
+
+#loginScreen{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.loginCard{
+background:white;
+padding:40px;
+border-radius:20px;
+width:350px;
+text-align:center;
+box-shadow:0 5px 20px rgba(0,0,0,.1);
+}
+
+.loginBtn{
+width:100%;
+background:#1877F2;
+color:white;
+margin-top:20px;
+}
+
+.hidden{
+display:none;
+}
+
 </style>
 </head>
 <body>
 
+<div id="loginScreen">
+
+<div class="loginCard">
+
+<h1>MOKO</h1>
+
+<p>نظام إدارة المصروفات</p>
+
+<button id="facebookLogin" class="loginBtn">
+تسجيل الدخول بواسطة Facebook
+</button>
+
+</div>
+
+</div>
+
+<div id="app" class="hidden">
+
 <header>
-    <h2>نظام إدارة المصروفات MOKO</h2>
+
+<div class="logo">
+MOKO
+</div>
+
+<div class="userBox">
+
+<img id="userPhoto">
+
+<div>
+<div id="userName"></div>
+<div id="userRole"></div>
+</div>
+
+</div>
+
 </header>
 
 <div class="container">
 
-<div class="card">
-    <button onclick="loginFacebook()">تسجيل الدخول بفيسبوك</button>
-    <h3 id="username">غير مسجل</h3>
-</div>
+<div class="cards">
 
 <div class="card">
-    <h3>إضافة مصروف</h3>
-
-    <input type="number" id="amount" placeholder="المبلغ">
-
-    <textarea id="reason" placeholder="سبب الصرف"></textarea>
-
-    <button onclick="saveExpense()">حفظ</button>
+<h3>مصروفات اليوم</h3>
+<span id="todayTotal">0</span>
 </div>
 
 <div class="card">
-    <h3>الإحصائيات</h3>
-
-    <p>اليوم: <span id="daily">0</span></p>
-    <p>الأسبوع: <span id="weekly">0</span></p>
-    <p>الشهر: <span id="monthly">0</span></p>
+<h3>مصروفات الأسبوع</h3>
+<span id="weekTotal">0</span>
 </div>
 
 <div class="card">
-    <button onclick="exportExcel()">تصدير Excel</button>
+<h3>مصروفات الشهر</h3>
+<span id="monthTotal">0</span>
 </div>
 
 <div class="card">
-    <table>
-        <thead>
-            <tr>
-                <th>التاريخ</th>
-                <th>المستخدم</th>
-                <th>السبب</th>
-                <th>المبلغ</th>
-            </tr>
-        </thead>
-        <tbody id="expensesTable"></tbody>
-    </table>
+<h3>مصروفات السنة</h3>
+<span id="yearTotal">0</span>
 </div>
 
 </div>
 
-<script type="module" src="app.js"></script>
+<div class="formBox">
+
+<h2>إضافة مصروف</h2>
+
+<input type="number" id="amount" placeholder="المبلغ">
+
+<textarea id="reason" placeholder="سبب الصرف"></textarea>
+
+<input type="file" id="receipt">
+
+<button id="saveExpense" class="btn-primary">
+حفظ المصروف
+</button>
+
+</div>
+
+<div class="tableBox">
+
+<h2>سجل المصروفات</h2>
+
+<br>
+
+<input id="searchInput" placeholder="بحث">
+
+<table>
+
+<thead>
+
+<tr>
+<th>التاريخ</th>
+<th>المستخدم</th>
+<th>السبب</th>
+<th>المبلغ</th>
+<th>الإجراءات</th>
+</tr>
+
+</thead>
+
+<tbody id="expensesTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+<div id="ownerPanel" class="ownerPanel">
+
+<div class="tableBox">
+
+<h2>لوحة المالك</h2>
+
+<br>
+
+<button id="exportExcel" class="btn-success">
+تصدير Excel
+</button>
+
+<button id="exportPdf" class="btn-primary">
+طباعة PDF
+</button>
+
+<button id="manageUsers" class="btn-success">
+إدارة المستخدمين
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="firebase.js"></script>
+<script src="auth.js"></script>
+<script src="expenses.js"></script>
+<script src="charts.js"></script>
+<script src="export.js"></script>
 
 </body>
 </html>
